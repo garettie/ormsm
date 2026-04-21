@@ -91,28 +91,12 @@ Output is generated in the `dist/` directory.
 npm run lint
 ```
 
-## Architecture
+## Documentation
 
-The application uses code-splitting to keep the two modules independent. Each module is lazy-loaded:
+Detailed documentation is available in the `docs/` folder:
 
-```
-src/
-├── App.tsx                    # Root — module router
-├── components/               # Shared UI components (AppShell, Badge, ErrorBoundary)
-├── modules/
-│   ├── calltree/             # Call Tree dashboard
-│   │   ├── CallTreeDashboard.tsx
-│   │   ├── components/       # Dashboard-specific components
-│   │   ├── hooks/            # Custom hooks (useDashboardData, useIncidentStatus)
-│   │   └── lib/              # Supabase client, type definitions
-│   └── rcsa/                 # RCSA dashboard (plain JS)
-│       ├── RCSADashboard.jsx
-│       ├── components/       # KPI cards, risk register, charts
-│       ├── hooks/
-│       └── utils/
-└── lib/
-    └── supabase.ts           # Supabase client singleton
-```
+- [ORMSM User Guide](docs/ORMSM-USER-GUIDE.md) — For employees using the Call Tree or RCSA modules. Covers all features, workflows, and compliance context in plain language.
+- [ORMSM Technical Documentation](docs/ORMSM-TECHNICAL.md) — For developers and IT staff. Covers architecture, database schema, environment configuration, and deployment.
 
 ## License
 
