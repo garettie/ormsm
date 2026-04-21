@@ -1,3 +1,6 @@
+// Backwards compatibility for CallTree module
+// Use src/lib/constants.ts for other modules
+
 export const COLORS = {
   Safe: "#34a853",
   SafeBg: "#e6f4ea",
@@ -11,7 +14,7 @@ export const COLORS = {
   Primary: "#1e8e3e",
   Light: "#e6f4ea",
   Pending: "#e8eaed",
-};
+} as const;
 
 export const STATUS_ORDER = [
   "Safe",
@@ -19,4 +22,4 @@ export const STATUS_ORDER = [
   "Moderate",
   "Severe",
   "No Response",
-];
+] as const;

@@ -1,8 +1,18 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import AppShell from "./components/AppShell";
-import CallTreeDashboard from "./modules/calltree/CallTreeDashboard";
-// @ts-expect-error — JSX module, TS conversion deferred to Phase 4
-import RCSADashboard from "./modules/rcsa/RCSADashboard";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+
+const CallTreeDashboard = lazy(() =>
+  import("./modules/calltree/CallTreeDashboard").then((m) => ({
+    default: m.default,
+  })),
+);
+
+const RCSADashboard = lazy(() =>
+  import("./modules/rcsa/RCSADashboard").then((m) => ({
+    default: m.default,
+  })),
+);
 
 type Module = "calltree" | "rcsa";
 
@@ -13,21 +23,25 @@ function App() {
   const [demoMode, setDemoMode] = useState(false);
 
   return (
-    <AppShell 
-      activeModule={activeModule} 
-      onModuleChange={setActiveModule}
-      demoMode={demoMode}
-      onDemoModeChange={setDemoMode}
-    >
-      {!isRcsaMode && (
-        <div style={{ display: activeModule === "calltree" ? "block" : "none" }}>
-          <CallTreeDashboard />
-        </div>
-      )}
-      <div style={{ display: activeModule === "rcsa" ? "block" : "none" }}>
-        <RCSADashboard demoMode={demoMode} />
-      </div>
-    </AppShell>
+    <ErrorBoundary>
+      <AppShell
+        activeModule={activeModule}
+        onModuleChange={setActiveModule}
+        demoMode={demoMode}
+        onDemoModeChange={setDemoMode}
+      >
+        <Suspense fallback={null}>
+          {!isRcsaMode && (
+            <div style={{ display: activeModule === "calltree" ? "block" : "none" }}>
+              <CallTreeDashboard />
+            </div>
+          )}
+          <div style={{ display: activeModule === "rcsa" ? "block" : "none" }}>
+            <RCSADashboard demoMode={demoMode} />
+          </div>
+        </Suspense>
+      </AppShell>
+    </ErrorBoundary>
   );
 }
 

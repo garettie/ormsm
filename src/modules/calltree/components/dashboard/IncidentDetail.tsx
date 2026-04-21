@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   Play,
   Loader,
+  RefreshCw,
 } from "lucide-react";
 import { StartIncidentForm } from "./StartIncidentForm";
 import { useDashboardData } from "../../hooks/useDashboardData";
@@ -17,17 +18,21 @@ import {
   formatTimeShort,
 } from "../../../../lib/utils";
 import type { Incident } from "../../types";
+import { DataUploadButton, DataUploadModal } from "./DataUpload";
 
 export default function IncidentDetail({
   incident,
   onBack,
   onStartNew,
+  rightSlot,
 }: {
   incident: Incident;
   onBack: () => void;
   onStartNew?: (name: string, type: "test" | "actual") => void;
+  rightSlot?: React.ReactNode;
 }) {
   const [showStartForm, setShowStartForm] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
   const { data, loading, error, refresh } = useDashboardData(
     incident.start_time,
     incident.end_time ?? undefined,
@@ -103,14 +108,38 @@ export default function IncidentDetail({
           </div>
         </div>
 
-        {!showStartForm && onStartNew && (
-          <button
-            onClick={() => setShowStartForm(true)}
-            className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg font-medium shadow hover:bg-slate-800 transition-all text-sm shrink-0"
-          >
-            <Play className="w-4 h-4 fill-current" />
-            Start New Event
-          </button>
+        {!showStartForm && (
+          <div className="flex items-center gap-3">
+            {rightSlot}
+            <DataUploadButton onUpload={() => setShowUpload(true)} />
+            {onStartNew && (
+              <button
+                onClick={() => setShowStartForm(true)}
+                className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg font-medium shadow hover:bg-slate-800 transition-all text-sm shrink-0"
+              >
+                <Play className="w-4 h-4 fill-current" />
+                Start New Event
+              </button>
+            )}
+            <div className="hidden md:flex flex-col items-end mr-0">
+              <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Last Updated</span>
+              <span className="text-sm font-mono font-medium text-gray-700 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-100">
+                {data.lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
+            </div>
+            <button
+              onClick={() => refresh()}
+              disabled={loading}
+              className={`p-2.5 rounded-xl transition-transform duration-300 active:scale-95 ${
+                loading 
+                  ? "bg-gray-100 text-gray-400" 
+                  : "bg-white text-gray-600 hover:text-accent-primary hover:bg-accent-light border border-gray-200 hover:border-accent-primary/30 shadow-sm hover:shadow-md"
+              }`}
+              title="Refresh Data"
+            >
+              <RefreshCw className={`w-5 h-5 ${loading && "animate-spin"}`} />
+            </button>
+          </div>
         )}
       </div>
 
@@ -139,6 +168,7 @@ export default function IncidentDetail({
           onRefresh={() => refresh({ background: true })}
         />
       )}
+      {showUpload && <DataUploadModal onClose={() => setShowUpload(false)} onSuccess={() => refresh()} />}
     </div>
   );
 }

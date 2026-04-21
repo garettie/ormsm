@@ -1,9 +1,7 @@
-import { useState, useMemo, useEffect, Fragment } from 'react'
-import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, X, Maximize2, Search } from 'lucide-react'
+import { useState, useMemo, Fragment } from 'react'
+import { ArrowUpDown, ChevronDown, ChevronUp, Filter, X, Maximize2, Search, Download } from 'lucide-react'
 import { shortDept, getRiskLevel, getControlsLabel, RISK_LEVELS, RISK_BG, RISK_TEXT, CONTROLS_LABEL_COLORS } from '../utils/riskLevels'
 import RiskBadge from './RiskBadge'
-
-const PAGE_SIZE = 10
 
 const CONTROLS_LABELS = ['Strong', 'Satisfactory', 'Needs Improvement', 'Unsatisfactory']
 
@@ -32,31 +30,33 @@ function FilterInput({ value, onChange, placeholder }) {
   )
 }
 
-export default function RiskRegister({ risks, title = "Risk Register", onOpenModal, onClose, pageSize }) {
-  const PAGE = pageSize || PAGE_SIZE
-  const [page, setPage] = useState(0)
+export default function RiskRegister({ risks, title = "Risk Register", onOpenModal, onClose, isModal }) {
   const [expandedRow, setExpandedRow] = useState(null)
   const [showFilters, setShowFilters] = useState(false)
   const [colFilters, setColFilters] = useState({})
   const [searchTerm, setSearchTerm] = useState('')
+  const [sortConfig, setSortConfig] = useState({ key: 'department', direction: 'asc' })
 
   const setFilter = (key, val) => {
     setColFilters(prev => ({ ...prev, [key]: val }))
-    setPage(0)
   }
 
   const clearAllFilters = () => {
     setColFilters({})
     setSearchTerm('')
-    setPage(0)
+  }
+
+  const handleSort = (key) => {
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+    }))
   }
 
   const hasActiveFilters = Object.values(colFilters).some(v => v) || searchTerm
 
-  useEffect(() => { setPage(0) }, [risks])
-
   const filteredRisks = useMemo(() => {
-    return risks.filter(r => {
+    let result = risks.filter(r => {
       if (searchTerm) {
         const q = searchTerm.toLowerCase()
         const searchable = [r.department, r.process_name, r.risk_description, r.possible_causes, r.root_cause, r.event_type].filter(Boolean).join(' ').toLowerCase()
@@ -76,25 +76,38 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
       if (colFilters.status && r.status !== colFilters.status) return false
       return true
     })
-  }, [risks, colFilters, searchTerm])
+
+    // Sort
+    const { key, direction } = sortConfig
+    result = [...result].sort((a, b) => {
+      let aVal, bVal
+      switch (key) {
+        case 'department': aVal = a.department; bVal = b.department; break
+        case 'process': aVal = a.process_name; bVal = b.process_name; break
+        case 'description': aVal = a.risk_description; bVal = b.risk_description; break
+        case 'rootCause': aVal = a.root_cause; bVal = b.root_cause; break
+        case 'eventType': aVal = a.event_type; bVal = b.event_type; break
+        case 'inherent': aVal = a.inherent_risk_score; bVal = b.inherent_risk_score; break
+        case 'controls': aVal = a.controls_rating; bVal = b.controls_rating; break
+        case 'residual': aVal = a.residual_risk_score; bVal = b.residual_risk_score; break
+        case 'status': aVal = a.status; bVal = b.status; break
+        default: return 0
+      }
+      if (aVal == null) return 1
+      if (bVal == null) return -1
+      const cmp = String(aVal).localeCompare(String(bVal))
+      return direction === 'asc' ? cmp : -cmp
+    })
+
+    return result
+  }, [risks, colFilters, searchTerm, sortConfig])
 
   const deptOptions = useMemo(() => [...new Set(risks.map(r => r.department))].sort(), [risks])
   const processOptions = useMemo(() => [...new Set(risks.map(r => r.process_name).filter(Boolean))].sort(), [risks])
   const eventTypeOptions = useMemo(() => [...new Set(risks.map(r => r.event_type).filter(Boolean))].sort(), [risks])
   const treatmentOptions = useMemo(() => [...new Set(risks.map(r => r.risk_treatment).filter(Boolean))].sort(), [risks])
 
-  const totalPages = Math.max(1, Math.ceil(filteredRisks.length / PAGE))
-  const safePage = Math.min(page, totalPages - 1)
-  const start = safePage * PAGE
-  const end = Math.min(start + PAGE, filteredRisks.length)
-  const pageRisks = filteredRisks.slice(start, end)
 
-  const maxBtns = 5
-  let ps = Math.max(0, safePage - Math.floor(maxBtns / 2))
-  let pe = Math.min(totalPages, ps + maxBtns)
-  if (pe - ps < maxBtns) ps = Math.max(0, pe - maxBtns)
-  const pageButtons = []
-  for (let i = ps; i < pe; i++) pageButtons.push(i)
 
   const columns = [
     { key: 'department', label: 'Department' },
@@ -145,12 +158,17 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
               </button>
             )}
             <button
+              onClick={() => downloadCSV(filteredRisks)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-accent-primary text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" /> Download CSV
+            </button>
+            <button
               onClick={() => setShowFilters(f => !f)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                showFilters
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${showFilters
                   ? 'bg-accent-light text-accent-primary border border-accent-hover'
                   : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300'
-              }`}
+                }`}
             >
               <Filter className="w-3.5 h-3.5" /> Filters
             </button>
@@ -189,13 +207,32 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
       </div>
 
       {/* Table */}
-      <div className="overflow-auto flex-1 min-h-0">
+      <div className="overflow-x-auto overflow-y-auto max-h-[500px]">
         <table className="w-full text-left text-sm whitespace-nowrap min-w-[900px]">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100 text-xs text-gray-500 uppercase tracking-wider">
-              {columns.map(col => (
-                <th key={col.key} className="px-4 py-3 font-medium">{col.label}</th>
-              ))}
+              {columns.map(col => {
+                const isSortable = col.key !== 'expand'
+                const icon = !isSortable ? null : sortConfig.key !== col.key ? (
+                  <ArrowUpDown className="w-4 h-4 text-gray-300" />
+                ) : sortConfig.direction === 'asc' ? (
+                  <ChevronUp className="w-4 h-4 text-accent-primary" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-accent-primary" />
+                )
+                return (
+                  <th
+                    key={col.key}
+                    className={`px-4 py-3 font-medium ${isSortable ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''}`}
+                    onClick={() => isSortable && handleSort(col.key)}
+                  >
+                    <div className="flex items-center gap-2">
+                      {col.label}
+                      {icon}
+                    </div>
+                  </th>
+                )
+              })}
             </tr>
             {showFilters && (
               <tr className="border-b border-gray-100 bg-gray-50/80">
@@ -208,18 +245,18 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
             )}
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {pageRisks.length === 0 && (
+            {filteredRisks.length === 0 && (
               <tr>
                 <td colSpan={columns.length} className="p-8 text-center text-gray-500 text-sm">
                   No risks match the current filters
                 </td>
               </tr>
             )}
-            {pageRisks.map((r, idx) => {
+            {filteredRisks.map((r, idx) => {
               const isExpanded = expandedRow === r.id
               return (
                 <Fragment key={r.id}>
-                  <tr 
+                  <tr
                     onClick={() => setExpandedRow(isExpanded ? null : r.id)}
                     className="hover:bg-gray-50/50 transition-colors cursor-pointer"
                   >
@@ -241,13 +278,12 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                     </td>
                     <td className="px-4 py-3"><RiskBadge score={r.residual_risk_score} /></td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                        r.status === 'Closed'
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${r.status === 'Closed'
                           ? 'bg-green-50 text-green-700 border-green-200'
                           : r.status === 'In Progress'
-                          ? 'bg-blue-50 text-blue-700 border-blue-200'
-                          : 'bg-amber-50 text-amber-700 border-amber-200'
-                      }`}>{r.status}</span>
+                            ? 'bg-blue-50 text-blue-700 border-blue-200'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                        }`}>{r.status}</span>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <div className="inline-flex items-center justify-center w-6 h-6 rounded border border-gray-200 text-gray-400">
@@ -299,43 +335,42 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
         </table>
       </div>
 
-      {/* Pagination */}
+      {/* Table footer with count and download */}
       {filteredRisks.length > 0 && (
-        <div className="px-6 py-3 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500 bg-gray-50/30">
-          <span>{start + 1}–{end} of {filteredRisks.length} risks</span>
-          <div className="flex items-center gap-1">
-            <button
-              disabled={safePage === 0}
-              onClick={() => setPage(p => p - 1)}
-              className={`flex items-center px-2 py-1 rounded-lg border transition-colors ${
-                safePage === 0
-                  ? 'border-gray-100 text-gray-300 cursor-default'
-                  : 'border-gray-200 text-gray-500 hover:bg-gray-50 cursor-pointer'
-              }`}
-            ><ChevronLeft className="w-4 h-4" /></button>
-            {pageButtons.map(p => (
-              <button
-                key={p}
-                onClick={() => setPage(p)}
-                className={`px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${
-                  p === safePage
-                    ? 'bg-accent-primary text-white border-accent-primary'
-                    : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-                }`}
-              >{p + 1}</button>
-            ))}
-            <button
-              disabled={safePage >= totalPages - 1}
-              onClick={() => setPage(p => p + 1)}
-              className={`flex items-center px-2 py-1 rounded-lg border transition-colors ${
-                safePage >= totalPages - 1
-                  ? 'border-gray-100 text-gray-300 cursor-default'
-                  : 'border-gray-200 text-gray-500 hover:bg-gray-50 cursor-pointer'
-              }`}
-            ><ChevronRight className="w-4 h-4" /></button>
-          </div>
+        <div className="px-6 py-3 border-t border-gray-100 text-sm text-gray-500 bg-gray-50/30">
+          {filteredRisks.length} risks
         </div>
       )}
     </div>
   )
+}
+
+function downloadCSV(data) {
+  if (!data.length) return
+  const headers = ['Department', 'Process', 'Risk Description', 'Possible Causes', 'Root Cause', 'Event Type', 'Control Type', 'Control Description', 'Inherent Risk', 'Controls Rating', 'Residual Risk', 'Risk Treatment', 'Status', 'Action Plan', 'Deadline']
+  const rows = data.map(r => [
+    r.department,
+    r.process_name,
+    r.risk_description,
+    r.possible_causes,
+    r.root_cause,
+    r.event_type,
+    r.control_type,
+    r.control_description,
+    r.inherent_risk_score,
+    r.controls_rating,
+    r.residual_risk_score,
+    r.risk_treatment,
+    r.status,
+    r.action_plan,
+    r.action_plan_deadline
+  ].map(v => `"${(v || '').toString().replace(/"/g, '""')}"`).join(','))
+  const csv = [headers.join(','), ...rows].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `risk-register-${new Date().toISOString().split('T')[0]}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
 }

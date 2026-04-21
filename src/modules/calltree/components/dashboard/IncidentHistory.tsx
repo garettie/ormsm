@@ -20,6 +20,7 @@ import {
 import type { Incident } from "../../types";
 import IncidentDetail from "./IncidentDetail";
 import RegisterIncidentForm from "./RegisterIncidentForm";
+import { DataUploadButton, DataUploadModal } from "./DataUpload";
 
 export default function IncidentHistory({
   defaultIncident,
@@ -37,9 +38,32 @@ export default function IncidentHistory({
   );
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [editingIncident, setEditingIncident] = useState<Incident | null>(null);
+  const [showUpload, setShowUpload] = useState(false);
 
-  const fetchIncidents = async () => {
-    setLoading(true);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("incidents")
+        .select("*")
+        .not("end_time", "is", null)
+        .order("start_time", { ascending: false });
+
+      if (!cancelled) {
+        if (error) {
+          console.error("Error fetching incidents:", error);
+        } else {
+          setIncidents(data || []);
+        }
+        setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const doFetchIncidents = async () => {
     const { data, error } = await supabase
       .from("incidents")
       .select("*")
@@ -51,12 +75,7 @@ export default function IncidentHistory({
     } else {
       setIncidents(data || []);
     }
-    setLoading(false);
   };
-
-  useEffect(() => {
-    fetchIncidents();
-  }, []);
 
   const handleEdit = (incident: Incident) => {
     setEditingIncident(incident);
@@ -66,7 +85,7 @@ export default function IncidentHistory({
   const handleFormSaved = async () => {
     setShowRegisterForm(false);
     setEditingIncident(null);
-    await fetchIncidents();
+    await doFetchIncidents();
   };
 
   const handleFormCancel = () => {
@@ -92,7 +111,7 @@ export default function IncidentHistory({
       console.error("Error deleting incident:", error);
       alert("Failed to delete incident");
     } else {
-      await fetchIncidents();
+      await doFetchIncidents();
     }
   };
 
@@ -102,6 +121,7 @@ export default function IncidentHistory({
         incident={selectedIncident}
         onBack={() => setSelectedIncident(null)}
         onStartNew={onStartNew}
+        rightSlot={rightSlot}
       />
     );
   }
@@ -120,6 +140,7 @@ export default function IncidentHistory({
         {!showRegisterForm && (
           <div className="flex items-center gap-3">
             {rightSlot}
+            <DataUploadButton onUpload={() => setShowUpload(true)} />
             <button
               onClick={() => setShowRegisterForm(true)}
               className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2.5 rounded-lg font-medium shadow hover:bg-slate-800 transition-all text-sm"
@@ -251,6 +272,7 @@ export default function IncidentHistory({
           })}
         </div>
       )}
+      {showUpload && <DataUploadModal onClose={() => setShowUpload(false)} />}
     </div>
   );
 }

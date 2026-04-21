@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Filters } from "./Filters";
 import { KPICard } from "./KPICard";
 import { StatusDonut } from "./charts/StatusDonut";
@@ -9,6 +9,13 @@ import { ResponsesTable } from "./tables/ResponsesTable";
 import { UnknownTable, PendingTable } from "./tables/AuxiliaryTables";
 import { COLORS } from "../../lib/constants";
 import type { DashboardData } from "../../types";
+import {
+  Users,
+  CheckCircle,
+  ShieldCheck,
+  AlertCircle,
+  Clock,
+} from "lucide-react";
 
 interface DashboardContentProps {
   data: DashboardData;
@@ -47,7 +54,7 @@ export function DashboardContent({
     };
   });
 
-  const [filtersInitialized, setFiltersInitialized] = useState(() => {
+  const [filtersInitialized] = useState(() => {
     if (storageKey) {
       try {
         const saved = localStorage.getItem(storageKey);
@@ -60,6 +67,31 @@ export function DashboardContent({
     }
     return false;
   });
+
+  const defaultFilters = useMemo((): FilterState => {
+    if (data.contacts.length > 0) {
+      const activeDepts = new Set<string>();
+      data.contacts.forEach((c) => {
+        if (c.status !== "No Response" && c.department) {
+          activeDepts.add(c.department);
+        }
+      });
+      return {
+        departments: Array.from(activeDepts),
+        locations: [],
+        levels: [],
+        statuses: [],
+      };
+    }
+    return {
+      departments: [],
+      locations: [],
+      levels: [],
+      statuses: [],
+    };
+  }, [data.contacts]);
+
+  const effectiveFilters = filtersInitialized ? filters : defaultFilters;
 
   const handleFilterChange = useCallback(
     (type: keyof typeof filters, value: string[]) => {
@@ -74,57 +106,28 @@ export function DashboardContent({
     [storageKey],
   );
 
-  useEffect(() => {
-    if (data.contacts.length > 0 && !filtersInitialized) {
-      const activeDepts = new Set<string>();
-      data.contacts.forEach((c) => {
-        if (c.status !== "No Response" && c.department) {
-          activeDepts.add(c.department);
-        }
-      });
-
-      if (activeDepts.size > 0) {
-        const nextFilters = {
-          departments: Array.from(activeDepts),
-          locations: [] as string[],
-          levels: [] as string[],
-          statuses: [] as string[],
-        };
-        setFilters((prev) => ({
-          ...prev,
-          departments: Array.from(activeDepts),
-        }));
-
-        if (storageKey) {
-          localStorage.setItem(storageKey, JSON.stringify(nextFilters));
-        }
-      }
-      setFiltersInitialized(true);
-    }
-  }, [data.contacts, filtersInitialized, storageKey]);
-
   const filteredData = useMemo(() => {
     return data.contacts.filter((c) => {
       if (
-        filters.departments.length > 0 &&
-        !filters.departments.includes(c.department)
+        effectiveFilters.departments.length > 0 &&
+        !effectiveFilters.departments.includes(c.department)
       )
         return false;
       if (
-        filters.locations.length > 0 &&
-        !filters.locations.includes(c.location)
+        effectiveFilters.locations.length > 0 &&
+        !effectiveFilters.locations.includes(c.location)
       )
         return false;
       if (
-        filters.levels.length > 0 &&
-        !filters.levels.includes(c.level || c.position)
+        effectiveFilters.levels.length > 0 &&
+        !effectiveFilters.levels.includes(c.level || c.position)
       )
         return false;
-      if (filters.statuses.length > 0 && !filters.statuses.includes(c.status))
+      if (effectiveFilters.statuses.length > 0 && !effectiveFilters.statuses.includes(c.status))
         return false;
       return true;
     });
-  }, [data.contacts, filters]);
+  }, [data.contacts, effectiveFilters]);
 
   const stats = useMemo(() => {
     const total = filteredData.length;
@@ -166,16 +169,16 @@ export function DashboardContent({
         const affectedStatuses = ["Slight", "Moderate", "Severe"];
 
         const isRespondedActive =
-          filters.statuses.length === respondedStatuses.length &&
-          respondedStatuses.every((s) => filters.statuses.includes(s));
+          effectiveFilters.statuses.length === respondedStatuses.length &&
+          respondedStatuses.every((s) => effectiveFilters.statuses.includes(s));
         const isSafeActive =
-          filters.statuses.length === 1 && filters.statuses.includes("Safe");
+          effectiveFilters.statuses.length === 1 && effectiveFilters.statuses.includes("Safe");
         const isAffectedActive =
-          filters.statuses.length === affectedStatuses.length &&
-          affectedStatuses.every((s) => filters.statuses.includes(s));
+          effectiveFilters.statuses.length === affectedStatuses.length &&
+          affectedStatuses.every((s) => effectiveFilters.statuses.includes(s));
         const isPendingActive =
-          filters.statuses.length === 1 &&
-          filters.statuses.includes("No Response");
+          effectiveFilters.statuses.length === 1 &&
+          effectiveFilters.statuses.includes("No Response");
 
         return (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
@@ -185,7 +188,8 @@ export function DashboardContent({
               subtext={`${data.contacts.length} in DB`}
               color={COLORS["No Response"]}
               onClick={() => handleFilterChange("statuses", [])}
-              isActive={filters.statuses.length === 0}
+              isActive={effectiveFilters.statuses.length === 0}
+              icon={Users}
             />
             <KPICard
               label="Responded"
@@ -203,6 +207,7 @@ export function DashboardContent({
                 )
               }
               isActive={isRespondedActive}
+              icon={CheckCircle}
             />
             <KPICard
               label="Safe"
@@ -217,6 +222,7 @@ export function DashboardContent({
                 handleFilterChange("statuses", isSafeActive ? [] : ["Safe"])
               }
               isActive={isSafeActive}
+              icon={ShieldCheck}
             />
             <KPICard
               label="Affected"
@@ -234,6 +240,7 @@ export function DashboardContent({
                 )
               }
               isActive={isAffectedActive}
+              icon={AlertCircle}
             />
             <KPICard
               label="Pending"
@@ -251,6 +258,7 @@ export function DashboardContent({
                 )
               }
               isActive={isPendingActive}
+              icon={Clock}
             />
           </div>
         );

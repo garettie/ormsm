@@ -26,6 +26,10 @@
     --foreground: 222.2 84% 4.9%;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply text-gray-900 bg-gray-50;
     font-family: 'Inter', 'DM Sans', system-ui, -apple-system, sans-serif;

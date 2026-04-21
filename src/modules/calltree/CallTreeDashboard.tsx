@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DashboardContent } from "./components/dashboard/DashboardContent";
 import { useDashboardData } from "./hooks/useDashboardData";
 import { supabase } from "./lib/supabase";
@@ -9,12 +9,13 @@ import IncidentHistory from "./components/dashboard/IncidentHistory";
 import type { Incident } from "./types";
 import { RefreshCw, Archive, Radio } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { DataUploadButton, DataUploadModal } from "./components/dashboard/DataUpload";
 
 export default function CallTreeDashboard() {
   const [view, setView] = useState<"live" | "history">("live");
-  const [defaultIncident, setDefaultIncident] = useState<Incident | undefined>(
-    undefined,
-  );
+  const [defaultIncident, setDefaultIncident] = useState<Incident | undefined>();
+  const [initialLoading, setInitialLoading] = useState(true);
+  const fetchedRef = useRef(false);
 
   const {
     activeIncident,
@@ -24,31 +25,36 @@ export default function CallTreeDashboard() {
   } = useIncident();
 
   useEffect(() => {
+    if (fetchedRef.current || incidentLoading) return;
+    fetchedRef.current = true;
+
     const checkDefault = async () => {
-      if (!incidentLoading && !activeIncident) {
-        const { data } = await supabase
-          .from("incidents")
-          .select("*")
-          .not("end_time", "is", null)
-          .order("start_time", { ascending: false })
-          .limit(1)
-          .single();
+      const { data } = await supabase
+        .from("incidents")
+        .select("*")
+        .not("end_time", "is", null)
+        .order("start_time", { ascending: false })
+        .limit(1)
+        .single();
 
-        if (data) {
-          setDefaultIncident(data);
-          setView("history");
-        }
+      if (data) {
+        setDefaultIncident(data);
+        setView("history");
       }
+      setInitialLoading(false);
     };
-    checkDefault();
-  }, [incidentLoading, activeIncident]);
 
-  const filterDate = useMemo(() => {
+    checkDefault();
+  }, [incidentLoading]);
+
+  const [filterDate] = useState(() => {
     if (activeIncident) {
       return activeIncident.start_time;
     }
     return localNowAsUTC(new Date(Date.now() - 24 * 60 * 60 * 1000));
-  }, [activeIncident]);
+  });
+
+  const [showUpload, setShowUpload] = useState(false);
 
   const { data, loading, error, refresh } = useDashboardData(filterDate);
 
@@ -60,7 +66,7 @@ export default function CallTreeDashboard() {
         if (next === "live") setDefaultIncident(undefined);
       }}
       className={cn(
-        "flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-300 border",
+        "flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-colors duration-300 border",
         view === "live"
           ? "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50 shadow-sm"
           : "bg-accent-primary text-white border-accent-primary shadow-sm hover:opacity-90"
@@ -93,7 +99,7 @@ export default function CallTreeDashboard() {
         onClick={() => refresh()}
         disabled={loading}
         className={cn(
-          "p-2.5 rounded-xl transition-all duration-300 active:scale-95",
+          "p-2.5 rounded-xl transition-transform duration-300 active:scale-95",
           loading 
             ? "bg-gray-100 text-gray-400" 
             : "bg-white text-gray-600 hover:text-accent-primary hover:bg-accent-light border border-gray-200 hover:border-accent-primary/30 shadow-sm hover:shadow-md"
@@ -105,13 +111,19 @@ export default function CallTreeDashboard() {
     </>
   );
 
+  if (initialLoading) {
+    return null;
+  }
+
   if (error) {
     return <div className="p-8 text-center text-red-600">Error: {error}</div>;
   }
 
+  const showHistory = view === "history" || defaultIncident;
+
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      {view === "history" ? (
+      {showHistory ? (
         <IncidentHistory
           defaultIncident={defaultIncident}
           onStartNew={async (name, type) => {
@@ -127,7 +139,7 @@ export default function CallTreeDashboard() {
             activeIncident={activeIncident}
             onStart={startIncident}
             onEnd={endIncident}
-            rightSlot={<>{viewToggle}{refreshControls}</>}
+            rightSlot={<><DataUploadButton onUpload={() => setShowUpload(true)} />{viewToggle}{refreshControls}</>}
           />
 
           <DashboardContent
@@ -136,7 +148,7 @@ export default function CallTreeDashboard() {
           />
         </>
       )}
+      {showUpload && <DataUploadModal onClose={() => setShowUpload(false)} onSuccess={refresh} />}
     </div>
   );
 }
-

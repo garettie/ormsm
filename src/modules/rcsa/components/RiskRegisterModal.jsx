@@ -17,15 +17,16 @@ export default function RiskRegisterModal({ risks, onClose }) {
       }}
       className="animate-in fade-in duration-200"
     >
-      <div 
-        onClick={(e) => e.stopPropagation()} 
-        className="w-full max-w-[95vw] max-h-[90vh] flex flex-col"
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-[95vw] max-h-[90vh] flex flex-col overflow-hidden"
       >
-        <RiskRegister 
-          risks={risks} 
-          title="Risk Register" 
-          pageSize={50} 
-          onClose={onClose} 
+        <RiskRegister
+          risks={risks}
+          title="Risk Register"
+          pageSize={50}
+          onClose={onClose}
+          isModal
         />
       </div>
     </div>

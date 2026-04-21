@@ -24,7 +24,7 @@ export default function KpiCard({ label, value, sub, accentColor, icon: Icon, bo
 
       <div className="flex-grow flex flex-col justify-end">
         <div className="flex justify-between items-end mb-1">
-          <div className="text-3xl font-bold text-gray-900 tracking-tight" style={{ color: accentColor || '#0f172a' }}>
+          <div className="text-3xl font-bold text-gray-900 tracking-tight">
             {value}
           </div>
           {children && (

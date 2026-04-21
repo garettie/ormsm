@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import type { LucideIcon } from "lucide-react";
 import {
   Users,
   CheckCircle,
@@ -14,23 +15,15 @@ interface KPICardProps {
   color: string;
   onClick?: () => void;
   isActive?: boolean;
+  icon?: LucideIcon;
 }
 
-const getIcon = (label: string) => {
-  switch (label) {
-    case "Total Contacts":
-      return Users;
-    case "Responded":
-      return CheckCircle;
-    case "Safe":
-      return ShieldCheck;
-    case "Affected":
-      return AlertCircle;
-    case "Pending":
-      return Clock;
-    default:
-      return Users;
-  }
+const defaultIcons: Record<string, LucideIcon> = {
+  "Total Contacts": Users,
+  Responded: CheckCircle,
+  Safe: ShieldCheck,
+  Affected: AlertCircle,
+  Pending: Clock,
 };
 
 export const KPICard: FC<KPICardProps> = ({
@@ -40,14 +33,15 @@ export const KPICard: FC<KPICardProps> = ({
   color,
   onClick,
   isActive,
+  icon,
 }) => {
-  const Icon = getIcon(label);
+  const Icon = icon ?? defaultIcons[label] ?? Users;
 
   return (
     <div
       onClick={onClick}
-      className={`glass-card p-5 flex flex-col justify-between h-full relative overflow-hidden group transition-all duration-300 outline-none focus:outline-none ${
-        onClick ? "cursor-pointer hover:shadow-lg hover:-translate-y-1" : ""
+      className={`glass-card p-5 flex flex-col justify-between h-full relative overflow-hidden group transition-shadow duration-300 outline-none focus:outline-none ${
+        onClick ? "cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-transform" : ""
       } ${isActive ? "border-2" : "border border-transparent"}`}
       style={isActive ? { borderColor: color } : {}}
     >
