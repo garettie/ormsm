@@ -1,0 +1,24 @@
+import { RISK_BG, RISK_TEXT, getRiskLevel } from '../utils/riskLevels'
+
+const RISK_BORDER = {
+  Minor: '#bbf7d0',
+  Moderate: '#fde68a',
+  Major: '#fed7aa',
+  Critical: '#fecaca',
+}
+
+export default function RiskBadge({ score }) {
+  const level = getRiskLevel(score)
+  return (
+    <span
+      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+      style={{
+        backgroundColor: RISK_BG[level],
+        color: RISK_TEXT[level],
+        borderColor: RISK_BORDER[level] || RISK_BG[level],
+      }}
+    >
+      {level} ({score})
+    </span>
+  )
+}

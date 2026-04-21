@@ -1,12 +1,14 @@
 {
-  "name": "call-tree-dashboard",
+  "name": "ormsm",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "dev:host": "vite --host",
+    "dev:rcsa": "vite --mode rcsa",
     "build": "tsc -b && vite build",
+    "build:rcsa": "tsc -b && vite build --mode rcsa",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -15,6 +17,8 @@
     "@tailwindcss/postcss": "^4.1.18",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "d3-sankey": "^0.12.3",
+    "d3-shape": "^3.2.0",
     "lucide-react": "^0.563.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

@@ -1,0 +1,230 @@
+import { useMemo, useState, useRef } from 'react'
+import { sankey as d3Sankey, sankeyLinkHorizontal, sankeyJustify } from 'd3-sankey'
+import { getRiskLevel, RC_COLOR_MAP, RISK_COLORS, RISK_LEVELS, ROOT_CAUSES } from '../../utils/riskLevels'
+
+const EVENT_ABBR = {
+  'Execution delivery and process management': 'Exec. & Process Mgmt',
+  'Business disruption and system failures': 'Bus. Disruption & Systems',
+  'External fraud': 'External Fraud',
+  'Employment practices and workplace safety': 'Employment & Safety',
+  'Internal fraud': 'Internal Fraud',
+  'Damage to physical assets': 'Damage to Phys. Assets',
+  'Clients products and business practices': 'Client Prod. & Practices',
+}
+
+function abbreviate(name) {
+  return EVENT_ABBR[name] || name
+}
+
+function buildGraph(risks) {
+  const nodeMap = new Map()
+  const linkMap = new Map()
+
+  let nodeIdx = 0
+  function getNode(name, layer, color) {
+    const key = `${layer}::${name}`
+    if (!nodeMap.has(key)) {
+      nodeMap.set(key, { idx: nodeIdx++, name, fullName: name, layer, color })
+    }
+    return nodeMap.get(key)
+  }
+
+  risks.forEach((r) => {
+    const rc = r.root_cause
+    const et = r.event_type
+    const level = getRiskLevel(r.residual_risk_score)
+    if (!rc || !et) return
+
+    const rcNode = getNode(rc, 0, RC_COLOR_MAP[rc] || '#94a3b8')
+    const etNode = getNode(et, 1, '#94a3b8')
+    const lvlNode = getNode(level, 2, RISK_COLORS[level] || '#94a3b8')
+
+    const linkA = `${rcNode.idx}->${etNode.idx}`
+    linkMap.set(linkA, (linkMap.get(linkA) || { source: rcNode.idx, target: etNode.idx, value: 0, color: rcNode.color }))
+    linkMap.get(linkA).value++
+
+    const linkB = `${etNode.idx}->${lvlNode.idx}`
+    linkMap.set(linkB, (linkMap.get(linkB) || { source: etNode.idx, target: lvlNode.idx, value: 0, color: lvlNode.color }))
+    linkMap.get(linkB).value++
+  })
+
+  const nodes = Array.from(nodeMap.values()).map((n) => ({
+    name: n.name,
+    fullName: n.fullName,
+    layer: n.layer,
+    color: n.color,
+  }))
+
+  const links = Array.from(linkMap.values())
+
+  return { nodes, links }
+}
+
+const MARGIN = { top: 6, right: 14, bottom: 6, left: 14 }
+const SVG_W = 700
+const SVG_H = 340
+const NODE_W = 12
+const NODE_PAD = 14
+
+export default function SankeyEventType({ risks, onNodeClick }) {
+  const [tooltip, setTooltip] = useState(null)
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  const containerRef = useRef(null)
+
+  const layout = useMemo(() => {
+    const { nodes, links } = buildGraph(risks)
+    if (!nodes.length) return null
+
+    const generator = d3Sankey()
+      .nodeId((d, i) => i)
+      .nodeWidth(NODE_W)
+      .nodePadding(NODE_PAD)
+      .nodeAlign(sankeyJustify)
+      .extent([
+        [MARGIN.left, MARGIN.top],
+        [SVG_W - MARGIN.right, SVG_H - MARGIN.bottom],
+      ])
+
+    const graph = generator({ nodes: nodes.map((n) => ({ ...n })), links: links.map((l) => ({ ...l })) })
+    return graph
+  }, [risks])
+
+  if (!layout || !layout.nodes.length) {
+    return (
+      <div style={{ color: '#94a3b8', fontSize: 13, textAlign: 'center', padding: '40px 0' }}>
+        No data to display
+      </div>
+    )
+  }
+
+  const linkPath = sankeyLinkHorizontal()
+
+  return (
+    <div style={{ position: 'relative' }} ref={containerRef} onMouseMove={(e) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    }}>
+      {/* Column headers */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        padding: '0 14px',
+        marginBottom: 4,
+      }}>
+        {['Root Cause', 'Event Type', 'Residual Risk'].map((label) => (
+          <span key={label} style={{
+            fontSize: 9,
+            fontWeight: 700,
+            color: '#94a3b8',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+          }}>
+            {label}
+          </span>
+        ))}
+      </div>
+
+      <svg
+        viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+        width="100%"
+        style={{ display: 'block', overflow: 'visible' }}
+      >
+        {/* Links */}
+        {layout.links.map((link, i) => (
+          <path
+            key={i}
+            d={linkPath(link)}
+            fill="none"
+            stroke={link.color || '#94a3b8'}
+            strokeOpacity={0.28}
+            strokeWidth={Math.max(1, link.width)}
+          />
+        ))}
+
+        {/* Nodes */}
+        {layout.nodes.map((node, i) => {
+          const w = node.x1 - node.x0
+          const h = node.y1 - node.y0
+          const isLeft = node.layer === 0
+          const isRight = node.layer === 2
+          const isMid = node.layer === 1
+
+          const labelX = isLeft
+            ? node.x1 + 6
+            : isRight
+              ? node.x0 - 6
+              : node.x0 + w / 2
+          const labelAnchor = isLeft ? 'start' : isRight ? 'end' : 'middle'
+          const labelY = node.y0 + h / 2
+          const label = isMid ? abbreviate(node.name) : node.name
+
+          return (
+            <g
+              key={i}
+              onClick={() => onNodeClick && onNodeClick(node.layer, node.fullName || node.name)}
+              onMouseEnter={() => {
+                setTooltip({
+                  text: node.fullName || node.name,
+                  value: node.value,
+                })
+              }}
+              onMouseLeave={() => setTooltip(null)}
+              style={{ cursor: onNodeClick ? 'pointer' : 'default' }}
+            >
+              <rect
+                x={node.x0}
+                y={node.y0}
+                width={w}
+                height={h}
+                rx={3}
+                fill={node.color}
+              />
+              {h > 8 && (
+                <text
+                  x={labelX}
+                  y={labelY}
+                  textAnchor={labelAnchor}
+                  dominantBaseline="central"
+                  fontSize={10}
+                  fontWeight={600}
+                  fill="#334155"
+                >
+                  {label}
+                </text>
+              )}
+            </g>
+          )
+        })}
+      </svg>
+
+      {/* Tooltip */}
+      {tooltip && containerRef.current && (() => {
+        const containerW = containerRef.current.offsetWidth;
+        const flipLeft = mousePos.x > containerW * 0.6;
+        return (
+          <div style={{
+            position: 'absolute',
+            left: flipLeft ? undefined : mousePos.x + 12,
+            right: flipLeft ? containerW - mousePos.x + 12 : undefined,
+            top: mousePos.y - 10,
+            background: '#fff',
+            color: '#334155',
+            fontSize: 11,
+            fontWeight: 500,
+            padding: '5px 10px',
+            borderRadius: 8,
+            whiteSpace: 'nowrap',
+            pointerEvents: 'none',
+            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+            border: '1px solid #f1f5f9',
+            zIndex: 50,
+            transition: 'left 0.08s ease, right 0.08s ease, top 0.08s ease',
+          }}>
+            {tooltip.text}: <strong>{tooltip.value}</strong>
+          </div>
+        );
+      })()}
+    </div>
+  )
+}
