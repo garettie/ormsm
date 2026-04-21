@@ -114,14 +114,6 @@ src/
     └── supabase.ts           # Supabase client singleton
 ```
 
-### Data Ingestion (Call Tree)
-
-Employee and response data is ingested via Python ETL scripts (`sprout-clean.py` for contacts, `response-etl.py` for SMS replies) that push to Supabase. The dashboard consumes data via Supabase real-time subscriptions and a custom tokenized prefix-matcher for name resolution. See `src/Call_Tree_Technical.md` for full details.
-
-## Deployment
-
-The project includes a `vercel.json` configuration. The Call Tree module builds to the root deployment, while RCSA uses a separate Vite mode (`rcsa`) controlled by `VITE_APP_MODE=rcsa`.
-
 ## License
 
 The repository is shared publicly for **portfolio and educational purposes only**. All credentials, API keys, and company-specific data are excluded. **This code is not licensed for reuse.**
