@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { lazy, useState, useEffect, useRef, Suspense } from "react";
 import { DashboardContent } from "./components/dashboard/DashboardContent";
 import { useDashboardData } from "./hooks/useDashboardData";
 import { supabase } from "./lib/supabase";
@@ -9,7 +9,9 @@ import IncidentHistory from "./components/dashboard/IncidentHistory";
 import type { Incident } from "./types";
 import { RefreshCw, Archive, Radio } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { DataUploadButton, DataUploadModal } from "./components/dashboard/DataUpload";
+import { DataUploadButton } from "./components/dashboard/DataUploadButton";
+
+const DataUploadModal = lazy(() => import("./components/dashboard/DataUpload").then(module => ({ default: module.DataUploadModal })));
 
 export default function CallTreeDashboard() {
   const [view, setView] = useState<"live" | "history">("live");
@@ -148,7 +150,11 @@ export default function CallTreeDashboard() {
           />
         </>
       )}
-      {showUpload && <DataUploadModal onClose={() => setShowUpload(false)} onSuccess={refresh} />}
+      {showUpload && (
+        <Suspense fallback={null}>
+          <DataUploadModal onClose={() => setShowUpload(false)} onSuccess={refresh} />
+        </Suspense>
+      )}
     </div>
   );
 }

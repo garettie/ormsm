@@ -1,4 +1,4 @@
-import { useMemo, type FC } from "react";
+import { useMemo, memo, type FC } from "react";
 import { MultiSelect } from "../ui/MultiSelect";
 import type { ProcessedContact } from "../../types";
 
@@ -16,7 +16,7 @@ interface FiltersProps {
   ) => void;
 }
 
-export const Filters: FC<FiltersProps> = ({
+export const Filters: FC<FiltersProps> = memo(({
   data,
   filters,
   onFilterChange,
@@ -78,4 +78,4 @@ export const Filters: FC<FiltersProps> = ({
       />
     </div>
   );
-};
+});

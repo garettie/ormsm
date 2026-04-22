@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import {
   ArrowLeft,
   Calendar,
@@ -18,7 +18,9 @@ import {
   formatTimeShort,
 } from "../../../../lib/utils";
 import type { Incident } from "../../types";
-import { DataUploadButton, DataUploadModal } from "./DataUpload";
+import { DataUploadButton } from "./DataUploadButton";
+
+const DataUploadModal = lazy(() => import("./DataUpload").then(module => ({ default: module.DataUploadModal })));
 
 export default function IncidentDetail({
   incident,
@@ -168,7 +170,11 @@ export default function IncidentDetail({
           onRefresh={() => refresh({ background: true })}
         />
       )}
-      {showUpload && <DataUploadModal onClose={() => setShowUpload(false)} onSuccess={() => refresh()} />}
+      {showUpload && (
+        <Suspense fallback={null}>
+          <DataUploadModal onClose={() => setShowUpload(false)} onSuccess={() => refresh()} />
+        </Suspense>
+      )}
     </div>
   );
 }

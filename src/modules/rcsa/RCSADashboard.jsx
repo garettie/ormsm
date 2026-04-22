@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { ShieldAlert, Loader, BarChart3, GitMerge } from "lucide-react";
 import { supabase } from "./lib/supabase";
 import { useDashboardData } from "./hooks/useDashboardData";
@@ -17,7 +17,7 @@ import InherentRiskHeatmap from "./components/charts/InherentRiskHeatmap";
 import ControlTypeChart from "./components/charts/ControlTypeChart";
 import RootCauseChart from "./components/charts/RootCauseChart";
 import EventTypeChart from "./components/charts/EventTypeChart";
-import SankeyEventType from "./components/charts/SankeyEventType";
+const SankeyEventType = lazy(() => import("./components/charts/SankeyEventType"));
 import RiskTreatmentChart from "./components/charts/RiskTreatmentChart";
 import DepartmentRiskChart from "./components/charts/DepartmentRiskChart";
 
@@ -319,14 +319,16 @@ export default function RCSADashboard({ demoMode }) {
                 onClick={handleEventTypeClick}
               />
             </div>
-            {sankeyMounted.current && (
-              <div style={{ display: sankeyView ? "block" : "none" }}>
-                <SankeyEventType
-                  risks={data.filtered}
-                  onNodeClick={handleSankeyNodeClick}
-                />
-              </div>
-            )}
+           {sankeyMounted.current && (
+               <div style={{ display: sankeyView ? "block" : "none" }}>
+                 <Suspense fallback={null}>
+                   <SankeyEventType
+                     risks={data.filtered}
+                     onNodeClick={handleSankeyNodeClick}
+                   />
+                 </Suspense>
+               </div>
+             )}
           </SectionCard>
 
           <SectionCard title="Residual Risk by Department">

@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { memo, useMemo, type FC } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import type { ProcessedContact } from '../../../types';
 import { COLORS, STATUS_ORDER } from '../../../lib/constants';
@@ -7,12 +7,15 @@ interface StatusDonutProps {
   data: ProcessedContact[];
 }
 
-export const StatusDonut: FC<StatusDonutProps> = ({ data }) => {
+const TOOLTIP_CONTENT_STYLE = { borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' } as const;
+const TOOLTIP_ITEM_STYLE = { fontSize: '12px', fontWeight: 500 } as const;
 
-  const chartData = STATUS_ORDER.map(status => {
+export const StatusDonut: FC<StatusDonutProps> = memo(({ data }) => {
+
+  const chartData = useMemo(() => STATUS_ORDER.map(status => {
     const count = data.filter(c => c.status === status).length;
     return { name: status, value: count };
-  }).filter(d => d.value > 0);
+  }).filter(d => d.value > 0), [data]);
 
   const total = data.length;
 
@@ -39,8 +42,8 @@ export const StatusDonut: FC<StatusDonutProps> = ({ data }) => {
               ))}
             </Pie>
             <Tooltip 
-                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                itemStyle={{ fontSize: '12px', fontWeight: 500 }}
+                contentStyle={TOOLTIP_CONTENT_STYLE}
+                itemStyle={TOOLTIP_ITEM_STYLE}
             />
             <Legend 
                 verticalAlign="bottom" 
@@ -70,4 +73,4 @@ export const StatusDonut: FC<StatusDonutProps> = ({ data }) => {
       </div>
     </div>
   );
-};
+});

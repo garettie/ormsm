@@ -1,4 +1,4 @@
-import { useState, useMemo, type FC } from "react";
+import { useState, useMemo, useDeferredValue, type FC } from "react";
 import { Download, AlertTriangle, Search, Clock, X, Save } from "lucide-react";
 import type { ProcessedContact, Response } from "../../../types";
 import { downloadCSV } from "../../../lib/csv";
@@ -292,18 +292,19 @@ export const PendingTable: FC<{
   onResponseAdded?: () => void; // Callback to trigger refresh
 }> = ({ data, onResponseAdded }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const deferredSearch = useDeferredValue(searchTerm);
   const [selectedContact, setSelectedContact] =
     useState<ProcessedContact | null>(null);
 
   const filteredData = useMemo(() => {
-    if (!searchTerm) return data;
-    const q = searchTerm.toLowerCase();
+    if (!deferredSearch) return data;
+    const q = deferredSearch.toLowerCase();
     return data.filter((c) =>
       PENDING_SEARCH_FIELDS.some((f) =>
         (c[f]?.toString().toLowerCase() ?? "").includes(q),
       ),
     );
-  }, [data, searchTerm]);
+  }, [data, deferredSearch]);
 
   if (data.length === 0) return null;
 

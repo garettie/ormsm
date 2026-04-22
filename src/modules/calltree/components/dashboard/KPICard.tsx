@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import { memo, type FC } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   Users,
@@ -26,7 +26,7 @@ const defaultIcons: Record<string, LucideIcon> = {
   Pending: Clock,
 };
 
-export const KPICard: FC<KPICardProps> = ({
+export const KPICard: FC<KPICardProps> = memo(({
   label,
   value,
   subtext,
@@ -85,4 +85,4 @@ export const KPICard: FC<KPICardProps> = ({
       />
     </div>
   );
-};
+});

@@ -1,4 +1,4 @@
-import { useState, useMemo, type FC } from "react";
+import { useState, useMemo, useCallback, useDeferredValue, memo, type FC } from "react";
 import {
   Download,
   Search,
@@ -60,7 +60,7 @@ interface SortableHeaderProps {
   onSort: (key: SortKey) => void;
 }
 
-const SortableHeader: FC<SortableHeaderProps> = ({
+const SortableHeader: FC<SortableHeaderProps> = memo(({
   label,
   sortKey,
   currentSort,
@@ -86,11 +86,11 @@ const SortableHeader: FC<SortableHeaderProps> = ({
       </div>
     </th>
   );
-};
+});
 
 // --- StatusBadge ---
 
-const StatusBadge: FC<{ status: string }> = ({ status }) => {
+const StatusBadge: FC<{ status: string }> = memo(({ status }) => {
   // Determine background color
   let backgroundColor = "white";
   if (status === "Safe") backgroundColor = COLORS.SafeBg;
@@ -110,10 +110,10 @@ const StatusBadge: FC<{ status: string }> = ({ status }) => {
       {status}
     </span>
   );
-};
+});
 
 // --- MatchTypeIndicator ---
-const MatchTypeIndicator: FC<{ type?: "phone" | "name" | "manual" }> = ({
+const MatchTypeIndicator: FC<{ type?: "phone" | "name" | "manual" }> = memo(({
   type,
 }) => {
   if (!type) return null;
@@ -149,26 +149,27 @@ const MatchTypeIndicator: FC<{ type?: "phone" | "name" | "manual" }> = ({
       </div>
     </div>
   );
-};
+});
 
 // --- Main Component ---
 
 export const ResponsesTable: FC<ResponsesTableProps> = ({ data }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const deferredSearch = useDeferredValue(searchTerm);
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: null,
     direction: "asc",
   });
 
   const filteredData = useMemo(() => {
-    if (!searchTerm) return data;
-    const q = searchTerm.toLowerCase();
+    if (!deferredSearch) return data;
+    const q = deferredSearch.toLowerCase();
     return data.filter((c) =>
       SEARCH_FIELDS.some((f) =>
         (c[f]?.toString().toLowerCase() ?? "").includes(q),
       ),
     );
-  }, [data, searchTerm]);
+  }, [data, deferredSearch]);
 
   const sortedData = useMemo(() => {
     if (!sortConfig.key) return filteredData;
@@ -188,12 +189,12 @@ export const ResponsesTable: FC<ResponsesTableProps> = ({ data }) => {
     });
   }, [filteredData, sortConfig]);
 
-  const requestSort = (key: SortKey) => {
+  const requestSort = useCallback((key: SortKey) => {
     setSortConfig((prev) => ({
       key,
       direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
     }));
-  };
+  }, []);
 
   const handleDownload = () => {
     const csvData = sortedData.map((c) => ({

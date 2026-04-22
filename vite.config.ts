@@ -8,4 +8,15 @@ export default defineConfig({
     host: true, // Listen on all local IPs
     port: 5173,
   },
+  build: {
+    target: 'es2022',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-recharts': ['recharts'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+        },
+      },
+    },
+  },
 })

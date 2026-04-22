@@ -153,17 +153,11 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
           return allData;
         };
 
-        // 1. Fetch Contacts
-        const contactsData = await fetchAll("MasterContacts");
-
-        // 2. Fetch Responses
-        // We pass the startDate here to filter out old "Safe" messages from previous drills
-        const responsesData = await fetchAll(
-          "Responses",
-          "datetime",
-          startDate,
-          endDate,
-        );
+        // 1. Fetch Contacts and Responses in parallel
+        const [contactsData, responsesData] = await Promise.all([
+          fetchAll("MasterContacts"),
+          fetchAll("Responses", "datetime", startDate, endDate),
+        ]);
 
         const contacts = (contactsData || []) as unknown as Contact[];
         const responses = (responsesData || []) as unknown as Response[];

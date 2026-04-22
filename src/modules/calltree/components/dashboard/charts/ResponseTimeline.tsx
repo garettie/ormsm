@@ -1,4 +1,4 @@
-import { useMemo, type FC } from "react";
+import { useMemo, memo, type FC } from "react";
 import {
   AreaChart,
   Area,
@@ -15,7 +15,11 @@ interface ResponseTimelineProps {
   data: ProcessedContact[];
 }
 
-export const ResponseTimeline: FC<ResponseTimelineProps> = ({ data }) => {
+const TOOLTIP_CONTENT_STYLE = { borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' } as const;
+const TOOLTIP_ITEM_STYLE = { fontSize: '12px', fontWeight: 500, color: COLORS.Primary } as const;
+const TOOLTIP_LABEL_STYLE = { color: '#6b7280', fontSize: '11px', marginBottom: '4px', display: 'block' as const } as const;
+
+export const ResponseTimeline: FC<ResponseTimelineProps> = memo(({ data }) => {
   const chartData = useMemo(() => {
     const validData = data
       .filter((c) => c.responseTime && c.status !== "No Response")
@@ -87,26 +91,13 @@ export const ResponseTimeline: FC<ResponseTimelineProps> = ({ data }) => {
               axisLine={false}
             />
             <Tooltip
-              contentStyle={{
-                borderRadius: "8px",
-                border: "none",
-                boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-              }}
-              itemStyle={{
-                fontSize: "12px",
-                fontWeight: 500,
-                color: COLORS.Primary,
-              }}
+              contentStyle={TOOLTIP_CONTENT_STYLE}
+              itemStyle={TOOLTIP_ITEM_STYLE}
               formatter={(value: number | undefined) => [
                 value ?? 0,
                 "Responses",
               ]}
-              labelStyle={{
-                color: "#6b7280",
-                fontSize: "11px",
-                marginBottom: "4px",
-                display: "block",
-              }}
+              labelStyle={TOOLTIP_LABEL_STYLE}
               labelFormatter={(label) =>
                 new Date(label).toLocaleTimeString([], {
                   hour: "2-digit",
@@ -128,4 +119,4 @@ export const ResponseTimeline: FC<ResponseTimelineProps> = ({ data }) => {
       </div>
     </div>
   );
-};
+});

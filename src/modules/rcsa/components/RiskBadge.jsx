@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { RISK_BG, RISK_TEXT, getRiskLevel } from '../utils/riskLevels'
 
 const RISK_BORDER = {
@@ -7,7 +8,7 @@ const RISK_BORDER = {
   Critical: '#fecaca',
 }
 
-export default function RiskBadge({ score }) {
+export default memo(function RiskBadge({ score }) {
   const level = getRiskLevel(score)
   return (
     <span
@@ -21,4 +22,4 @@ export default function RiskBadge({ score }) {
       {level} ({score})
     </span>
   )
-}
+})

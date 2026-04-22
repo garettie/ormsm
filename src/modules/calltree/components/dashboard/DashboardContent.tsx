@@ -155,6 +155,19 @@ export function DashboardContent({
     };
   }, [filteredData]);
 
+  const respondedData = useMemo(() => filteredData.filter((c) => c.status !== "No Response"), [filteredData]);
+  const pendingData = useMemo(() => filteredData.filter((c) => c.status === "No Response"), [filteredData]);
+
+  const handleResponseAdded = useCallback(() => {
+    if (onRefresh) {
+      onRefresh();
+    } else {
+      console.warn(
+        "Manual response added, but no refresh handler provided. Data may be stale until next auto-refresh.",
+      );
+    }
+  }, [onRefresh]);
+
   return (
     <div className="animate-in fade-in duration-500">
       <Filters
@@ -288,7 +301,7 @@ export function DashboardContent({
       {/* Main Table */}
       <div className="mb-8">
         <ResponsesTable
-          data={filteredData.filter((c) => c.status !== "No Response")}
+          data={respondedData}
         />
       </div>
 
@@ -296,16 +309,8 @@ export function DashboardContent({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <UnknownTable data={data.unknownResponses} />
         <PendingTable
-          data={filteredData.filter((c) => c.status === "No Response")}
-          onResponseAdded={() => {
-            if (onRefresh) {
-              onRefresh();
-            } else {
-              console.warn(
-                "Manual response added, but no refresh handler provided. Data may be stale until next auto-refresh.",
-              );
-            }
-          }}
+          data={pendingData}
+          onResponseAdded={handleResponseAdded}
         />
       </div>
     </div>

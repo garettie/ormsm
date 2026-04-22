@@ -1,4 +1,4 @@
-import { useMemo, type FC } from "react";
+import { useMemo, memo, type FC } from "react";
 import {
   BarChart,
   Bar,
@@ -17,7 +17,11 @@ interface DemographicChartProps {
   title: string;
 }
 
-export const DemographicChart: FC<DemographicChartProps> = ({
+const TOOLTIP_CONTENT_STYLE = { borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' } as const;
+const TOOLTIP_ITEM_STYLE = { fontSize: '11px', fontWeight: 500 } as const;
+const TOOLTIP_CURSOR = { fill: '#f9fafb' } as const;
+
+export const DemographicChart: FC<DemographicChartProps> = memo(({
   data,
   category,
   title,
@@ -80,13 +84,9 @@ export const DemographicChart: FC<DemographicChartProps> = ({
                 interval={0}
               />
               <Tooltip
-                cursor={{ fill: "#f9fafb" }}
-                contentStyle={{
-                  borderRadius: "8px",
-                  border: "none",
-                  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-                }}
-                itemStyle={{ fontSize: "11px", fontWeight: 500 }}
+                cursor={TOOLTIP_CURSOR}
+                contentStyle={TOOLTIP_CONTENT_STYLE}
+                itemStyle={TOOLTIP_ITEM_STYLE}
               />
               <Legend
                 verticalAlign="bottom"
@@ -120,4 +120,4 @@ export const DemographicChart: FC<DemographicChartProps> = ({
       </div>
     </div>
   );
-};
+});

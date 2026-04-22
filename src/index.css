@@ -36,7 +36,6 @@
     background-image: 
       radial-gradient(at 0% 0%, rgba(52, 168, 83, 0.03) 0px, transparent 50%),
       radial-gradient(at 100% 0%, rgba(52, 168, 83, 0.03) 0px, transparent 50%);
-    background-attachment: fixed;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -46,12 +45,26 @@
 }
 
 @layer components {
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .glass-panel {
+            backdrop-filter: blur(8px);
+        }
+    }
+
     .glass-panel {
-        @apply bg-white/80 backdrop-blur-xl border border-white/50 shadow-sm transition-all duration-300;
+        @apply bg-white/80 backdrop-blur-xl border border-white/50 shadow-sm transition-[box-shadow,border-color] duration-300;
     }
     
     .glass-card {
-        @apply bg-white rounded-2xl border border-gray-100/80 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.08)] transition-all duration-300;
+        @apply bg-white rounded-2xl border border-gray-100/80 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.08)] transition-[box-shadow,border-color] duration-300;
     }
 
     /* RCSA donut hover effects — applied globally to all PieCharts */
@@ -59,22 +72,28 @@
       opacity: 0.6;
     }
     .recharts-sector {
-      transition: opacity 0.25s ease, filter 0.25s ease, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
       transform-origin: center;
     }
-    .recharts-sector:hover {
-      filter: brightness(1.1) drop-shadow(0 2px 4px rgba(0,0,0,0.15));
-      transform: scale(1.04);
+    @media (prefers-reduced-motion: no-preference) {
+        .recharts-sector {
+            transition: opacity 0.25s ease, filter 0.25s ease, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .recharts-sector:hover {
+            filter: brightness(1.1) drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+            transform: scale(1.04);
+        }
     }
 
     /* Bar chart hover effects from RCSA */
-    .recharts-bar-rectangle rect,
-    .recharts-bar-rectangle path {
-      transition: filter 0.15s ease;
-    }
-    .recharts-bar-rectangle:hover rect,
-    .recharts-bar-rectangle:hover path {
-      filter: brightness(1.15) drop-shadow(0 1px 3px rgba(0,0,0,0.15));
+    @media (prefers-reduced-motion: no-preference) {
+        .recharts-bar-rectangle rect,
+        .recharts-bar-rectangle path {
+            transition: filter 0.15s ease;
+        }
+        .recharts-bar-rectangle:hover rect,
+        .recharts-bar-rectangle:hover path {
+            filter: brightness(1.15) drop-shadow(0 1px 3px rgba(0,0,0,0.15));
+        }
     }
 
     /* Dept bar chart cursor */

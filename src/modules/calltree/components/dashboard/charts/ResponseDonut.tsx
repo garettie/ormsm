@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { memo, type FC } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { COLORS } from '../../../lib/constants';
 
@@ -7,7 +7,10 @@ interface ResponseDonutProps {
   total: number;
 }
 
-export const ResponseDonut: FC<ResponseDonutProps> = ({ responded, total }) => {
+const TOOLTIP_CONTENT_STYLE = { borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' } as const;
+const TOOLTIP_ITEM_STYLE = { fontSize: '12px', fontWeight: 500 } as const;
+
+export const ResponseDonut: FC<ResponseDonutProps> = memo(({ responded, total }) => {
   const percentage = total > 0 ? (responded / total) * 100 : 0;
   const pending = total - responded;
 
@@ -39,8 +42,8 @@ export const ResponseDonut: FC<ResponseDonutProps> = ({ responded, total }) => {
               <Cell fill={COLORS.Pending} />
             </Pie>
             <Tooltip 
-                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                 itemStyle={{ fontSize: '12px', fontWeight: 500 }}
+                 contentStyle={TOOLTIP_CONTENT_STYLE}
+                 itemStyle={TOOLTIP_ITEM_STYLE}
             />
             <Legend 
                 verticalAlign="bottom" 
@@ -69,4 +72,4 @@ export const ResponseDonut: FC<ResponseDonutProps> = ({ responded, total }) => {
       </div>
     </div>
   );
-};
+});

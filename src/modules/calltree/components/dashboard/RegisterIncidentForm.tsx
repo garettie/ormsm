@@ -26,49 +26,37 @@ export default function RegisterIncidentForm({
   onSaved,
   onCancel,
 }: RegisterIncidentFormProps) {
-  const [regName, setRegName] = useState(editingIncident?.name ?? "");
-  const [regType, setRegType] = useState<"test" | "actual">(
-    editingIncident?.type ?? "test",
-  );
-  const [regStartDate, setRegStartDate] = useState(
-    editingIncident
-      ? formatDateInput(new Date(editingIncident.start_time))
-      : "",
-  );
-  const [regStartTime, setRegStartTime] = useState(
-    editingIncident
-      ? formatTimeInput(new Date(editingIncident.start_time))
-      : "",
-  );
-  const [regEndDate, setRegEndDate] = useState(() =>
-    editingIncident
-      ? formatDateInput(new Date(editingIncident.end_time ?? Date.now()))
-      : "",
-  );
-  const [regEndTime, setRegEndTime] = useState(() =>
-    editingIncident
-      ? formatTimeInput(new Date(editingIncident.end_time ?? Date.now()))
-      : "",
-  );
+  const [formData, setFormData] = useState(() => ({
+    name: editingIncident?.name ?? "",
+    type: (editingIncident?.type ?? "test") as "test" | "actual",
+    startDate: editingIncident ? formatDateInput(new Date(editingIncident.start_time)) : "",
+    startTime: editingIncident ? formatTimeInput(new Date(editingIncident.start_time)) : "",
+    endDate: editingIncident ? formatDateInput(new Date(editingIncident.end_time ?? Date.now())) : "",
+    endTime: editingIncident ? formatTimeInput(new Date(editingIncident.end_time ?? Date.now())) : "",
+  }));
   const [submitting, setSubmitting] = useState(false);
 
+  const updateField = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   const canSubmit =
-    !!regName &&
-    !!regStartDate &&
-    !!regStartTime &&
-    !!regEndDate &&
-    !!regEndTime;
+    !!formData.name &&
+    !!formData.startDate &&
+    !!formData.startTime &&
+    !!formData.endDate &&
+    !!formData.endTime;
 
   const handleSave = async () => {
     if (!canSubmit) return;
     setSubmitting(true);
 
-    const startISO = `${regStartDate}T${regStartTime}:00Z`;
-    const endISO = `${regEndDate}T${regEndTime}:00Z`;
+    const startISO = `${formData.startDate}T${formData.startTime}:00Z`;
+    const endISO = `${formData.endDate}T${formData.endTime}:00Z`;
 
     const payload = {
-      name: regName,
-      type: regType,
+      name: formData.name,
+      type: formData.type,
       start_time: startISO,
       end_time: endISO,
     };
@@ -135,8 +123,8 @@ export default function RegisterIncidentForm({
             type="text"
             placeholder="e.g. Call Tree Test"
             className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-            value={regName}
-            onChange={(e) => setRegName(e.target.value)}
+            value={formData.name}
+            onChange={(e) => updateField("name", e.target.value)}
           />
         </div>
 
@@ -146,9 +134,9 @@ export default function RegisterIncidentForm({
           </label>
           <div className="grid grid-cols-2 gap-2">
             <button
-              onClick={() => setRegType("test")}
+              onClick={() => updateField("type", "test")}
               className={`p-2 rounded border text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-                regType === "test"
+                formData.type === "test"
                   ? "bg-blue-50 border-blue-500 text-blue-700 ring-1 ring-blue-500"
                   : "border-gray-200 hover:bg-gray-50 text-gray-600"
               }`}
@@ -157,9 +145,9 @@ export default function RegisterIncidentForm({
               TEST
             </button>
             <button
-              onClick={() => setRegType("actual")}
+              onClick={() => updateField("type", "actual")}
               className={`p-2 rounded border text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-                regType === "actual"
+                formData.type === "actual"
                   ? "bg-red-50 border-red-500 text-red-700 ring-1 ring-red-500"
                   : "border-gray-200 hover:bg-gray-50 text-gray-600"
               }`}
@@ -178,14 +166,14 @@ export default function RegisterIncidentForm({
             <input
               type="date"
               className="flex-1 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-              value={regStartDate}
-              onChange={(e) => setRegStartDate(e.target.value)}
+              value={formData.startDate}
+              onChange={(e) => updateField("startDate", e.target.value)}
             />
             <input
               type="time"
               className="w-28 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-              value={regStartTime}
-              onChange={(e) => setRegStartTime(e.target.value)}
+              value={formData.startTime}
+              onChange={(e) => updateField("startTime", e.target.value)}
             />
           </div>
         </div>
@@ -198,14 +186,14 @@ export default function RegisterIncidentForm({
             <input
               type="date"
               className="flex-1 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-              value={regEndDate}
-              onChange={(e) => setRegEndDate(e.target.value)}
+              value={formData.endDate}
+              onChange={(e) => updateField("endDate", e.target.value)}
             />
             <input
               type="time"
               className="w-28 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-              value={regEndTime}
-              onChange={(e) => setRegEndTime(e.target.value)}
+              value={formData.endTime}
+              onChange={(e) => updateField("endTime", e.target.value)}
             />
           </div>
         </div>

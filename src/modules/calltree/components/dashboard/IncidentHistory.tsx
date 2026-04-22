@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { lazy, Suspense, useState, useEffect, type ReactNode } from "react";
 import {
   Calendar,
   Clock,
@@ -9,7 +9,6 @@ import {
   Plus,
   Pencil,
   Trash2,
-  Loader,
 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import {
@@ -20,7 +19,9 @@ import {
 import type { Incident } from "../../types";
 import IncidentDetail from "./IncidentDetail";
 import RegisterIncidentForm from "./RegisterIncidentForm";
-import { DataUploadButton, DataUploadModal } from "./DataUpload";
+import { DataUploadButton } from "./DataUploadButton";
+
+const DataUploadModal = lazy(() => import("./DataUpload").then(module => ({ default: module.DataUploadModal })));
 
 export default function IncidentHistory({
   defaultIncident,
@@ -29,7 +30,7 @@ export default function IncidentHistory({
 }: {
   defaultIncident?: Incident;
   onStartNew?: (name: string, type: "test" | "actual") => void;
-  rightSlot?: React.ReactNode;
+  rightSlot?: ReactNode;
 }) {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,6 +103,9 @@ export default function IncidentHistory({
       return;
     }
 
+    const previousIncidents = [...incidents];
+    setIncidents(incidents.filter((i) => i.id !== incident.id));
+
     const { error } = await supabase
       .from("incidents")
       .delete()
@@ -110,8 +114,7 @@ export default function IncidentHistory({
     if (error) {
       console.error("Error deleting incident:", error);
       alert("Failed to delete incident");
-    } else {
-      await doFetchIncidents();
+      setIncidents(previousIncidents);
     }
   };
 
@@ -161,11 +164,29 @@ export default function IncidentHistory({
       )}
 
       {loading && (
-        <div className="flex flex-col items-center justify-center py-16">
-          <Loader size={32} color="#64748b" className="animate-spin" />
-          <div className="mt-3 text-sm text-slate-500">
-            Loading data...
-          </div>
+        <div className="grid gap-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="glass-card p-4 w-full flex items-center justify-between animate-pulse">
+              <div className="flex items-center gap-4">
+                <div className="p-2.5 rounded-xl bg-gray-100 w-10 h-10" />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-32 bg-gray-200 rounded" />
+                    <div className="h-3 w-12 bg-gray-100 rounded-full" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="h-3 w-20 bg-gray-100 rounded" />
+                    <div className="h-3 w-24 bg-gray-100 rounded" />
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-full bg-gray-100 w-8 h-8" />
+                <div className="p-2 rounded-full bg-gray-100 w-8 h-8" />
+                <div className="w-5 h-5 bg-gray-100 rounded" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -187,10 +208,10 @@ export default function IncidentHistory({
           {incidents.map((incident) => {
             const isTest = incident.type === "test";
             return (
-              <button
+              <div
                 key={incident.id}
                 onClick={() => setSelectedIncident(incident)}
-                className="glass-card p-4 text-left w-full hover:shadow-md transition-all duration-200 group flex items-center justify-between"
+                className="glass-card p-4 text-left w-full hover:shadow-md transition-all duration-200 group flex items-center justify-between cursor-pointer"
               >
                 <div className="flex items-center gap-4">
                   <div
@@ -267,12 +288,16 @@ export default function IncidentHistory({
                   </button>
                   <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500 transition-colors" />
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
       )}
-      {showUpload && <DataUploadModal onClose={() => setShowUpload(false)} />}
+      {showUpload && (
+        <Suspense fallback={null}>
+          <DataUploadModal onClose={() => setShowUpload(false)} />
+        </Suspense>
+      )}
     </div>
   );
 }
