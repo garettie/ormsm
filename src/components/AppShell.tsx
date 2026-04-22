@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from "react";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, LogOut } from "lucide-react";
 import { cn } from "../lib/utils";
+import { supabase } from "../lib/supabase";
 
 type Module = "calltree" | "rcsa";
 
@@ -49,7 +50,7 @@ const AppShell: FC<AppShellProps> = ({
           </div>
 
           {/* Module Switcher */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-4">
             <div className="flex bg-gray-100/80 rounded-xl p-1 gap-0.5">
               {modules.map((mod) => (
                 <button
@@ -94,6 +95,14 @@ const AppShell: FC<AppShellProps> = ({
                 </button>
               ))}
             </div>
+            
+            <button
+              onClick={() => supabase.auth.signOut()}
+              className="ml-4 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+              title="Sign Out"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </header>
