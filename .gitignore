@@ -26,3 +26,10 @@ dist-ssr
 vercel.json
 skills-lock.json
 .vercel
+
+# AI Context Files
+.agents/
+.claude/
+AGENTS.md
+CLAUDE.md
+GEMINI.md
