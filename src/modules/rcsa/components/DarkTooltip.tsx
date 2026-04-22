@@ -1,4 +1,17 @@
-export default function DarkTooltip({ active, payload, label }) {
+interface TooltipPayload {
+  name?: string;
+  value: number | string;
+  fill?: string;
+  color?: string;
+}
+
+interface DarkTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayload[];
+  label?: string;
+}
+
+export default function DarkTooltip({ active, payload, label }: DarkTooltipProps) {
   if (!active || !payload?.length) return null
   return (
     <div className="bg-white px-3.5 py-2 rounded-lg text-xs font-medium shadow-lg border border-gray-100">

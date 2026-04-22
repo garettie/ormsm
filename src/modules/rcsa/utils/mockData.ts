@@ -1,6 +1,7 @@
+import type { RiskRecord } from "../types";
 import { getControlsLabel } from "./riskLevels";
 
-const RISKS = [
+const RAW_RISKS: any[] = [
   // ─── Accounting Department ────────────────────────────────────────────
   {
     department: "Accounting Department",
@@ -1508,28 +1509,27 @@ const RISKS = [
   },
 ];
 
-export function generateMockRisks() {
-  return RISKS.map((r, i) => {
-    const inherent = r.likelihood_score * r.impact_score;
-    // Derive residual from inherent score modulated by controls quality
-    const controlStrength = Math.max(0, (11 - r.controls_rating) / 10);
-    const resL = Math.max(
-      1,
-      Math.round(r.likelihood_score * (1 - controlStrength * 0.4)),
-    );
-    const resImp = Math.max(
-      1,
-      Math.round(r.impact_score * (1 - controlStrength * 0.3)),
-    );
-    const residual = resL * resImp;
+export const RISKS: RiskRecord[] = RAW_RISKS.map((r, i) => {
+  const inherent = r.likelihood_score * r.impact_score;
+  const controlStrength = (10 - r.controls_rating) / 10;
+  const resL = Math.max(
+    1,
+    Math.round(r.likelihood_score * (1 - controlStrength * 0.4)),
+  );
+  const resImp = Math.max(
+    1,
+    Math.round(r.impact_score * (1 - controlStrength * 0.3)),
+  );
+  return {
+    ...r,
+    id: i + 1,
+    inherent_risk_score: inherent,
+    residual_risk_score: resL * resImp,
+    assessment_period: "2026-Q1",
+  };
+});
 
-    return {
-      ...r,
-      id: `mock-${i}`,
-      inherent_risk_score: inherent,
-      residual_risk_score: residual,
-      control_rating: getControlsLabel(r.controls_rating),
-      assessment_period: "2026-Q1",
-    };
-  });
+export function generateMockRisks(count: number): RiskRecord[] {
+  return RISKS.slice(0, count);
 }
+

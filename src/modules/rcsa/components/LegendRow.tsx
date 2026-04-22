@@ -1,4 +1,13 @@
-export default function LegendRow({ items }) {
+interface LegendItem {
+  label: string;
+  color: string;
+}
+
+interface LegendRowProps {
+  items: LegendItem[];
+}
+
+export default function LegendRow({ items }: LegendRowProps) {
   return (
     <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 mt-3">
       {items.map(({ label, color }) => (

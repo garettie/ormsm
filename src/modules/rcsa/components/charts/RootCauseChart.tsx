@@ -1,9 +1,15 @@
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
-import { TREATMENT_TYPES, TREATMENT_COLOR_MAP } from '../../utils/riskLevels'
+import { ROOT_CAUSES, RC_COLOR_MAP } from '../../utils/riskLevels'
+import type { RootCause } from '../../types'
 import DarkTooltip from '../DarkTooltip'
 import LegendRow from '../LegendRow'
 
-export default function RiskTreatmentChart({ data, onClick }) {
+interface RootCauseChartProps {
+  data: any[];
+  onClick: (data: any) => void;
+}
+
+export default function RootCauseChart({ data, onClick }: RootCauseChartProps) {
   return (
     <div className="flex flex-col items-center justify-center">
       <ResponsiveContainer width="100%" height={200}>
@@ -20,17 +26,17 @@ export default function RiskTreatmentChart({ data, onClick }) {
             onClick={onClick}
             style={{ cursor: 'pointer' }}
           >
-            {data.map((d) => (
-              <Cell key={d.name} fill={TREATMENT_COLOR_MAP[d.name]} />
+            {data.map((d: any) => (
+              <Cell key={d.name} fill={RC_COLOR_MAP[d.name as RootCause]} />
             ))}
           </Pie>
           <Tooltip content={<DarkTooltip />} />
         </PieChart>
       </ResponsiveContainer>
       <LegendRow
-        items={TREATMENT_TYPES.map((t) => ({
-          label: t,
-          color: TREATMENT_COLOR_MAP[t],
+        items={ROOT_CAUSES.map((rc) => ({
+          label: rc,
+          color: RC_COLOR_MAP[rc],
         }))}
       />
     </div>

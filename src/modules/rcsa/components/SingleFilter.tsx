@@ -1,4 +1,11 @@
-export default function SingleFilter({ label, options, value, onChange }) {
+interface SingleFilterProps {
+  label: string;
+  options: string[];
+  value: string;
+  onChange: (val: string) => void;
+}
+
+export default function SingleFilter({ label, options, value, onChange }: SingleFilterProps) {
   return (
     <select
       value={value}

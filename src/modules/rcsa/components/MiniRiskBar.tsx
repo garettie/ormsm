@@ -1,9 +1,16 @@
 import { useState } from 'react'
 import { RISK_LEVELS, RISK_COLORS, getRiskLevel } from '../utils/riskLevels'
+import type { RiskRecord, RiskLevel } from '../types'
 
-export default function MiniRiskBar({ risks, onLevelClick, activeLevel }) {
-    const [hovered, setHovered] = useState(null)
-    const counts = { Minor: 0, Moderate: 0, Major: 0, Critical: 0 }
+interface MiniRiskBarProps {
+    risks: RiskRecord[];
+    onLevelClick?: (level: RiskLevel) => void;
+    activeLevel?: string[];
+}
+
+export default function MiniRiskBar({ risks, onLevelClick, activeLevel }: MiniRiskBarProps) {
+    const [hovered, setHovered] = useState<RiskLevel | null>(null)
+    const counts: Record<RiskLevel, number> = { Minor: 0, Moderate: 0, Major: 0, Critical: 0 }
     if (risks) {
         risks.forEach(r => counts[getRiskLevel(r.residual_risk_score)]++)
     }
@@ -26,7 +33,7 @@ export default function MiniRiskBar({ risks, onLevelClick, activeLevel }) {
                         style={{
                             height: `${heightPct}%`,
                             backgroundColor: RISK_COLORS[l],
-                            opacity: activeLevel?.length > 0 && !activeLevel.includes(l) ? 0.3 : 1,
+                            opacity: activeLevel && activeLevel.length > 0 && !activeLevel.includes(l) ? 0.3 : 1,
                             transform: hovered === l ? 'scaleY(1.1)' : 'scaleY(1)',
                             transformOrigin: 'bottom',
                         }}

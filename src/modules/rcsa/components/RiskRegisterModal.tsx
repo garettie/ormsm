@@ -1,6 +1,12 @@
 import RiskRegister from './RiskRegister'
+import type { RiskRecord } from '../types'
 
-export default function RiskRegisterModal({ risks, onClose }) {
+interface RiskRegisterModalProps {
+  risks: RiskRecord[];
+  onClose: () => void;
+}
+
+export default function RiskRegisterModal({ risks, onClose }: RiskRegisterModalProps) {
   return (
     <div
       onClick={onClose}
@@ -24,7 +30,6 @@ export default function RiskRegisterModal({ risks, onClose }) {
         <RiskRegister
           risks={risks}
           title="Risk Register"
-          pageSize={50}
           onClose={onClose}
           isModal
         />

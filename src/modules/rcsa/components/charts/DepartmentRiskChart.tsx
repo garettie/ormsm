@@ -4,7 +4,11 @@ import { WrapTick } from '../../utils/chartUtils'
 import DarkTooltip from '../DarkTooltip'
 import LegendRow from '../LegendRow'
 
-export default function DepartmentRiskChart({ data }) {
+interface DepartmentRiskChartProps {
+  data: any[];
+}
+
+export default function DepartmentRiskChart({ data }: DepartmentRiskChartProps) {
   return (
     <div className="flex flex-col">
       {/* Scrollable chart area */}

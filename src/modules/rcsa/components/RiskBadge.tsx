@@ -1,14 +1,15 @@
 import { memo } from 'react';
 import { RISK_BG, RISK_TEXT, getRiskLevel } from '../utils/riskLevels'
+import type { RiskLevel } from '../types';
 
-const RISK_BORDER = {
+const RISK_BORDER: Record<RiskLevel, string> = {
   Minor: '#bbf7d0',
   Moderate: '#fde68a',
   Major: '#fed7aa',
   Critical: '#fecaca',
 }
 
-export default memo(function RiskBadge({ score }) {
+export default memo(function RiskBadge({ score }: { score: number }) {
   const level = getRiskLevel(score)
   return (
     <span

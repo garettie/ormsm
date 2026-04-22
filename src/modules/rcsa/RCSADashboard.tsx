@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef, Suspense } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ShieldAlert, Loader, BarChart3, GitMerge } from "lucide-react";
 import { supabase } from "./lib/supabase";
 import { useDashboardData } from "./hooks/useDashboardData";
 import { getRiskLevel } from "./utils/riskLevels";
-import { generateMockRisks } from "./utils/mockData";
+import { RISKS } from "./utils/mockData";
+import type { RiskRecord } from "./types";
 
 import DashboardHeader from "./components/DashboardHeader";
 import DashboardKPIs from "./components/DashboardKPIs";
@@ -21,26 +22,26 @@ import SankeyEventType from "./components/charts/SankeyEventType";
 import RiskTreatmentChart from "./components/charts/RiskTreatmentChart";
 import DepartmentRiskChart from "./components/charts/DepartmentRiskChart";
 
-export default function RCSADashboard({ demoMode }) {
-  const [risks, setRisks] = useState([]);
+export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
+  const [risks, setRisks] = useState<RiskRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const [deptFilter, setDeptFilter] = useState([]);
-  const [periodFilter, setPeriodFilter] = useState([]);
-  const [statusFilter, setStatusFilter] = useState([]);
+  const [deptFilter, setDeptFilter] = useState<string[]>([]);
+  const [periodFilter, setPeriodFilter] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
 
-  const [riskLevelFilter, setRiskLevelFilter] = useState([]);
-  const [heatmapFilter, setHeatmapFilter] = useState(null);
+  const [riskLevelFilter, setRiskLevelFilter] = useState<string[]>([]);
+  const [heatmapFilter, setHeatmapFilter] = useState<{ l: number; i: number } | null>(null);
 
-  const [controlTypeFilter, setControlTypeFilter] = useState(null);
-  const [rootCauseFilter, setRootCauseFilter] = useState(null);
-  const [treatmentFilter, setTreatmentFilter] = useState(null);
-  const [eventTypeFilter, setEventTypeFilter] = useState(null);
-  const [inherentRiskFilter, setInherentRiskFilter] = useState([]);
-  const [controlRatingFilter, setControlRatingFilter] = useState([]);
+  const [controlTypeFilter, setControlTypeFilter] = useState<string | null>(null);
+  const [rootCauseFilter, setRootCauseFilter] = useState<string | null>(null);
+  const [treatmentFilter, setTreatmentFilter] = useState<string | null>(null);
+  const [eventTypeFilter, setEventTypeFilter] = useState<string | null>(null);
+  const [inherentRiskFilter, setInherentRiskFilter] = useState<string[]>([]);
+  const [controlRatingFilter, setControlRatingFilter] = useState<string[]>([]);
 
-  const [kpiModal, setKpiModal] = useState(null);
+  const [kpiModal, setKpiModal] = useState<string | null>(null);
   const [sankeyView, setSankeyView] = useState(true);
   const [registerModal, setRegisterModal] = useState(false);
 
@@ -53,18 +54,17 @@ export default function RCSADashboard({ demoMode }) {
       setError(null);
       if (demoMode) {
         setTimeout(() => {
-          setRisks(generateMockRisks(100));
+          setRisks(RISKS);
           setLoading(false);
         }, 400);
         return;
       }
       try {
-        const [risksRes] = await Promise.all([
-          supabase.from("risks").select("*"),
-        ]);
-        if (risksRes.error) throw risksRes.error;
-        setRisks(risksRes.data);
-      } catch (err) {
+        if (!supabase) throw new Error("Supabase not configured");
+        const { data: risksData, error: risksError } = await supabase.from("risks").select("*");
+        if (risksError) throw risksError;
+        setRisks(risksData || []);
+      } catch (err: any) {
         setError(err.message || "Failed to fetch data");
       } finally {
         setLoading(false);
@@ -80,7 +80,7 @@ export default function RCSADashboard({ demoMode }) {
     statusFilter,
     riskLevelFilter,
     heatmapFilter,
-
+    drillDept: null,
     controlTypeFilter,
     rootCauseFilter,
     treatmentFilter,
@@ -104,20 +104,20 @@ export default function RCSADashboard({ demoMode }) {
     setControlRatingFilter([]);
   };
 
-  const handlePieClick = (chartData, setFilterFn) => {
+  const handlePieClick = (chartData: any, setFilterFn: React.Dispatch<React.SetStateAction<string | null>>) => {
     if (chartData?.name) {
       setFilterFn((prev) => (prev === chartData.name ? null : chartData.name));
     }
   };
 
-  const handleEventTypeClick = (chartData) => {
+  const handleEventTypeClick = (chartData: any) => {
     if (chartData?.activePayload?.[0]) {
       const name = chartData.activeLabel;
       setEventTypeFilter((prev) => (prev === name ? null : name));
     }
   };
 
-  const handleSankeyNodeClick = (layer, name) => {
+  const handleSankeyNodeClick = (layer: number, name: string) => {
     if (layer === 0)
       setRootCauseFilter((prev) => (prev === name ? null : name));
     if (layer === 1)
@@ -181,7 +181,7 @@ export default function RCSADashboard({ demoMode }) {
           <button
             onClick={() => {
               setError(null);
-              setDemoMode(true);
+              setRisks(RISKS);
             }}
             style={{
               marginTop: 20,
@@ -256,14 +256,14 @@ export default function RCSADashboard({ demoMode }) {
           <SectionCard title="Control Types">
             <ControlTypeChart
               data={data.controlTypeData}
-              onClick={(d) => handlePieClick(d, setControlTypeFilter)}
+              onClick={(d: any) => handlePieClick(d, setControlTypeFilter)}
             />
           </SectionCard>
 
           <SectionCard title="Root Cause">
             <RootCauseChart
               data={data.rootCauseData}
-              onClick={(d) => handlePieClick(d, setRootCauseFilter)}
+              onClick={(d: any) => handlePieClick(d, setRootCauseFilter)}
             />
           </SectionCard>
 
@@ -279,7 +279,7 @@ export default function RCSADashboard({ demoMode }) {
           <SectionCard title="Risk Treatment">
             <RiskTreatmentChart
               data={data.treatmentData}
-              onClick={(d) => handlePieClick(d, setTreatmentFilter)}
+              onClick={(d: any) => handlePieClick(d, setTreatmentFilter)}
             />
           </SectionCard>
         </div>

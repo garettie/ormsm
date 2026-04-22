@@ -1,6 +1,13 @@
 import RiskRegister from "./RiskRegister";
+import type { RiskRecord } from "../types";
 
-export default function KpiModal({ kpiModal, setKpiModal, filtered }) {
+interface KpiModalProps {
+  kpiModal: string | null;
+  setKpiModal: (val: string | null) => void;
+  filtered: RiskRecord[];
+}
+
+export default function KpiModal({ kpiModal, setKpiModal, filtered }: KpiModalProps) {
   if (!kpiModal) return null;
 
   return (

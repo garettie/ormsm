@@ -1,14 +1,22 @@
 import { useMemo, useState, useRef } from 'react'
 import { RISK_LEVELS, RISK_COLORS } from '../../utils/riskLevels'
 import LegendRow from '../LegendRow'
+import type { RiskRecord, RiskLevel } from '../../types'
 
-export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFilter, getRiskLevel }) {
-    const [hoveredHeatCell, setHoveredHeatCell] = useState(null)
+interface InherentRiskHeatmapProps {
+    risks: RiskRecord[];
+    heatmapFilter: { l: number; i: number } | null;
+    setHeatmapFilter: (filter: { l: number; i: number } | null) => void;
+    getRiskLevel: (score: number) => RiskLevel;
+}
+
+export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFilter, getRiskLevel }: InherentRiskHeatmapProps) {
+    const [hoveredHeatCell, setHoveredHeatCell] = useState<string | null>(null)
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-    const containerRef = useRef(null)
+    const containerRef = useRef<HTMLDivElement>(null)
 
     const heatmapCounts = useMemo(() => {
-        const counts = {};
+        const counts: Record<string, number> = {};
         risks.forEach((r) => {
             const k = `${r.likelihood_score}-${r.impact_score}`;
             counts[k] = (counts[k] || 0) + 1;
@@ -16,17 +24,17 @@ export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFi
         return counts;
     }, [risks]);
 
-    const getHeatCellResidual = (l, i) => {
+    const getHeatCellResidual = (l: number, i: number) => {
         const cellRisks = risks.filter(
             (r) => r.likelihood_score === l && r.impact_score === i,
         );
         if (!cellRisks.length) return null;
-        const breakdown = { Minor: 0, Moderate: 0, Major: 0, Critical: 0 };
+        const breakdown: Record<RiskLevel, number> = { Minor: 0, Moderate: 0, Major: 0, Critical: 0 };
         cellRisks.forEach((r) => breakdown[getRiskLevel(r.residual_risk_score)]++);
         return { count: cellRisks.length, breakdown };
     };
 
-    const hmColor = (l, i) => {
+    const hmColor = (l: number, i: number) => {
         const s = l * i;
         if (s <= 3) return { bg: "#dcfce7", text: "#15803d", border: "#bbf7d0" };
         if (s <= 6) return { bg: "#fef3c7", text: "#92400e", border: "#fde68a" };
@@ -34,10 +42,10 @@ export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFi
         return { bg: "#fee2e2", text: "#991b1b", border: "#fecaca" };
     };
 
-    const isHeatSelected = (l, i) =>
+    const isHeatSelected = (l: number, i: number) =>
         heatmapFilter && heatmapFilter.l === l && heatmapFilter.i === i;
 
-    const handleHeatClick = (l, i) => {
+    const handleHeatClick = (l: number, i: number) => {
         if (heatmapFilter && heatmapFilter.l === l && heatmapFilter.i === i) {
             setHeatmapFilter(null);
         } else {
@@ -45,7 +53,7 @@ export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFi
         }
     };
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: React.MouseEvent) => {
         if (!containerRef.current) return;
         const rect = containerRef.current.getBoundingClientRect();
         setMousePos({

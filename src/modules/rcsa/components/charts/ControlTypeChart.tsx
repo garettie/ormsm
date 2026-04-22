@@ -1,9 +1,15 @@
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
-import { ROOT_CAUSES, RC_COLOR_MAP } from '../../utils/riskLevels'
+import { CONTROL_TYPES, CT_COLOR_MAP } from '../../utils/riskLevels'
+import type { ControlType } from '../../types'
 import DarkTooltip from '../DarkTooltip'
 import LegendRow from '../LegendRow'
 
-export default function RootCauseChart({ data, onClick }) {
+interface ControlTypeChartProps {
+  data: any[];
+  onClick: (data: any) => void;
+}
+
+export default function ControlTypeChart({ data, onClick }: ControlTypeChartProps) {
   return (
     <div className="flex flex-col items-center justify-center">
       <ResponsiveContainer width="100%" height={200}>
@@ -20,17 +26,17 @@ export default function RootCauseChart({ data, onClick }) {
             onClick={onClick}
             style={{ cursor: 'pointer' }}
           >
-            {data.map((d) => (
-              <Cell key={d.name} fill={RC_COLOR_MAP[d.name]} />
+            {data.map((d: any) => (
+              <Cell key={d.name} fill={CT_COLOR_MAP[d.name as ControlType]} />
             ))}
           </Pie>
           <Tooltip content={<DarkTooltip />} />
         </PieChart>
       </ResponsiveContainer>
       <LegendRow
-        items={ROOT_CAUSES.map((rc) => ({
-          label: rc,
-          color: RC_COLOR_MAP[rc],
+        items={CONTROL_TYPES.map((ct) => ({
+          label: ct,
+          color: CT_COLOR_MAP[ct],
         }))}
       />
     </div>

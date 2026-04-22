@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import type { RiskRecord, RiskLevel, ControlRating, ControlType, RootCause, RiskTreatment, RiskStatus } from "../types";
 import {
   getRiskLevel,
   getControlsLabel,
@@ -10,6 +11,22 @@ import {
   EVENT_TYPES,
   DEPARTMENTS,
 } from "../utils/riskLevels";
+
+interface DashboardFilters {
+  risks: any[];
+  deptFilter: string[];
+  periodFilter: string[];
+  statusFilter: string[];
+  riskLevelFilter: string[];
+  heatmapFilter: { l: number; i: number } | null;
+  drillDept: string | null;
+  controlTypeFilter: string | null;
+  rootCauseFilter: string | null;
+  treatmentFilter: string | null;
+  eventTypeFilter: string | null;
+  inherentRiskFilter: string[];
+  controlRatingFilter: string[];
+}
 
 export function useDashboardData({
   risks,
@@ -25,10 +42,10 @@ export function useDashboardData({
   eventTypeFilter,
   inherentRiskFilter,
   controlRatingFilter,
-}) {
+}: DashboardFilters) {
   const periods = useMemo(() => {
     const set = new Set(risks.map((r) => r.assessment_period).filter(Boolean));
-    return [...set].sort();
+    return [...set].sort() as string[];
   }, [risks]);
 
   const filtered = useMemo(
@@ -189,7 +206,7 @@ export function useDashboardData({
           total: dr.length,
         };
       })
-        .filter(Boolean)
+        .filter((item): item is NonNullable<typeof item> => item !== null)
         .sort((a, b) => b.total - a.total),
     [filtered],
   );

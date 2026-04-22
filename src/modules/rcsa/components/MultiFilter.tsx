@@ -1,24 +1,36 @@
 import { useState, useRef, useEffect } from 'react'
 import { ChevronDown, X, Check } from 'lucide-react'
 
+interface MultiFilterProps {
+  label: string;
+  options: string[];
+  selected: string[];
+  onChange: (val: string[]) => void;
+  formatLabel?: (s: string) => string;
+  width?: string | number;
+  bgMap?: Record<string, string> | null;
+  textMap?: Record<string, string> | null;
+  colorMap?: Record<string, string> | null;
+}
+
 export default function MultiFilter({ 
   label, options, selected, onChange, 
   formatLabel = (s) => s, width,
   bgMap = null, textMap = null, colorMap = null
-}) {
+}: MultiFilterProps) {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const ref = useRef(null)
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    function handleClick(e) {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const toggle = val => onChange(selected.includes(val) ? selected.filter(v => v !== val) : [...selected, val])
+  const toggle = (val: string) => onChange(selected.includes(val) ? selected.filter(v => v !== val) : [...selected, val])
 
   const filteredOptions = options.filter(opt =>
     opt.toLowerCase().includes(searchTerm.toLowerCase())

@@ -1,6 +1,17 @@
-import { useState } from 'react'
+import type { ReactNode } from 'react'
 
-export default function KpiCard({ label, value, sub, accentColor, icon: Icon, borderColor, children, onClick }) {
+interface KpiCardProps {
+  label: string;
+  value: string | number;
+  sub?: string;
+  accentColor: string;
+  icon: any;
+  borderColor?: string;
+  children?: ReactNode;
+  onClick?: () => void;
+}
+
+export default function KpiCard({ label, value, sub, accentColor, icon: Icon, borderColor, children, onClick }: KpiCardProps) {
   const bc = borderColor || accentColor || '#e2e8f0'
 
   return (

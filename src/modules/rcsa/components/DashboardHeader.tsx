@@ -12,6 +12,33 @@ import {
 } from "../utils/riskLevels";
 import MultiFilter from "./MultiFilter";
 
+interface DashboardHeaderProps {
+  periods: string[];
+  deptFilter: string[];
+  setDeptFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  periodFilter: string[];
+  setPeriodFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  statusFilter: string[];
+  setStatusFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  inherentRiskFilter: string[];
+  setInherentRiskFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  controlRatingFilter: string[];
+  setControlRatingFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  riskLevelFilter: string[];
+  setRiskLevelFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  controlTypeFilter: string | null;
+  setControlTypeFilter: React.Dispatch<React.SetStateAction<string | null>>;
+  rootCauseFilter: string | null;
+  setRootCauseFilter: React.Dispatch<React.SetStateAction<string | null>>;
+  treatmentFilter: string | null;
+  setTreatmentFilter: React.Dispatch<React.SetStateAction<string | null>>;
+  eventTypeFilter: string | null;
+  setEventTypeFilter: React.Dispatch<React.SetStateAction<string | null>>;
+  heatmapFilter: { l: number; i: number } | null;
+  setHeatmapFilter: React.Dispatch<React.SetStateAction<{ l: number; i: number } | null>>;
+  clearAllFilters: () => void;
+}
+
 export default function DashboardHeader({
   periods,
   deptFilter,
@@ -37,7 +64,7 @@ export default function DashboardHeader({
   heatmapFilter,
   setHeatmapFilter,
   clearAllFilters,
-}) {
+}: DashboardHeaderProps) {
   const hasActiveFilters = 
     deptFilter.length > 0 || periodFilter.length > 0 || statusFilter.length > 0 || 
     inherentRiskFilter.length > 0 || controlRatingFilter.length > 0 || riskLevelFilter.length > 0 || 

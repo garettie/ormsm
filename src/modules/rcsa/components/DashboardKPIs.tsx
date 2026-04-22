@@ -7,6 +7,23 @@ import {
 } from "lucide-react";
 import KpiCard from "./KpiCard";
 import MiniRiskBar from "./MiniRiskBar";
+import type { RiskRecord, RiskLevel, ControlRating } from "../types";
+
+interface DashboardKPIsProps {
+  filtered: RiskRecord[];
+  closedCount: number;
+  openCount: number;
+  riskLevelFilter: string[];
+  setRiskLevelFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  avgControlsScore: number;
+  avgControlsLabel: ControlRating;
+  controlsColor: string;
+  avgResidualScore: number;
+  avgResidualLevel: RiskLevel;
+  residualColor: string;
+  overdue: number;
+  setKpiModal: (val: string | null) => void;
+}
 
 export default function DashboardKPIs({
   filtered,
@@ -22,7 +39,7 @@ export default function DashboardKPIs({
   residualColor,
   overdue,
   setKpiModal,
-}) {
+}: DashboardKPIsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
       <KpiCard

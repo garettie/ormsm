@@ -1,11 +1,16 @@
-import { RISK_BG, RISK_TEXT } from "../utils/riskLevels";
+interface FilterIndicatorsProps {
+  heatmapFilter: { l: number; i: number } | null;
+  setHeatmapFilter: (val: { l: number; i: number } | null) => void;
+  drillDept: string | null;
+  setDrillDept: (val: string | null) => void;
+}
 
 export default function FilterIndicators({
   heatmapFilter,
   setHeatmapFilter,
   drillDept,
   setDrillDept,
-}) {
+}: FilterIndicatorsProps) {
   const activeFilters = [
     heatmapFilter,
     drillDept,

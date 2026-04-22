@@ -1,11 +1,20 @@
 import { useState, useMemo, Fragment } from 'react'
+import type { ReactNode } from 'react'
 import { ArrowUpDown, ChevronDown, ChevronUp, Filter, X, Maximize2, Search, Download } from 'lucide-react'
 import { shortDept, getRiskLevel, getControlsLabel, RISK_LEVELS, RISK_BG, RISK_TEXT, CONTROLS_LABEL_COLORS } from '../utils/riskLevels'
 import RiskBadge from './RiskBadge'
+import type { RiskRecord, RiskLevel, RootCause, ControlType, RiskTreatment, RiskStatus } from '../types'
 
 const CONTROLS_LABELS = ['Strong', 'Satisfactory', 'Needs Improvement', 'Unsatisfactory']
 
-function FilterSelect({ value, onChange, options, placeholder }) {
+interface FilterSelectProps {
+  value: string;
+  onChange: (val: string) => void;
+  options: string[];
+  placeholder?: string;
+}
+
+function FilterSelect({ value, onChange, options, placeholder }: FilterSelectProps) {
   return (
     <select
       value={value}
@@ -18,7 +27,13 @@ function FilterSelect({ value, onChange, options, placeholder }) {
   )
 }
 
-function FilterInput({ value, onChange, placeholder }) {
+interface FilterInputProps {
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+}
+
+function FilterInput({ value, onChange, placeholder }: FilterInputProps) {
   return (
     <input
       type="text"
@@ -30,14 +45,22 @@ function FilterInput({ value, onChange, placeholder }) {
   )
 }
 
-export default function RiskRegister({ risks, title = "Risk Register", onOpenModal, onClose, isModal }) {
-  const [expandedRow, setExpandedRow] = useState(null)
-  const [showFilters, setShowFilters] = useState(false)
-  const [colFilters, setColFilters] = useState({})
-  const [searchTerm, setSearchTerm] = useState('')
-  const [sortConfig, setSortConfig] = useState({ key: 'department', direction: 'asc' })
+interface RiskRegisterProps {
+  risks: any[];
+  title?: string;
+  onOpenModal?: () => void;
+  onClose?: () => void;
+  isModal?: boolean;
+}
 
-  const setFilter = (key, val) => {
+export default function RiskRegister({ risks, title = "Risk Register", onOpenModal, onClose, isModal }: RiskRegisterProps) {
+  const [expandedRow, setExpandedRow] = useState<string | number | null>(null)
+  const [showFilters, setShowFilters] = useState(false)
+  const [colFilters, setColFilters] = useState<Record<string, string>>({})
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: 'department', direction: 'asc' })
+
+  const setFilter = (key: string, val: string) => {
     setColFilters(prev => ({ ...prev, [key]: val }))
   }
 
@@ -46,7 +69,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
     setSearchTerm('')
   }
 
-  const handleSort = (key) => {
+  const handleSort = (key: string) => {
     setSortConfig(prev => ({
       key,
       direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
@@ -56,7 +79,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
   const hasActiveFilters = Object.values(colFilters).some(v => v) || searchTerm
 
   const filteredRisks = useMemo(() => {
-    let result = risks.filter(r => {
+    let result = risks.filter((r: any) => {
       if (searchTerm) {
         const q = searchTerm.toLowerCase()
         const searchable = [r.department, r.process_name, r.risk_description, r.possible_causes, r.root_cause, r.event_type].filter(Boolean).join(' ').toLowerCase()
@@ -79,7 +102,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
 
     // Sort
     const { key, direction } = sortConfig
-    result = [...result].sort((a, b) => {
+    result = [...result].sort((a: any, b: any) => {
       let aVal, bVal
       switch (key) {
         case 'department': aVal = a.department; bVal = b.department; break
@@ -122,20 +145,20 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
     { key: 'expand', label: '' },
   ]
 
-  const renderFilterCell = (col) => {
+  const renderFilterCell = (col: any) => {
     switch (col.key) {
-      case 'department': return <FilterSelect value={colFilters.department || ''} onChange={v => setFilter('department', v)} options={deptOptions} />
-      case 'process': return <FilterSelect value={colFilters.process || ''} onChange={v => setFilter('process', v)} options={processOptions} />
-      case 'description': return <FilterInput value={colFilters.description || ''} onChange={v => setFilter('description', v)} placeholder="Search..." />
-      case 'causes': return <FilterInput value={colFilters.causes || ''} onChange={v => setFilter('causes', v)} placeholder="Search..." />
-      case 'rootCause': return <FilterSelect value={colFilters.rootCause || ''} onChange={v => setFilter('rootCause', v)} options={['People', 'Process', 'Systems', 'External Events']} />
-      case 'eventType': return <FilterSelect value={colFilters.eventType || ''} onChange={v => setFilter('eventType', v)} options={eventTypeOptions} />
-      case 'controlType': return <FilterSelect value={colFilters.controlType || ''} onChange={v => setFilter('controlType', v)} options={['Preventive', 'Detective', 'Corrective', 'None']} />
-      case 'inherent': return <FilterSelect value={colFilters.inherent || ''} onChange={v => setFilter('inherent', v)} options={RISK_LEVELS} />
-      case 'controls': return <FilterSelect value={colFilters.controls || ''} onChange={v => setFilter('controls', v)} options={CONTROLS_LABELS} />
-      case 'residual': return <FilterSelect value={colFilters.residual || ''} onChange={v => setFilter('residual', v)} options={RISK_LEVELS} />
-      case 'treatment': return <FilterSelect value={colFilters.treatment || ''} onChange={v => setFilter('treatment', v)} options={treatmentOptions} />
-      case 'status': return <FilterSelect value={colFilters.status || ''} onChange={v => setFilter('status', v)} options={['Open', 'In Progress', 'Closed']} />
+      case 'department': return <FilterSelect value={colFilters.department || ''} onChange={(v: string) => setFilter('department', v)} options={deptOptions} />
+      case 'process': return <FilterSelect value={colFilters.process || ''} onChange={(v: string) => setFilter('process', v)} options={processOptions} />
+      case 'description': return <FilterInput value={colFilters.description || ''} onChange={(v: string) => setFilter('description', v)} placeholder="Search..." />
+      case 'causes': return <FilterInput value={colFilters.causes || ''} onChange={(v: string) => setFilter('causes', v)} placeholder="Search..." />
+      case 'rootCause': return <FilterSelect value={colFilters.rootCause || ''} onChange={(v: string) => setFilter('rootCause', v)} options={['People', 'Process', 'Systems', 'External Events']} />
+      case 'eventType': return <FilterSelect value={colFilters.eventType || ''} onChange={(v: string) => setFilter('eventType', v)} options={eventTypeOptions} />
+      case 'controlType': return <FilterSelect value={colFilters.controlType || ''} onChange={(v: string) => setFilter('controlType', v)} options={['Preventive', 'Detective', 'Corrective', 'None']} />
+      case 'inherent': return <FilterSelect value={colFilters.inherent || ''} onChange={(v: string) => setFilter('inherent', v)} options={RISK_LEVELS} />
+      case 'controls': return <FilterSelect value={colFilters.controls || ''} onChange={(v: string) => setFilter('controls', v)} options={CONTROLS_LABELS} />
+      case 'residual': return <FilterSelect value={colFilters.residual || ''} onChange={(v: string) => setFilter('residual', v)} options={RISK_LEVELS} />
+      case 'treatment': return <FilterSelect value={colFilters.treatment || ''} onChange={(v: string) => setFilter('treatment', v)} options={treatmentOptions} />
+      case 'status': return <FilterSelect value={colFilters.status || ''} onChange={(v: string) => setFilter('status', v)} options={['Open', 'In Progress', 'Closed']} />
       default: return null
     }
   }
@@ -345,10 +368,10 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
   )
 }
 
-function downloadCSV(data) {
+function downloadCSV(data: any[]) {
   if (!data.length) return
   const headers = ['Department', 'Process', 'Risk Description', 'Possible Causes', 'Root Cause', 'Event Type', 'Control Type', 'Control Description', 'Inherent Risk', 'Controls Rating', 'Residual Risk', 'Risk Treatment', 'Status', 'Action Plan', 'Deadline']
-  const rows = data.map(r => [
+  const rows = data.map((r: any) => [
     r.department,
     r.process_name,
     r.risk_description,

@@ -1,8 +1,9 @@
 import { useMemo, useState, useRef } from 'react'
 import { sankey as d3Sankey, sankeyLinkHorizontal, sankeyJustify } from 'd3-sankey'
-import { getRiskLevel, RC_COLOR_MAP, RISK_COLORS, RISK_LEVELS, ROOT_CAUSES } from '../../utils/riskLevels'
+import { getRiskLevel, RC_COLOR_MAP, RISK_COLORS } from '../../utils/riskLevels'
+import type { RiskRecord } from '../../types'
 
-const EVENT_ABBR = {
+const EVENT_ABBR: Record<string, string> = {
   'Execution delivery and process management': 'Exec. & Process Mgmt',
   'Business disruption and system failures': 'Bus. Disruption & Systems',
   'External fraud': 'External Fraud',
@@ -12,21 +13,42 @@ const EVENT_ABBR = {
   'Clients products and business practices': 'Client Prod. & Practices',
 }
 
-function abbreviate(name) {
+function abbreviate(name: string) {
   return EVENT_ABBR[name] || name
 }
 
-function buildGraph(risks) {
-  const nodeMap = new Map()
-  const linkMap = new Map()
+interface SankeyNode {
+  idx: number;
+  name: string;
+  fullName: string;
+  layer: number;
+  color: string;
+  x0?: number;
+  x1?: number;
+  y0?: number;
+  y1?: number;
+  value?: number;
+}
+
+interface SankeyLink {
+  source: number | SankeyNode;
+  target: number | SankeyNode;
+  value: number;
+  color: string;
+  width?: number;
+}
+
+function buildGraph(risks: RiskRecord[]) {
+  const nodeMap = new Map<string, SankeyNode>()
+  const linkMap = new Map<string, SankeyLink>()
 
   let nodeIdx = 0
-  function getNode(name, layer, color) {
+  function getNode(name: string, layer: number, color: string) {
     const key = `${layer}::${name}`
     if (!nodeMap.has(key)) {
       nodeMap.set(key, { idx: nodeIdx++, name, fullName: name, layer, color })
     }
-    return nodeMap.get(key)
+    return nodeMap.get(key)!
   }
 
   risks.forEach((r) => {
@@ -40,12 +62,16 @@ function buildGraph(risks) {
     const lvlNode = getNode(level, 2, RISK_COLORS[level] || '#94a3b8')
 
     const linkA = `${rcNode.idx}->${etNode.idx}`
-    linkMap.set(linkA, (linkMap.get(linkA) || { source: rcNode.idx, target: etNode.idx, value: 0, color: rcNode.color }))
-    linkMap.get(linkA).value++
+    if (!linkMap.has(linkA)) {
+      linkMap.set(linkA, { source: rcNode.idx, target: etNode.idx, value: 0, color: rcNode.color })
+    }
+    linkMap.get(linkA)!.value++
 
     const linkB = `${etNode.idx}->${lvlNode.idx}`
-    linkMap.set(linkB, (linkMap.get(linkB) || { source: etNode.idx, target: lvlNode.idx, value: 0, color: lvlNode.color }))
-    linkMap.get(linkB).value++
+    if (!linkMap.has(linkB)) {
+      linkMap.set(linkB, { source: etNode.idx, target: lvlNode.idx, value: 0, color: lvlNode.color })
+    }
+    linkMap.get(linkB)!.value++
   })
 
   const nodes = Array.from(nodeMap.values()).map((n) => ({
@@ -66,17 +92,22 @@ const SVG_H = 340
 const NODE_W = 12
 const NODE_PAD = 14
 
-export default function SankeyEventType({ risks, onNodeClick }) {
-  const [tooltip, setTooltip] = useState(null)
+interface SankeyEventTypeProps {
+  risks: RiskRecord[];
+  onNodeClick?: (layer: number, name: string) => void;
+}
+
+export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeProps) {
+  const [tooltip, setTooltip] = useState<{ text: string; value: number } | null>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  const containerRef = useRef(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const layout = useMemo(() => {
     const { nodes, links } = buildGraph(risks)
     if (!nodes.length) return null
 
-    const generator = d3Sankey()
-      .nodeId((d, i) => i)
+    const generator = d3Sankey<SankeyNode, SankeyLink>()
+      .nodeId((d: any) => d.idx)
       .nodeWidth(NODE_W)
       .nodePadding(NODE_PAD)
       .nodeAlign(sankeyJustify)
@@ -85,11 +116,14 @@ export default function SankeyEventType({ risks, onNodeClick }) {
         [SVG_W - MARGIN.right, SVG_H - MARGIN.bottom],
       ])
 
-    const graph = generator({ nodes: nodes.map((n) => ({ ...n })), links: links.map((l) => ({ ...l })) })
-    return graph
+    const graph = generator({ 
+      nodes: nodes.map((n, i) => ({ ...n, idx: i })), 
+      links: links.map((l) => ({ ...l })) 
+    })
+    return graph as any
   }, [risks])
 
-  if (!layout || !layout.nodes.length) {
+  if (!layout || !layout.nodes || !layout.nodes.length) {
     return (
       <div style={{ color: '#94a3b8', fontSize: 13, textAlign: 'center', padding: '40px 0' }}>
         No data to display
@@ -97,10 +131,10 @@ export default function SankeyEventType({ risks, onNodeClick }) {
     )
   }
 
-  const linkPath = sankeyLinkHorizontal()
+  const linkPath = sankeyLinkHorizontal() as any
 
   return (
-    <div style={{ position: 'relative' }} ref={containerRef} onMouseMove={(e) => {
+    <div style={{ position: 'relative' }} ref={containerRef} onMouseMove={(e: React.MouseEvent) => {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
@@ -131,7 +165,7 @@ export default function SankeyEventType({ risks, onNodeClick }) {
         style={{ display: 'block', overflow: 'visible' }}
       >
         {/* Links */}
-        {layout.links.map((link, i) => (
+        {layout.links.map((link: any, i: number) => (
           <path
             key={i}
             d={linkPath(link)}
@@ -143,7 +177,7 @@ export default function SankeyEventType({ risks, onNodeClick }) {
         ))}
 
         {/* Nodes */}
-        {layout.nodes.map((node, i) => {
+        {layout.nodes.map((node: any, i: number) => {
           const w = node.x1 - node.x0
           const h = node.y1 - node.y0
           const isLeft = node.layer === 0

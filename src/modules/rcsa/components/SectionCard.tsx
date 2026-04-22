@@ -1,4 +1,13 @@
-export default function SectionCard({ title, children, style, action }) {
+import type { ReactNode, CSSProperties } from 'react'
+
+interface SectionCardProps {
+  title: string;
+  children: ReactNode;
+  style?: CSSProperties;
+  action?: ReactNode;
+}
+
+export default function SectionCard({ title, children, style, action }: SectionCardProps) {
   return (
     <div className="glass-card flex flex-col" style={style}>
       <div className="px-6 pt-5 pb-1 flex items-center justify-between">

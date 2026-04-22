@@ -10,7 +10,7 @@ import {
 import { WrapTick } from "../../utils/chartUtils";
 import DarkTooltip from "../DarkTooltip";
 
-export default function EventTypeChart({ data, onClick }) {
+export default function EventTypeChart({ data, onClick }: { data: any[]; onClick: (d: any) => void }) {
   return (
     <ResponsiveContainer width="100%" height={Math.max(220, data.length * 36)}>
       <BarChart data={data} layout="vertical" margin={{ left: 0, right: 80 }}>

@@ -1,6 +1,6 @@
 import { Sector } from "recharts";
 
-export const renderActiveDonut = (props) => {
+export const renderActiveDonut = (props: any) => {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } =
     props;
   return (
@@ -17,7 +17,7 @@ export const renderActiveDonut = (props) => {
   );
 };
 
-export function WrapTick({ x, y, payload }) {
+export function WrapTick({ x, y, payload }: any) {
   const text = payload.value;
   if (text.length <= 28) {
     return (
