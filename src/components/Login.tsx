@@ -29,9 +29,9 @@ export function Login({ onLogin }: { onLogin: () => void }) {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
         <h2 className="text-2xl font-bold text-center text-slate-800 mb-8">
-          System Login
+          ORMSM Login
         </h2>
-        
+
         {error && (
           <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-6 text-sm">
             {error}
