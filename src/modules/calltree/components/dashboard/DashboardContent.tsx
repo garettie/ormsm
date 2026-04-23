@@ -43,7 +43,7 @@ export function DashboardContent({
           return JSON.parse(saved) as FilterState;
         }
       } catch {
-        // ignore error, fall back to default
+        // ignore
       }
     }
     return {
@@ -53,6 +53,23 @@ export function DashboardContent({
       statuses: [],
     };
   });
+
+  // Smart logic: identify departments that have at least one response
+  const smartDepartments = useMemo(() => {
+    const depts = new Set<string>();
+    data.contacts.forEach((c) => {
+      if (c.status !== "No Response" && c.department) {
+        depts.add(c.department);
+      }
+    });
+    return Array.from(depts);
+  }, [data.contacts]);
+
+  // If manual department filters are empty, use smart departments
+  const effectiveFilters = useMemo(() => ({
+    ...filters,
+    departments: filters.departments.length > 0 ? filters.departments : smartDepartments
+  }), [filters, smartDepartments]);
 
   const handleFilterChange = useCallback(
     (type: keyof typeof filters, value: string[]) => {
@@ -67,28 +84,41 @@ export function DashboardContent({
     [storageKey],
   );
 
+  const handleClearFilters = useCallback(() => {
+    const cleared = {
+      departments: [],
+      locations: [],
+      levels: [],
+      statuses: [],
+    };
+    setFilters(cleared);
+    if (storageKey) {
+      localStorage.removeItem(storageKey);
+    }
+  }, [storageKey]);
+
   const filteredData = useMemo(() => {
     return data.contacts.filter((c) => {
       if (
-        filters.departments.length > 0 &&
-        !filters.departments.includes(c.department)
+        effectiveFilters.departments.length > 0 &&
+        !effectiveFilters.departments.includes(c.department)
       )
         return false;
       if (
-        filters.locations.length > 0 &&
-        !filters.locations.includes(c.location)
+        effectiveFilters.locations.length > 0 &&
+        !effectiveFilters.locations.includes(c.location)
       )
         return false;
       if (
-        filters.levels.length > 0 &&
-        !filters.levels.includes(c.level || c.position)
+        effectiveFilters.levels.length > 0 &&
+        !effectiveFilters.levels.includes(c.level || c.position)
       )
         return false;
-      if (filters.statuses.length > 0 && !filters.statuses.includes(c.status))
+      if (effectiveFilters.statuses.length > 0 && !effectiveFilters.statuses.includes(c.status))
         return false;
       return true;
     });
-  }, [data.contacts, filters]);
+  }, [data.contacts, effectiveFilters]);
 
   const stats = useMemo(() => {
     const total = filteredData.length;
@@ -133,8 +163,9 @@ export function DashboardContent({
     <div className="animate-in fade-in duration-500">
       <Filters
         data={data.contacts}
-        filters={filters}
+        filters={effectiveFilters}
         onFilterChange={handleFilterChange}
+        onClear={handleClearFilters}
       />
 
       {/* KPI Grid */}
@@ -143,16 +174,16 @@ export function DashboardContent({
         const affectedStatuses = ["Slight", "Moderate", "Severe"];
 
         const isRespondedActive =
-          filters.statuses.length === respondedStatuses.length &&
-          respondedStatuses.every((s) => filters.statuses.includes(s));
+          effectiveFilters.statuses.length === respondedStatuses.length &&
+          respondedStatuses.every((s) => effectiveFilters.statuses.includes(s));
         const isSafeActive =
-          filters.statuses.length === 1 && filters.statuses.includes("Safe");
+          effectiveFilters.statuses.length === 1 && effectiveFilters.statuses.includes("Safe");
         const isAffectedActive =
-          filters.statuses.length === affectedStatuses.length &&
-          affectedStatuses.every((s) => filters.statuses.includes(s));
+          effectiveFilters.statuses.length === affectedStatuses.length &&
+          affectedStatuses.every((s) => effectiveFilters.statuses.includes(s));
         const isPendingActive =
-          filters.statuses.length === 1 &&
-          filters.statuses.includes("No Response");
+          effectiveFilters.statuses.length === 1 &&
+          effectiveFilters.statuses.includes("No Response");
 
         return (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
@@ -162,7 +193,7 @@ export function DashboardContent({
               subtext={`${data.contacts.length} in DB`}
               color={COLORS["No Response"]}
               onClick={() => handleFilterChange("statuses", [])}
-              isActive={filters.statuses.length === 0}
+              isActive={effectiveFilters.statuses.length === 0}
               icon={Users}
             />
             <KPICard
