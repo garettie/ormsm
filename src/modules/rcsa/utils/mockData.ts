@@ -15,6 +15,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Monthly GL reconciliation review and sign-off by senior accountant",
     control_type: "Detective",
+    control_design: 2,
+    control_implementation: 2,
     likelihood_score: 3,
     impact_score: 4,
     controls_rating: 4,
@@ -33,6 +35,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Reporting calendar with milestone tracking and alerts",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 3,
@@ -52,6 +56,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Dual approval required for payments exceeding PHP 50,000",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 3,
@@ -71,6 +77,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Post-discovery adjustment of asset records after audit findings",
     control_type: "Corrective",
+    control_design: 3,
+    control_implementation: 5,
     likelihood_score: 3,
     impact_score: 3,
     controls_rating: 8,
@@ -90,6 +98,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Quarterly tax compliance review by external tax consultant",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 4,
@@ -109,6 +119,8 @@ const RAW_RISKS: any[] = [
     event_type: "Internal fraud",
     control_description: "Weekly surprise petty cash counts by internal audit",
     control_type: "Detective",
+    control_design: 2,
+    control_implementation: 2,
     likelihood_score: 3,
     impact_score: 2,
     controls_rating: 4,
@@ -130,6 +142,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Daily cash position reporting and automatic alerts for thresholds",
     control_type: "Detective",
+    control_design: 4,
+    control_implementation: 4,
     likelihood_score: 4,
     impact_score: 4,
     controls_rating: 7,
@@ -150,6 +164,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Mandatory ID verification via BSP-approved digital KYC tool",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 3,
@@ -169,6 +185,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "End-of-day teller balancing with dual counting requirement",
     control_type: "Detective",
+    control_design: 2,
+    control_implementation: 2,
     likelihood_score: 3,
     impact_score: 2,
     controls_rating: 4,
@@ -189,6 +207,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Complaint ticketing system with SLA tracking and escalation matrix",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 4,
@@ -209,6 +229,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Post-incident investigation and skimming device removal protocol",
     control_type: "Corrective",
+    control_design: 4,
+    control_implementation: 4,
     likelihood_score: 4,
     impact_score: 3,
     controls_rating: 8,
@@ -229,6 +251,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Maker-checker process for all remittance transactions",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 3,
@@ -251,6 +275,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Automated AML transaction monitoring system with daily alert reviews",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 3,
@@ -271,6 +297,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Regulatory calendar with automated reminders and pre-submission validation",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 4,
@@ -290,6 +318,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Corrective action plan issued after each testing cycle with gap remediation tracking",
     control_type: "Corrective",
+    control_design: 4,
+    control_implementation: 4,
     likelihood_score: 4,
     impact_score: 3,
     controls_rating: 7,
@@ -309,6 +339,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Real-time sanctions screening integrated with core banking system",
     control_type: "Preventive",
+    control_design: 1,
+    control_implementation: 1,
     likelihood_score: 1,
     impact_score: 4,
     controls_rating: 2,
@@ -351,6 +383,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Credit committee review for all loans above PHP 500,000 with documented scorecard",
     control_type: "Preventive",
+    control_design: 4,
+    control_implementation: 3,
     likelihood_score: 4,
     impact_score: 4,
     controls_rating: 7,
@@ -370,6 +404,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Revaluation and write-down of collateral upon discovery of overvaluation",
     control_type: "Corrective",
+    control_design: 3,
+    control_implementation: 5,
     likelihood_score: 3,
     impact_score: 4,
     controls_rating: 8,
@@ -389,6 +425,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Monthly past-due aging reports with automatic escalation for 30+ days overdue",
     control_type: "Detective",
+    control_design: 2,
+    control_implementation: 2,
     likelihood_score: 3,
     impact_score: 3,
     controls_rating: 4,
@@ -409,6 +447,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Digital document checklist with mandatory completion before loan release",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 3,
@@ -428,6 +468,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Quarterly DOSRI certification and automated related-party transaction flagging",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 4,
@@ -448,6 +490,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Post-restructuring review and reclassification of accounts found to be improperly restructured",
     control_type: "Corrective",
+    control_design: 3,
+    control_implementation: 5,
     likelihood_score: 3,
     impact_score: 4,
     controls_rating: 9,
@@ -469,6 +513,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Annual penetration testing and quarterly vulnerability scanning",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 4,
@@ -488,6 +534,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Multi-factor authentication and transaction limit controls",
     control_type: "Preventive",
+    control_design: 4,
+    control_implementation: 3,
     likelihood_score: 4,
     impact_score: 4,
     controls_rating: 4,
@@ -508,6 +556,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "AI-powered liveness detection and real-time ID verification",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 3,
@@ -528,6 +578,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "API gateway with rate limiting, logging, and quarterly access reviews",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 4,
@@ -548,6 +600,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "99.5% uptime SLA with automated failover and real-time monitoring",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 4,
@@ -570,6 +624,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Mandatory NBI clearance, credit check, and previous employer verification",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 3,
@@ -590,6 +646,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Automated payroll system with mandatory headcount reconciliation before each run",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 4,
@@ -610,6 +668,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Remedial training and performance improvement plans issued after incidents",
     control_type: "Corrective",
+    control_design: 4,
+    control_implementation: 4,
     likelihood_score: 4,
     impact_score: 3,
     controls_rating: 8,
@@ -629,6 +689,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Emergency access revocation initiated upon discovery of retained access",
     control_type: "Corrective",
+    control_design: 4,
+    control_implementation: 4,
     likelihood_score: 4,
     impact_score: 4,
     controls_rating: 9,
@@ -649,6 +711,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Quarterly safety inspections and annual emergency drill",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 4,
@@ -671,6 +735,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "High-availability cluster with automated failover and tested BCP",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 3,
@@ -691,6 +757,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "EDR solution deployed on all endpoints with 24/7 SOC monitoring",
     control_type: "Detective",
+    control_design: 4,
+    control_implementation: 4,
     likelihood_score: 4,
     impact_score: 4,
     controls_rating: 6,
@@ -712,6 +780,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Daily automated backups with monthly restoration drills",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 4,
@@ -732,6 +802,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Access revocation and privilege reset after unauthorized access discovery",
     control_type: "Corrective",
+    control_design: 4,
+    control_implementation: 4,
     likelihood_score: 4,
     impact_score: 3,
     controls_rating: 8,
@@ -753,6 +825,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Formal CAB approval process with mandatory UAT sign-off before deployment",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 3,
@@ -795,6 +869,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Annual risk assessment with input from all department heads and board approval",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 3,
@@ -815,6 +891,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Peer review of all audit working papers and findings before report issuance",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 4,
@@ -834,6 +912,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Automated finding tracker with escalation to Audit Committee for overdue items",
     control_type: "Detective",
+    control_design: 2,
+    control_implementation: 2,
     likelihood_score: 3,
     impact_score: 3,
     controls_rating: 4,
@@ -855,6 +935,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Annual rotation of audit assignments and direct reporting line to Audit Committee",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 3,
@@ -874,6 +956,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Annual internal assessment and external quality review every 5 years",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 4,
@@ -896,6 +980,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Mandatory legal sign-off for all contracts above PHP 100,000",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 3,
@@ -915,6 +1001,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Quarterly litigation review with external counsel and board reporting",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 4,
@@ -935,6 +1023,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Subscription to BSP circular alerts with impact assessment within 15 days",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 4,
@@ -955,6 +1045,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Data Protection Officer oversight with annual privacy impact assessments",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 4,
@@ -974,6 +1066,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Corporate secretary checklist and annual governance self-assessment",
     control_type: "Preventive",
+    control_design: 1,
+    control_implementation: 1,
     likelihood_score: 1,
     impact_score: 3,
     controls_rating: 3,
@@ -995,6 +1089,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Manual follow-up calls and demand letters after accounts become past due",
     control_type: "Corrective",
+    control_design: 4,
+    control_implementation: 4,
     likelihood_score: 4,
     impact_score: 4,
     controls_rating: 8,
@@ -1014,6 +1110,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Quarterly ROPA valuation and active disposition plan with board reporting",
     control_type: "Detective",
+    control_design: 4,
+    control_implementation: 4,
     likelihood_score: 4,
     impact_score: 3,
     controls_rating: 7,
@@ -1034,6 +1132,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Pre-foreclosure legal review checklist and documentation completeness audit",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 4,
@@ -1054,6 +1154,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Board approval required for write-offs with mandatory collection effort documentation",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 3,
@@ -1095,6 +1197,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Mandatory product approval committee review with risk, compliance, and legal sign-off",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 3,
@@ -1115,6 +1219,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Compliance review checklist for all advertising materials prior to publication",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 3,
@@ -1135,6 +1241,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Data usage policy with DPO clearance and customer consent verification",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 4,
@@ -1155,6 +1263,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Social media monitoring tool with crisis communication protocol",
     control_type: "Detective",
+    control_design: 2,
+    control_implementation: 2,
     likelihood_score: 3,
     impact_score: 3,
     controls_rating: 5,
@@ -1174,6 +1284,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Annual financial literacy plan with quarterly progress reporting to BSP",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 2,
     controls_rating: 4,
@@ -1216,6 +1328,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Monthly capital adequacy ratio monitoring with stress testing",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 3,
@@ -1235,6 +1349,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Post-incident root cause analysis and corrective action issuance",
     control_type: "Corrective",
+    control_design: 4,
+    control_implementation: 4,
     likelihood_score: 4,
     impact_score: 3,
     controls_rating: 8,
@@ -1255,6 +1371,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Annual BCP drill with post-drill gap analysis and plan updates",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 4,
@@ -1275,6 +1393,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Monthly KRI dashboard with color-coded breach alerts to senior management",
     control_type: "Detective",
+    control_design: 2,
+    control_implementation: 2,
     likelihood_score: 3,
     impact_score: 3,
     controls_rating: 5,
@@ -1298,6 +1418,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "24/7 CCTV monitoring, armed security guards, and panic alarm systems",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 3,
@@ -1318,6 +1440,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Armed escort, GPS-tracked armored vehicles, and randomized routes",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 3,
@@ -1338,6 +1462,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Emergency response and fire damage containment procedures activated post-incident",
     control_type: "Corrective",
+    control_design: 3,
+    control_implementation: 5,
     likelihood_score: 3,
     impact_score: 4,
     controls_rating: 7,
@@ -1378,6 +1504,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Biometric access control with daily access log monitoring",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 4,
@@ -1400,6 +1528,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Daily liquidity position reporting with minimum liquidity coverage ratio monitoring",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 3,
@@ -1420,6 +1550,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Real-time position limit monitoring and independent middle-office valuation",
     control_type: "Detective",
+    control_design: 1,
+    control_implementation: 2,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 3,
@@ -1439,6 +1571,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Monthly interest rate sensitivity analysis and duration gap reporting to ALCO",
     control_type: "Detective",
+    control_design: 2,
+    control_implementation: 2,
     likelihood_score: 3,
     impact_score: 3,
     controls_rating: 4,
@@ -1460,6 +1594,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Counterparty credit limits and annual credit review with concentration monitoring",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 4,
     controls_rating: 4,
@@ -1479,6 +1615,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Automated daily reserve computation with compliance threshold alerts",
     control_type: "Preventive",
+    control_design: 1,
+    control_implementation: 1,
     likelihood_score: 1,
     impact_score: 4,
     controls_rating: 2,
@@ -1499,6 +1637,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "FX position limits with end-of-day P&L reporting and maker-checker for trades",
     control_type: "Preventive",
+    control_design: 2,
+    control_implementation: 1,
     likelihood_score: 2,
     impact_score: 3,
     controls_rating: 3,
