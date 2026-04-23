@@ -1,7 +1,7 @@
 import { useMemo, useState, useRef } from 'react'
 import { sankey as d3Sankey, sankeyLinkHorizontal, sankeyJustify } from 'd3-sankey'
 import { getRiskLevel, RC_COLOR_MAP, RISK_COLORS } from '../../utils/riskLevels'
-import type { RiskRecord } from '../../types'
+import type { RiskRecord, RiskLevel } from '../../types'
 
 const EVENT_ABBR: Record<string, string> = {
   'Execution delivery and process management': 'Exec. & Process Mgmt',
@@ -50,6 +50,10 @@ function buildGraph(risks: RiskRecord[]) {
     }
     return nodeMap.get(key)!
   }
+
+  // Column 3: Risk Levels (ALWAYS INCLUDE ALL)
+  const RISK_LEVELS: RiskLevel[] = ['Minor', 'Moderate', 'Major', 'Critical']
+  RISK_LEVELS.forEach(lvl => getNode(lvl, 2, RISK_COLORS[lvl] || '#94a3b8'))
 
   risks.forEach((r) => {
     const rc = r.root_cause
