@@ -1,7 +1,7 @@
 import { useState, useMemo, Fragment } from 'react'
 import type { ReactNode } from 'react'
 import { ArrowUpDown, ChevronDown, ChevronUp, Filter, X, Maximize2, Search, Download } from 'lucide-react'
-import { shortDept, getRiskLevel, getControlsLabel, RISK_LEVELS, RISK_BG, RISK_TEXT, CONTROLS_LABEL_COLORS } from '../utils/riskLevels'
+import { shortDept, getRiskLevel, getControlsLabel, RISK_LEVELS, RISK_BG, RISK_TEXT, RISK_COLORS, CONTROLS_LABEL_COLORS } from '../utils/riskLevels'
 import RiskBadge from './RiskBadge'
 import type { RiskRecord, RiskLevel, RootCause, ControlType, RiskTreatment, RiskStatus } from '../types'
 
@@ -303,11 +303,47 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                     <td className="px-4 py-3 text-gray-700 max-w-[250px] overflow-hidden text-ellipsis" title={r.risk_description}>{r.risk_description}</td>
                     <td className="px-4 py-3 text-gray-500">{r.root_cause}</td>
                     <td className="px-4 py-3 text-gray-500 max-w-[180px] overflow-hidden text-ellipsis" title={r.event_type}>{r.event_type}</td>
-                    <td className="px-4 py-3 text-gray-500 text-center">{r.likelihood_score}</td>
-                    <td className="px-4 py-3 text-gray-500 text-center">{r.impact_score}</td>
+                    <td className="px-4 py-3 text-gray-500 font-medium text-center">
+                      <span
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                        style={{
+                          backgroundColor: RISK_BG[getRiskLevel(r.likelihood_score)],
+                          color: RISK_TEXT[getRiskLevel(r.likelihood_score)],
+                          borderColor: `${RISK_COLORS[getRiskLevel(r.likelihood_score)]}40`,
+                        }}
+                      >{getRiskLevel(r.likelihood_score)} ({r.likelihood_score})</span>
+                    </td>
+                    <td className="px-4 py-3 text-gray-500 font-medium text-center">
+                      <span
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                        style={{
+                          backgroundColor: RISK_BG[getRiskLevel(r.impact_score)],
+                          color: RISK_TEXT[getRiskLevel(r.impact_score)],
+                          borderColor: `${RISK_COLORS[getRiskLevel(r.impact_score)]}40`,
+                        }}
+                      >{getRiskLevel(r.impact_score)} ({r.impact_score})</span>
+                    </td>
                     <td className="px-4 py-3"><RiskBadge score={r.inherent_risk_score} /></td>
-                    <td className="px-4 py-3 text-gray-500 text-center">{r.control_design}</td>
-                    <td className="px-4 py-3 text-gray-500 text-center">{r.control_implementation}</td>
+                    <td className="px-4 py-3 text-gray-500 font-medium text-center">
+                      <span
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                        style={{
+                          backgroundColor: `${CONTROLS_LABEL_COLORS[getControlsLabel(r.control_design)]}18`,
+                          color: CONTROLS_LABEL_COLORS[getControlsLabel(r.control_design)],
+                          borderColor: `${CONTROLS_LABEL_COLORS[getControlsLabel(r.control_design)]}40`,
+                        }}
+                      >{getControlsLabel(r.control_design)} ({r.control_design})</span>
+                    </td>
+                    <td className="px-4 py-3 text-gray-500 font-medium text-center">
+                      <span
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                        style={{
+                          backgroundColor: `${CONTROLS_LABEL_COLORS[getControlsLabel(r.control_implementation)]}18`,
+                          color: CONTROLS_LABEL_COLORS[getControlsLabel(r.control_implementation)],
+                          borderColor: `${CONTROLS_LABEL_COLORS[getControlsLabel(r.control_implementation)]}40`,
+                        }}
+                      >{getControlsLabel(r.control_implementation)} ({r.control_implementation})</span>
+                    </td>
                     <td className="px-4 py-3">
                       <span
                         className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"

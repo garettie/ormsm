@@ -15,6 +15,8 @@ export interface RiskRecord {
   event_type: string;
   control_description: string;
   control_type: ControlType;
+  control_design: number;
+  control_implementation: number;
   likelihood_score: number;
   impact_score: number;
   controls_rating: number;
