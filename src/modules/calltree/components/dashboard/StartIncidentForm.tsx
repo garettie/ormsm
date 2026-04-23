@@ -59,7 +59,7 @@ export function StartIncidentForm({ onStart, onCancel }: StartIncidentFormProps)
       }
 
       const parsedContacts: { name: string; number: string; date?: Date }[] = [];
-      let earliestDate: Date | null = null;
+      let earliestDate: Date | undefined = undefined;
 
       rows.forEach((row) => {
         const rawName = String(row[nameIdx] || "").trim();
@@ -115,7 +115,7 @@ export function StartIncidentForm({ onStart, onCancel }: StartIncidentFormProps)
 
       if (masterError) throw masterError;
 
-      const hydrated = parsedContacts
+      const hydrated: Partial<Contact>[] = parsedContacts
         .map(c => {
           const master = masterData?.find(m => m.number === c.number);
           if (!master) return null; // Drop if not in Master
@@ -125,7 +125,7 @@ export function StartIncidentForm({ onStart, onCancel }: StartIncidentFormProps)
             location: master.location,
             position: master.position,
             level: master.level
-          };
+          } as Partial<Contact>;
         })
         .filter((c): c is Partial<Contact> => c !== null);
 
@@ -135,8 +135,9 @@ export function StartIncidentForm({ onStart, onCancel }: StartIncidentFormProps)
       
       if (earliestDate) {
         // Preserving wall-clock time: format YYYY-MM-DDTHH:mm directly from components
+        const d = earliestDate as Date;
         const pad = (n: number) => String(n).padStart(2, "0");
-        const formatted = `${earliestDate.getFullYear()}-${pad(earliestDate.getMonth() + 1)}-${pad(earliestDate.getDate())}T${pad(earliestDate.getHours())}:${pad(earliestDate.getMinutes())}`;
+        const formatted = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
         setAutoStartTime(formatted);
       }
     } catch (err) {

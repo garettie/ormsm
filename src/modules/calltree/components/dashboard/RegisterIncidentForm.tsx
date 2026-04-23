@@ -134,7 +134,7 @@ export default function RegisterIncidentForm({
 
       if (masterError) throw masterError;
 
-      const hydrated = parsed
+      const hydrated: Partial<Contact>[] = parsed
         .map(c => {
           const master = masterData?.find(m => m.number === c.number);
           if (!master) return null;
@@ -144,7 +144,7 @@ export default function RegisterIncidentForm({
             location: master.location,
             position: master.position,
             level: master.level
-          };
+          } as Partial<Contact>;
         })
         .filter((c): c is Partial<Contact> => c !== null);
 
