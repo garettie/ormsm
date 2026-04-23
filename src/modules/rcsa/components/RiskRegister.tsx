@@ -91,8 +91,11 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
       if (colFilters.causes && !r.possible_causes?.toLowerCase().includes(colFilters.causes.toLowerCase())) return false
       if (colFilters.rootCause && r.root_cause !== colFilters.rootCause) return false
       if (colFilters.eventType && r.event_type !== colFilters.eventType) return false
-      if (colFilters.controlType && r.control_type !== colFilters.controlType) return false
+      if (colFilters.likelihood && r.likelihood_score?.toString() !== colFilters.likelihood) return false
+      if (colFilters.impact && r.impact_score?.toString() !== colFilters.impact) return false
       if (colFilters.inherent && getRiskLevel(r.inherent_risk_score) !== colFilters.inherent) return false
+      if (colFilters.control_design && r.control_design?.toString() !== colFilters.control_design) return false
+      if (colFilters.control_implementation && r.control_implementation?.toString() !== colFilters.control_implementation) return false
       if (colFilters.controls && getControlsLabel(r.controls_rating) !== colFilters.controls) return false
       if (colFilters.residual && getRiskLevel(r.residual_risk_score) !== colFilters.residual) return false
       if (colFilters.treatment && r.risk_treatment !== colFilters.treatment) return false
@@ -110,7 +113,11 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
         case 'description': aVal = a.risk_description; bVal = b.risk_description; break
         case 'rootCause': aVal = a.root_cause; bVal = b.root_cause; break
         case 'eventType': aVal = a.event_type; bVal = b.event_type; break
+        case 'likelihood': aVal = a.likelihood_score; bVal = b.likelihood_score; break
+        case 'impact': aVal = a.impact_score; bVal = b.impact_score; break
         case 'inherent': aVal = a.inherent_risk_score; bVal = b.inherent_risk_score; break
+        case 'control_design': aVal = a.control_design; bVal = b.control_design; break
+        case 'control_implementation': aVal = a.control_implementation; bVal = b.control_implementation; break
         case 'controls': aVal = a.controls_rating; bVal = b.controls_rating; break
         case 'residual': aVal = a.residual_risk_score; bVal = b.residual_risk_score; break
         case 'status': aVal = a.status; bVal = b.status; break
@@ -138,7 +145,11 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
     { key: 'description', label: 'Risk Description' },
     { key: 'rootCause', label: 'Root Cause' },
     { key: 'eventType', label: 'Event Type' },
+    { key: 'likelihood', label: 'Likelihood' },
+    { key: 'impact', label: 'Impact' },
     { key: 'inherent', label: 'Inherent' },
+    { key: 'control_design', label: 'Design' },
+    { key: 'control_implementation', label: 'Implementation' },
     { key: 'controls', label: 'Controls Rating' },
     { key: 'residual', label: 'Residual' },
     { key: 'status', label: 'Status' },
@@ -153,8 +164,12 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
       case 'causes': return <FilterInput value={colFilters.causes || ''} onChange={(v: string) => setFilter('causes', v)} placeholder="Search..." />
       case 'rootCause': return <FilterSelect value={colFilters.rootCause || ''} onChange={(v: string) => setFilter('rootCause', v)} options={['People', 'Process', 'Systems', 'External Events']} />
       case 'eventType': return <FilterSelect value={colFilters.eventType || ''} onChange={(v: string) => setFilter('eventType', v)} options={eventTypeOptions} />
+      case 'likelihood': return <FilterSelect value={colFilters.likelihood || ''} onChange={(v: string) => setFilter('likelihood', v)} options={['1', '2', '3', '4']} />
+      case 'impact': return <FilterSelect value={colFilters.impact || ''} onChange={(v: string) => setFilter('impact', v)} options={['1', '2', '3', '4']} />
       case 'controlType': return <FilterSelect value={colFilters.controlType || ''} onChange={(v: string) => setFilter('controlType', v)} options={['Preventive', 'Detective', 'Corrective', 'None']} />
       case 'inherent': return <FilterSelect value={colFilters.inherent || ''} onChange={(v: string) => setFilter('inherent', v)} options={RISK_LEVELS} />
+      case 'control_design': return <FilterSelect value={colFilters.control_design || ''} onChange={(v: string) => setFilter('control_design', v)} options={['1', '2', '3', '4']} />
+      case 'control_implementation': return <FilterSelect value={colFilters.control_implementation || ''} onChange={(v: string) => setFilter('control_implementation', v)} options={['1', '2', '3', '4']} />
       case 'controls': return <FilterSelect value={colFilters.controls || ''} onChange={(v: string) => setFilter('controls', v)} options={CONTROLS_LABELS} />
       case 'residual': return <FilterSelect value={colFilters.residual || ''} onChange={(v: string) => setFilter('residual', v)} options={RISK_LEVELS} />
       case 'treatment': return <FilterSelect value={colFilters.treatment || ''} onChange={(v: string) => setFilter('treatment', v)} options={treatmentOptions} />
@@ -288,7 +303,11 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                     <td className="px-4 py-3 text-gray-700 max-w-[250px] overflow-hidden text-ellipsis" title={r.risk_description}>{r.risk_description}</td>
                     <td className="px-4 py-3 text-gray-500">{r.root_cause}</td>
                     <td className="px-4 py-3 text-gray-500 max-w-[180px] overflow-hidden text-ellipsis" title={r.event_type}>{r.event_type}</td>
+                    <td className="px-4 py-3 text-gray-500 text-center">{r.likelihood_score}</td>
+                    <td className="px-4 py-3 text-gray-500 text-center">{r.impact_score}</td>
                     <td className="px-4 py-3"><RiskBadge score={r.inherent_risk_score} /></td>
+                    <td className="px-4 py-3 text-gray-500 text-center">{r.control_design}</td>
+                    <td className="px-4 py-3 text-gray-500 text-center">{r.control_implementation}</td>
                     <td className="px-4 py-3">
                       <span
                         className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
@@ -370,7 +389,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
 
 function downloadCSV(data: any[]) {
   if (!data.length) return
-  const headers = ['Department', 'Process', 'Risk Description', 'Possible Causes', 'Root Cause', 'Event Type', 'Control Type', 'Control Description', 'Inherent Risk', 'Controls Rating', 'Residual Risk', 'Risk Treatment', 'Status', 'Action Plan', 'Deadline']
+  const headers = ['Department', 'Process', 'Risk Description', 'Possible Causes', 'Root Cause', 'Event Type', 'Likelihood', 'Impact', 'Inherent Risk', 'Control Design', 'Control Implementation', 'Controls Rating', 'Residual Risk', 'Control Type', 'Control Description', 'Risk Treatment', 'Status', 'Action Plan', 'Deadline']
   const rows = data.map((r: any) => [
     r.department,
     r.process_name,
@@ -378,11 +397,15 @@ function downloadCSV(data: any[]) {
     r.possible_causes,
     r.root_cause,
     r.event_type,
-    r.control_type,
-    r.control_description,
+    r.likelihood_score,
+    r.impact_score,
     r.inherent_risk_score,
+    r.control_design,
+    r.control_implementation,
     r.controls_rating,
     r.residual_risk_score,
+    r.control_type,
+    r.control_description,
     r.risk_treatment,
     r.status,
     r.action_plan,
