@@ -77,8 +77,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Post-discovery adjustment of asset records after audit findings",
     control_type: "Corrective",
-    control_design_score: 3,
-    control_implementation_score: 5,
+    control_design_score: 2,
+    control_implementation_score: 4,
     likelihood_score: 3,
     impact_score: 3,
     controls_rating: 8,
@@ -361,6 +361,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Mandatory policy acknowledgment via intranet with tracking dashboard",
     control_type: "Preventive",
+    control_design_score: 3,
+    control_implementation_score: 2,
     likelihood_score: 3,
     impact_score: 2,
     controls_rating: 5,
@@ -404,8 +406,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Revaluation and write-down of collateral upon discovery of overvaluation",
     control_type: "Corrective",
-    control_design_score: 3,
-    control_implementation_score: 5,
+    control_design_score: 2,
+    control_implementation_score: 4,
     likelihood_score: 3,
     impact_score: 4,
     controls_rating: 8,
@@ -490,8 +492,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Post-restructuring review and reclassification of accounts found to be improperly restructured",
     control_type: "Corrective",
-    control_design_score: 3,
-    control_implementation_score: 5,
+    control_design_score: 2,
+    control_implementation_score: 4,
     likelihood_score: 3,
     impact_score: 4,
     controls_rating: 9,
@@ -846,6 +848,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Annual vendor risk assessment and documented SLAs with penalty clauses",
     control_type: "Preventive",
+    control_design_score: 2,
+    control_implementation_score: 3,
     likelihood_score: 3,
     impact_score: 3,
     controls_rating: 5,
@@ -1175,6 +1179,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Updated financial analysis and stress testing before restructuring approval",
     control_type: "Preventive",
+    control_design_score: 2,
+    control_implementation_score: 2,
     likelihood_score: 3,
     impact_score: 3,
     controls_rating: 4,
@@ -1308,6 +1314,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Quarterly risk register update with mandatory department attestation",
     control_type: "Preventive",
+    control_design_score: 2,
+    control_implementation_score: 2,
     likelihood_score: 3,
     impact_score: 4,
     controls_rating: 4,
@@ -1462,8 +1470,8 @@ const RAW_RISKS: any[] = [
     control_description:
       "Emergency response and fire damage containment procedures activated post-incident",
     control_type: "Corrective",
-    control_design_score: 3,
-    control_implementation_score: 5,
+    control_design_score: 2,
+    control_implementation_score: 4,
     likelihood_score: 3,
     impact_score: 4,
     controls_rating: 7,

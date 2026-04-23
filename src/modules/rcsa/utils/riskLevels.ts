@@ -99,35 +99,39 @@ export const CT_COLOR_MAP: Record<ControlType, string> = {
 };
 
 export function getRiskLevel(score: number): RiskLevel {
-  if (!score || isNaN(score)) return "Minor";
-  // Handle 1-4 scale (Likelihood/Impact)
-  if (score === 1) return "Minor";
-  if (score === 2) return "Moderate";
-  if (score === 3) return "Major";
-  if (score === 4) return "Critical";
-  // Handle 1-16 scale (Inherent/Residual)
+  if (score === undefined || score === null || isNaN(score)) return "Minor" as RiskLevel;
   if (score <= 3) return "Minor";
   if (score <= 6) return "Moderate";
   if (score <= 9) return "Major";
   return "Critical";
 }
 
+export function getRiskLevelSmall(score: number): RiskLevel {
+  if (score === undefined || score === null || isNaN(score)) return "Minor" as RiskLevel;
+  if (score === 1) return "Minor";
+  if (score === 2) return "Moderate";
+  if (score === 3) return "Major";
+  return "Critical";
+}
+
 export function getControlsLabel(score: number): ControlRating {
-  if (!score || isNaN(score)) return "Strong";
-  // Handle 1-4 scale (Design)
-  if (score === 1) return "Strong";
-  if (score === 2) return "Satisfactory";
-  if (score === 3) return "Needs Improvement";
-  if (score === 4) return "Unsatisfactory";
-  // Handle 1-16 scale (Controls Rating)
+  if (score === undefined || score === null || isNaN(score)) return "Strong" as ControlRating;
   if (score <= 3) return "Strong";
   if (score <= 6) return "Satisfactory";
   if (score <= 9) return "Needs Improvement";
   return "Unsatisfactory";
 }
 
+export function getControlsLabelSmall(score: number): ControlRating {
+  if (score === undefined || score === null || isNaN(score)) return "Strong" as ControlRating;
+  if (score === 1) return "Strong";
+  if (score === 2) return "Satisfactory";
+  if (score === 3) return "Needs Improvement";
+  return "Unsatisfactory";
+}
+
 export function getImplementationLabel(score: number): ImplementationRating {
-  if (!score || isNaN(score)) return "Fully Implemented";
+  if (score === undefined || score === null || isNaN(score)) return "Fully Implemented" as ImplementationRating;
   if (score <= 1) return "Fully Implemented";
   if (score <= 2) return "Mostly Implemented";
   if (score <= 3) return "Partially Implemented";

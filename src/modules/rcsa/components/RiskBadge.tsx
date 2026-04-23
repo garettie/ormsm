@@ -20,7 +20,7 @@ export default memo(function RiskBadge({ score }: { score: number }) {
         borderColor: RISK_BORDER[level] || RISK_BG[level],
       }}
     >
-      {score} - {level}
+      {score ? `${score} - ${level}` : '—'}
     </span>
   )
 })
