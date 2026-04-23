@@ -7,7 +7,8 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatDateTime(iso: string | null | undefined): string {
   if (!iso) return "—";
-  const date = new Date(iso);
+  // Strip timezone to treat DB "UTC" as local wall clock
+  const date = new Date(iso.replace("Z", "").split("+")[0]);
   return date.toLocaleString("en-US", {
     month: "short",
     day: "numeric",
@@ -30,13 +31,15 @@ export function formatPhoneNumber(num: string | null | undefined): string {
 }
 
 export function localNowAsUTC(d: Date = new Date()): string {
-  const utc = new Date(d.getTime() + d.getTimezoneOffset() * 60000);
-  return utc.toISOString();
+  // Shift local wall clock to UTC ISO string
+  const shifted = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return shifted.toISOString();
 }
 
 export function formatDuration(start: string, end: string): string {
-  const startDate = new Date(start);
-  const endDate = new Date(end);
+  const parse = (iso: string) => new Date(iso.replace("Z", "").split("+")[0]);
+  const startDate = parse(start);
+  const endDate = parse(end);
   const diffMs = endDate.getTime() - startDate.getTime();
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMins / 60);
@@ -55,14 +58,16 @@ export function formatDuration(start: string, end: string): string {
 }
 
 export function formatDateShort(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
+  const date = new Date(iso.replace("Z", "").split("+")[0]);
+  return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
   });
 }
 
 export function formatTimeShort(iso: string): string {
-  return new Date(iso).toLocaleTimeString("en-US", {
+  const date = new Date(iso.replace("Z", "").split("+")[0]);
+  return date.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,

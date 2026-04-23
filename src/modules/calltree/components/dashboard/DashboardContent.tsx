@@ -54,45 +54,6 @@ export function DashboardContent({
     };
   });
 
-  const [filtersInitialized] = useState(() => {
-    if (storageKey) {
-      try {
-        const saved = localStorage.getItem(storageKey);
-        if (saved) {
-          return true;
-        }
-      } catch {
-        // ignore
-      }
-    }
-    return false;
-  });
-
-  const defaultFilters = useMemo((): FilterState => {
-    if (data.contacts.length > 0) {
-      const activeDepts = new Set<string>();
-      data.contacts.forEach((c) => {
-        if (c.status !== "No Response" && c.department) {
-          activeDepts.add(c.department);
-        }
-      });
-      return {
-        departments: Array.from(activeDepts),
-        locations: [],
-        levels: [],
-        statuses: [],
-      };
-    }
-    return {
-      departments: [],
-      locations: [],
-      levels: [],
-      statuses: [],
-    };
-  }, [data.contacts]);
-
-  const effectiveFilters = filtersInitialized ? filters : defaultFilters;
-
   const handleFilterChange = useCallback(
     (type: keyof typeof filters, value: string[]) => {
       setFilters((prev) => {
@@ -109,25 +70,25 @@ export function DashboardContent({
   const filteredData = useMemo(() => {
     return data.contacts.filter((c) => {
       if (
-        effectiveFilters.departments.length > 0 &&
-        !effectiveFilters.departments.includes(c.department)
+        filters.departments.length > 0 &&
+        !filters.departments.includes(c.department)
       )
         return false;
       if (
-        effectiveFilters.locations.length > 0 &&
-        !effectiveFilters.locations.includes(c.location)
+        filters.locations.length > 0 &&
+        !filters.locations.includes(c.location)
       )
         return false;
       if (
-        effectiveFilters.levels.length > 0 &&
-        !effectiveFilters.levels.includes(c.level || c.position)
+        filters.levels.length > 0 &&
+        !filters.levels.includes(c.level || c.position)
       )
         return false;
-      if (effectiveFilters.statuses.length > 0 && !effectiveFilters.statuses.includes(c.status))
+      if (filters.statuses.length > 0 && !filters.statuses.includes(c.status))
         return false;
       return true;
     });
-  }, [data.contacts, effectiveFilters]);
+  }, [data.contacts, filters]);
 
   const stats = useMemo(() => {
     const total = filteredData.length;
@@ -182,16 +143,16 @@ export function DashboardContent({
         const affectedStatuses = ["Slight", "Moderate", "Severe"];
 
         const isRespondedActive =
-          effectiveFilters.statuses.length === respondedStatuses.length &&
-          respondedStatuses.every((s) => effectiveFilters.statuses.includes(s));
+          filters.statuses.length === respondedStatuses.length &&
+          respondedStatuses.every((s) => filters.statuses.includes(s));
         const isSafeActive =
-          effectiveFilters.statuses.length === 1 && effectiveFilters.statuses.includes("Safe");
+          filters.statuses.length === 1 && filters.statuses.includes("Safe");
         const isAffectedActive =
-          effectiveFilters.statuses.length === affectedStatuses.length &&
-          affectedStatuses.every((s) => effectiveFilters.statuses.includes(s));
+          filters.statuses.length === affectedStatuses.length &&
+          affectedStatuses.every((s) => filters.statuses.includes(s));
         const isPendingActive =
-          effectiveFilters.statuses.length === 1 &&
-          effectiveFilters.statuses.includes("No Response");
+          filters.statuses.length === 1 &&
+          filters.statuses.includes("No Response");
 
         return (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
@@ -201,7 +162,7 @@ export function DashboardContent({
               subtext={`${data.contacts.length} in DB`}
               color={COLORS["No Response"]}
               onClick={() => handleFilterChange("statuses", [])}
-              isActive={effectiveFilters.statuses.length === 0}
+              isActive={filters.statuses.length === 0}
               icon={Users}
             />
             <KPICard

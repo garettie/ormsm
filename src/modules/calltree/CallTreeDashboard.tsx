@@ -49,12 +49,7 @@ export default function CallTreeDashboard() {
     checkDefault();
   }, [incidentLoading]);
 
-  const [filterDate] = useState(() => {
-    if (activeIncident) {
-      return activeIncident.start_time;
-    }
-    return localNowAsUTC(new Date(Date.now() - 24 * 60 * 60 * 1000));
-  });
+  const filterDate = activeIncident?.start_time || localNowAsUTC(new Date(new Date().setHours(0, 0, 0, 0)));
 
   const [showUpload, setShowUpload] = useState(false);
 
@@ -146,6 +141,7 @@ export default function CallTreeDashboard() {
 
           <DashboardContent
             data={data}
+            storageKey={activeIncident ? `incident-filters-${activeIncident.id}` : "live-session-filters"}
             onRefresh={() => refresh({ background: true })}
           />
         </>
