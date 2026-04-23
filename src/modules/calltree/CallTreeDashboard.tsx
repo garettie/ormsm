@@ -55,6 +55,12 @@ export default function CallTreeDashboard() {
 
   const { data, loading, error, refresh } = useDashboardData(filterDate);
 
+  useEffect(() => {
+    if (view === "live") {
+      refresh();
+    }
+  }, [view, refresh]);
+
   const viewToggle = (
     <button
       onClick={() => {
@@ -123,8 +129,8 @@ export default function CallTreeDashboard() {
       {showHistory ? (
         <IncidentHistory
           defaultIncident={defaultIncident}
-          onStartNew={async (name, type) => {
-            await startIncident(name, type);
+          onStartNew={async (name, type, targetedContacts, startTime) => {
+            await startIncident(name, type, targetedContacts, startTime);
             setView("live");
             setDefaultIncident(undefined);
           }}

@@ -30,7 +30,7 @@ export default function IncidentDetail({
 }: {
   incident: Incident;
   onBack: () => void;
-  onStartNew?: (name: string, type: "test" | "actual") => void;
+  onStartNew?: (name: string, type: "test" | "actual", targetedContacts?: any[], startTime?: string) => void;
   rightSlot?: React.ReactNode;
 }) {
   const [showStartForm, setShowStartForm] = useState(false);

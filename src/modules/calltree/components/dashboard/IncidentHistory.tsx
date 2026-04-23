@@ -29,7 +29,7 @@ export default function IncidentHistory({
   rightSlot,
 }: {
   defaultIncident?: Incident;
-  onStartNew?: (name: string, type: "test" | "actual") => void;
+  onStartNew?: (name: string, type: "test" | "actual", targetedContacts?: any[], startTime?: string) => void;
   rightSlot?: ReactNode;
 }) {
   const [incidents, setIncidents] = useState<Incident[]>([]);

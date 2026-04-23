@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { localNowAsUTC } from "../../../lib/utils";
-import type { Incident } from "../types";
+import type { Incident, Contact } from "../types";
 
 export function useIncident() {
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
@@ -42,15 +42,47 @@ export function useIncident() {
     };
   }, []);
 
-  const startIncident = async (name: string, type: "test" | "actual") => {
-    const { data, error } = await supabase
+  const startIncident = async (
+    name: string,
+    type: "test" | "actual",
+    targetedContacts?: Partial<Contact>[],
+    startTime?: string,
+  ) => {
+    const isTargeted = !!targetedContacts && targetedContacts.length > 0;
+    const start_time = startTime || localNowAsUTC();
+
+    const { data: incident, error } = await supabase
       .from("incidents")
-      .insert({ name, type, start_time: localNowAsUTC() })
+      .insert({ name, type, start_time, is_targeted: isTargeted })
       .select()
       .single();
 
-    if (data) setActiveIncident(data);
-    if (error) console.error("Error starting:", error);
+    if (error) {
+      console.error("Error starting incident:", error);
+      return;
+    }
+
+    if (isTargeted && incident) {
+      const eventContacts = targetedContacts.map((c) => ({
+        incident_id: incident.id,
+        name: c.name || "Unknown",
+        number: c.number || "",
+        department: c.department || "Unknown",
+        location: c.location || "Unknown",
+        position: c.position || "Unknown",
+        level: c.level || "Unknown",
+      }));
+
+      const { error: contactError } = await supabase
+        .from("event_contacts")
+        .insert(eventContacts);
+
+      if (contactError) {
+        console.error("Error inserting event contacts:", contactError);
+      }
+    }
+
+    if (incident) setActiveIncident(incident);
   };
 
   const endIncident = async () => {

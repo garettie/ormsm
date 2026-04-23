@@ -11,7 +11,7 @@ import { StartIncidentForm } from "./StartIncidentForm";
 
 interface IncidentControlsProps {
   activeIncident: Incident | null;
-  onStart: (name: string, type: "test" | "actual") => void;
+  onStart: (name: string, type: "test" | "actual", targetedContacts?: any[], startTime?: string) => void;
   onEnd: () => void;
   rightSlot?: React.ReactNode;
 }
@@ -91,8 +91,8 @@ export default function IncidentControls({
       ) : (
         <div>
           <StartIncidentForm
-            onStart={(name, type) => {
-              onStart(name, type);
+            onStart={(name, type, targetedContacts, startTime) => {
+              onStart(name, type, targetedContacts, startTime);
               setShowModal(false);
             }}
             onCancel={() => setShowModal(false)}

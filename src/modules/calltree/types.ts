@@ -30,6 +30,7 @@ export interface DashboardData {
   contacts: ProcessedContact[];
   unknownResponses: Response[];
   lastUpdated: Date;
+  isTargeted?: boolean;
 }
 
 export interface Incident {
@@ -38,4 +39,9 @@ export interface Incident {
   type: "test" | "actual";
   start_time: string;
   end_time: string | null;
+  is_targeted?: boolean;
+}
+
+export interface EventContact extends Contact {
+  incident_id: number;
 }

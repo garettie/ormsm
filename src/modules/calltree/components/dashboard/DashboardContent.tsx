@@ -54,16 +54,22 @@ export function DashboardContent({
     };
   });
 
-  // Smart logic: identify departments that have at least one response
+  // Smart logic: identify departments to show in filter
   const smartDepartments = useMemo(() => {
     const depts = new Set<string>();
     data.contacts.forEach((c) => {
-      if (c.status !== "No Response" && c.department) {
-        depts.add(c.department);
+      // If targeted, show ALL departments from the blast
+      // If normal, only show departments that have at least one response
+      if (data.isTargeted) {
+        if (c.department) depts.add(c.department);
+      } else {
+        if (c.status !== "No Response" && c.department) {
+          depts.add(c.department);
+        }
       }
     });
     return Array.from(depts);
-  }, [data.contacts]);
+  }, [data.contacts, data.isTargeted]);
 
   // If manual department filters are empty, use smart departments
   const effectiveFilters = useMemo(() => ({

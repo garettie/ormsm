@@ -153,13 +153,29 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
           return allData;
         };
 
-        // 1. Fetch Contacts and Responses in parallel
-        const [contactsData, responsesData] = await Promise.all([
+        // 1. Fetch Incident Context, Contacts and Responses in parallel
+        const [activeIncidentData, pastIncidentData, contactsData, responsesData] = await Promise.all([
+          supabase.from("incidents").select("*").is("end_time", null).maybeSingle(),
+          startDate ? supabase.from("incidents").select("*").eq("start_time", startDate).maybeSingle() : Promise.resolve({ data: null }),
           fetchAll("MasterContacts"),
           fetchAll("Responses", "datetime", startDate, endDate),
         ]);
 
-        const contacts = (contactsData || []) as unknown as Contact[];
+        const incident = activeIncidentData.data || pastIncidentData.data;
+        let contacts: Contact[] = [];
+
+        if (incident?.is_targeted) {
+          const { data: eventContacts, error: ecError } = await supabase
+            .from("event_contacts")
+            .select("*")
+            .eq("incident_id", incident.id);
+          
+          if (ecError) throw ecError;
+          contacts = (eventContacts || []) as unknown as Contact[];
+        } else {
+          contacts = (contactsData || []) as unknown as Contact[];
+        }
+
         const responses = (responsesData || []) as unknown as Response[];
 
         // Process Data
@@ -229,8 +245,6 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
             c.responseTime = resp.datetime;
 
             // Allow matchType to flow through (phone or name)
-            // We removed the 'manual' override because it was hiding the matching method info
-            // and seemingly firing for non-manual responses too.
             c.matchType = resp.matchType;
           }
         });
@@ -239,6 +253,7 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
           contacts: processedContacts,
           unknownResponses,
           lastUpdated: new Date(),
+          isTargeted: !!incident?.is_targeted,
         });
       } catch (err: unknown) {
         console.error("Error fetching dashboard data:", err);
