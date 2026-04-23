@@ -218,7 +218,7 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
                 rx={3}
                 fill={node.color}
               />
-              {h > 8 && (
+              { (h > 8 || node.layer === 2) && (
                 <text
                   x={labelX}
                   y={labelY}
@@ -226,7 +226,7 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
                   dominantBaseline="central"
                   fontSize={10}
                   fontWeight={600}
-                  fill="#334155"
+                  fill={h > 0 ? "#334155" : "#94a3b8"}
                 >
                   {label}
                 </text>
