@@ -1,7 +1,7 @@
 import { useState, useMemo, Fragment } from 'react'
 import type { ReactNode } from 'react'
 import { ArrowUpDown, ChevronDown, ChevronUp, Filter, X, Maximize2, Search, Download } from 'lucide-react'
-import { shortDept, getRiskLevel, getControlsLabel, RISK_LEVELS, RISK_BG, RISK_TEXT, RISK_COLORS, CONTROLS_LABEL_COLORS } from '../utils/riskLevels'
+import { shortDept, getRiskLevel, getControlsLabel, getImplementationLabel, RISK_LEVELS, RISK_BG, RISK_TEXT, RISK_COLORS, CONTROLS_LABEL_COLORS, IMPLEMENTATION_COLORS } from '../utils/riskLevels'
 import RiskBadge from './RiskBadge'
 import type { RiskRecord, RiskLevel, RootCause, ControlType, RiskTreatment, RiskStatus } from '../types'
 
@@ -94,8 +94,8 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
       if (colFilters.likelihood && r.likelihood_score?.toString() !== colFilters.likelihood) return false
       if (colFilters.impact && r.impact_score?.toString() !== colFilters.impact) return false
       if (colFilters.inherent && getRiskLevel(r.inherent_risk_score) !== colFilters.inherent) return false
-      if (colFilters.control_design && r.control_design?.toString() !== colFilters.control_design) return false
-      if (colFilters.control_implementation && r.control_implementation?.toString() !== colFilters.control_implementation) return false
+      if (colFilters.control_design && r.control_design_score?.toString() !== colFilters.control_design) return false
+      if (colFilters.control_implementation && r.control_implementation_score?.toString() !== colFilters.control_implementation) return false
       if (colFilters.controls && getControlsLabel(r.controls_rating) !== colFilters.controls) return false
       if (colFilters.residual && getRiskLevel(r.residual_risk_score) !== colFilters.residual) return false
       if (colFilters.treatment && r.risk_treatment !== colFilters.treatment) return false
@@ -116,8 +116,8 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
         case 'likelihood': aVal = a.likelihood_score; bVal = b.likelihood_score; break
         case 'impact': aVal = a.impact_score; bVal = b.impact_score; break
         case 'inherent': aVal = a.inherent_risk_score; bVal = b.inherent_risk_score; break
-        case 'control_design': aVal = a.control_design; bVal = b.control_design; break
-        case 'control_implementation': aVal = a.control_implementation; bVal = b.control_implementation; break
+        case 'control_design': aVal = a.control_design_score; bVal = b.control_design_score; break
+        case 'control_implementation': aVal = a.control_implementation_score; bVal = b.control_implementation_score; break
         case 'controls': aVal = a.controls_rating; bVal = b.controls_rating; break
         case 'residual': aVal = a.residual_risk_score; bVal = b.residual_risk_score; break
         case 'status': aVal = a.status; bVal = b.status; break
@@ -311,7 +311,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                           color: RISK_TEXT[getRiskLevel(r.likelihood_score)],
                           borderColor: `${RISK_COLORS[getRiskLevel(r.likelihood_score)]}40`,
                         }}
-                      >{getRiskLevel(r.likelihood_score)} ({r.likelihood_score})</span>
+                      >{r.likelihood_score} - {getRiskLevel(r.likelihood_score)}</span>
                     </td>
                     <td className="px-4 py-3 text-gray-500 font-medium text-center">
                       <span
@@ -321,28 +321,28 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                           color: RISK_TEXT[getRiskLevel(r.impact_score)],
                           borderColor: `${RISK_COLORS[getRiskLevel(r.impact_score)]}40`,
                         }}
-                      >{getRiskLevel(r.impact_score)} ({r.impact_score})</span>
+                      >{r.impact_score} - {getRiskLevel(r.impact_score)}</span>
                     </td>
                     <td className="px-4 py-3"><RiskBadge score={r.inherent_risk_score} /></td>
                     <td className="px-4 py-3 text-gray-500 font-medium text-center">
                       <span
                         className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
                         style={{
-                          backgroundColor: `${CONTROLS_LABEL_COLORS[getControlsLabel(r.control_design)]}18`,
-                          color: CONTROLS_LABEL_COLORS[getControlsLabel(r.control_design)],
-                          borderColor: `${CONTROLS_LABEL_COLORS[getControlsLabel(r.control_design)]}40`,
+                          backgroundColor: `${CONTROLS_LABEL_COLORS[getControlsLabel(r.control_design_score)]}18`,
+                          color: CONTROLS_LABEL_COLORS[getControlsLabel(r.control_design_score)],
+                          borderColor: `${CONTROLS_LABEL_COLORS[getControlsLabel(r.control_design_score)]}40`,
                         }}
-                      >{getControlsLabel(r.control_design)} ({r.control_design})</span>
+                      >{r.control_design_score} - {getControlsLabel(r.control_design_score)}</span>
                     </td>
                     <td className="px-4 py-3 text-gray-500 font-medium text-center">
                       <span
                         className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
                         style={{
-                          backgroundColor: `${CONTROLS_LABEL_COLORS[getControlsLabel(r.control_implementation)]}18`,
-                          color: CONTROLS_LABEL_COLORS[getControlsLabel(r.control_implementation)],
-                          borderColor: `${CONTROLS_LABEL_COLORS[getControlsLabel(r.control_implementation)]}40`,
+                          backgroundColor: `${IMPLEMENTATION_COLORS[getImplementationLabel(r.control_implementation_score)]}18`,
+                          color: IMPLEMENTATION_COLORS[getImplementationLabel(r.control_implementation_score)],
+                          borderColor: `${IMPLEMENTATION_COLORS[getImplementationLabel(r.control_implementation_score)]}40`,
                         }}
-                      >{getControlsLabel(r.control_implementation)} ({r.control_implementation})</span>
+                      >{r.control_implementation_score} - {getImplementationLabel(r.control_implementation_score)}</span>
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -352,7 +352,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                           color: CONTROLS_LABEL_COLORS[getControlsLabel(r.controls_rating)],
                           borderColor: `${CONTROLS_LABEL_COLORS[getControlsLabel(r.controls_rating)]}40`,
                         }}
-                      >{getControlsLabel(r.controls_rating)}</span>
+                      >{r.controls_rating} - {getControlsLabel(r.controls_rating)}</span>
                     </td>
                     <td className="px-4 py-3"><RiskBadge score={r.residual_risk_score} /></td>
                     <td className="px-4 py-3">
@@ -436,8 +436,8 @@ function downloadCSV(data: any[]) {
     r.likelihood_score,
     r.impact_score,
     r.inherent_risk_score,
-    r.control_design,
-    r.control_implementation,
+    r.control_design_score,
+    r.control_implementation_score,
     r.controls_rating,
     r.residual_risk_score,
     r.control_type,

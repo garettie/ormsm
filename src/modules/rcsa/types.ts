@@ -1,5 +1,6 @@
 export type RiskLevel = "Minor" | "Moderate" | "Major" | "Critical";
 export type ControlRating = "Strong" | "Satisfactory" | "Needs Improvement" | "Unsatisfactory";
+export type ImplementationRating = "Fully Implemented" | "Mostly Implemented" | "Partially Implemented" | "Not Implemented";
 export type ControlType = "Preventive" | "Detective" | "Corrective" | "None";
 export type RiskTreatment = "Accept" | "Avoid" | "Reduce" | "Transfer";
 export type RootCause = "People" | "Process" | "Systems" | "External Events";
@@ -15,8 +16,8 @@ export interface RiskRecord {
   event_type: string;
   control_description: string;
   control_type: ControlType;
-  control_design: number;
-  control_implementation: number;
+  control_design_score: number;
+  control_implementation_score: number;
   likelihood_score: number;
   impact_score: number;
   controls_rating: number;

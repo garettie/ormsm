@@ -1,4 +1,4 @@
-import type { RiskLevel, ControlRating, ControlType, RiskTreatment, RootCause } from "../types";
+import type { RiskLevel, ControlRating, ControlType, RiskTreatment, RootCause, ImplementationRating } from "../types";
 
 export const RISK_COLORS: Record<RiskLevel, string> = {
   Minor: "#22c55e",
@@ -25,6 +25,13 @@ export const CONTROLS_LABEL_COLORS: Record<ControlRating, string> = {
   Satisfactory: "#f59e0b",
   "Needs Improvement": "#f97316",
   Unsatisfactory: "#ef4444",
+};
+
+export const IMPLEMENTATION_COLORS: Record<ImplementationRating, string> = {
+  "Fully Implemented": "#22c55e",
+  "Mostly Implemented": "#f59e0b",
+  "Partially Implemented": "#f97316",
+  "Not Implemented": "#ef4444",
 };
 
 export const CONTROL_BG: Record<ControlRating, string> = {
@@ -93,6 +100,12 @@ export const CT_COLOR_MAP: Record<ControlType, string> = {
 
 export function getRiskLevel(score: number): RiskLevel {
   if (!score || isNaN(score)) return "Minor";
+  // Handle 1-4 scale (Likelihood/Impact)
+  if (score === 1) return "Minor";
+  if (score === 2) return "Moderate";
+  if (score === 3) return "Major";
+  if (score === 4) return "Critical";
+  // Handle 1-16 scale (Inherent/Residual)
   if (score <= 3) return "Minor";
   if (score <= 6) return "Moderate";
   if (score <= 9) return "Major";
@@ -101,10 +114,24 @@ export function getRiskLevel(score: number): RiskLevel {
 
 export function getControlsLabel(score: number): ControlRating {
   if (!score || isNaN(score)) return "Strong";
+  // Handle 1-4 scale (Design)
+  if (score === 1) return "Strong";
+  if (score === 2) return "Satisfactory";
+  if (score === 3) return "Needs Improvement";
+  if (score === 4) return "Unsatisfactory";
+  // Handle 1-16 scale (Controls Rating)
   if (score <= 3) return "Strong";
   if (score <= 6) return "Satisfactory";
   if (score <= 9) return "Needs Improvement";
   return "Unsatisfactory";
+}
+
+export function getImplementationLabel(score: number): ImplementationRating {
+  if (!score || isNaN(score)) return "Fully Implemented";
+  if (score <= 1) return "Fully Implemented";
+  if (score <= 2) return "Mostly Implemented";
+  if (score <= 3) return "Partially Implemented";
+  return "Not Implemented";
 }
 
 export function shortDept(name: string): string {
