@@ -30,10 +30,10 @@ export default function RegisterIncidentForm({
   const [formData, setFormData] = useState(() => ({
     name: editingIncident?.name ?? "",
     type: (editingIncident?.type ?? "test") as "test" | "actual",
-    startDate: editingIncident ? formatDateInput(new Date(editingIncident.start_time)) : "",
-    startTime: editingIncident ? formatTimeInput(new Date(editingIncident.start_time)) : "",
-    endDate: editingIncident ? formatDateInput(new Date(editingIncident.end_time ?? Date.now())) : "",
-    endTime: editingIncident ? formatTimeInput(new Date(editingIncident.end_time ?? Date.now())) : "",
+    startDate: editingIncident ? formatDateInput(new Date(editingIncident.start_time.replace("Z", "").split("+")[0])) : "",
+    startTime: editingIncident ? formatTimeInput(new Date(editingIncident.start_time.replace("Z", "").split("+")[0])) : "",
+    endDate: editingIncident ? formatDateInput(new Date((editingIncident.end_time || new Date().toISOString()).replace("Z", "").split("+")[0])) : "",
+    endTime: editingIncident ? formatTimeInput(new Date((editingIncident.end_time || new Date().toISOString()).replace("Z", "").split("+")[0])) : "",
   }));
   const [submitting, setSubmitting] = useState(false);
   
