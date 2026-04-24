@@ -106,6 +106,7 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const [containerWidth, setContainerWidth] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
+  const svgRef = useRef<SVGSVGElement>(null)
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -118,6 +119,21 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
     setContainerWidth(containerRef.current.offsetWidth)
     return () => observer.disconnect()
   }, [])
+
+  // Link drawing effect
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const paths = svgRef.current.querySelectorAll('.sankey-link');
+    paths.forEach((path: any) => {
+      const length = path.getTotalLength();
+      path.style.strokeDasharray = length;
+      path.style.strokeDashoffset = length;
+      // Trigger reflow to ensure animation starts from offset
+      path.getBoundingClientRect();
+      path.style.transition = 'stroke-dashoffset 1500ms cubic-bezier(0.215, 0.61, 0.355, 1)';
+      path.style.strokeDashoffset = '0';
+    });
+  }, [risks]);
 
   const layout = useMemo(() => {
     const { nodes, links } = buildGraph(risks)
@@ -133,9 +149,9 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
         [SVG_W - MARGIN.right, SVG_H - MARGIN.bottom],
       ])
 
-    const graph = generator({ 
-      nodes: nodes.map((n, i) => ({ ...n, idx: i })), 
-      links: links.map((l) => ({ ...l })) 
+    const graph = generator({
+      nodes: nodes.map((n, i) => ({ ...n, idx: i })),
+      links: links.map((l) => ({ ...l }))
     })
     return graph as any
   }, [risks])
@@ -156,6 +172,30 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
       const rect = containerRef.current.getBoundingClientRect();
       setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
     }}>
+      <style>{`
+        .sankey-node {
+          transform-origin: top center;
+          transform-box: fill-box;
+          transition: transform 1500ms cubic-bezier(0.215, 0.61, 0.355, 1), 
+                      x 1500ms cubic-bezier(0.215, 0.61, 0.355, 1), 
+                      y 1500ms cubic-bezier(0.215, 0.61, 0.355, 1), 
+                      height 1500ms cubic-bezier(0.215, 0.61, 0.355, 1);
+          animation: nodeGrow 1500ms cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+        }
+        @keyframes nodeGrow {
+          from { transform: scaleY(0); }
+          to { transform: scaleY(1); }
+        }
+        .sankey-label {
+          opacity: 0;
+          transition: opacity 400ms ease-out 1200ms;
+          animation: labelFade 400ms ease-out 1200ms forwards;
+        }
+        @keyframes labelFade {
+          to { opacity: 1; }
+        }
+      `}</style>
+      
       {/* Column headers */}
       <div style={{
         display: 'flex',
@@ -177,24 +217,29 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
       </div>
 
       <svg
+        ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         width="100%"
         style={{ display: 'block', overflow: 'visible' }}
       >
         {/* Links */}
-        {layout.links.map((link: any, i: number) => (
-          <path
-            key={i}
-            d={linkPath(link)}
-            fill="none"
-            stroke={link.color || '#94a3b8'}
-            strokeOpacity={0.28}
-            strokeWidth={Math.max(1, link.width)}
-          />
-        ))}
+        {layout.links.map((link: any) => {
+          const key = `${link.source.layer}::${link.source.name}->${link.target.layer}::${link.target.name}`;
+          return (
+            <path
+              key={key}
+              className="sankey-link"
+              d={linkPath(link)}
+              fill="none"
+              stroke={link.color || '#94a3b8'}
+              strokeOpacity={0.28}
+              strokeWidth={Math.max(1, link.width)}
+            />
+          );
+        })}
 
         {/* Nodes */}
-        {layout.nodes.map((node: any, i: number) => {
+        {layout.nodes.map((node: any) => {
           const w = node.x1 - node.x0
           const h = node.y1 - node.y0
           const isLeft = node.layer === 0
@@ -212,7 +257,7 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
 
           return (
             <g
-              key={i}
+              key={`${node.layer}::${node.name}`}
               onClick={() => onNodeClick && onNodeClick(node.layer, node.fullName || node.name)}
               onMouseEnter={() => {
                 setTooltip({
@@ -224,6 +269,7 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
               style={{ cursor: onNodeClick ? 'pointer' : 'default' }}
             >
               <rect
+                className="sankey-node"
                 x={node.x0}
                 y={node.y0}
                 width={w}
@@ -233,6 +279,7 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
               />
               { (h > 8 || node.layer === 2) && (
                 <text
+                  className="sankey-label"
                   x={labelX}
                   y={labelY}
                   textAnchor={labelAnchor}
