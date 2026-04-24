@@ -1,12 +1,12 @@
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
 import { TREATMENT_TYPES, TREATMENT_COLOR_MAP } from '../../utils/riskLevels'
-import type { RiskTreatment } from '../../types'
+import type { RiskTreatment, ChartDataItem } from '../../types'
 import DarkTooltip from '../DarkTooltip'
 import LegendRow from '../LegendRow'
 
 interface RiskTreatmentChartProps {
-  data: any[];
-  onClick: (data: any) => void;
+  data: ChartDataItem[];
+  onClick: (data: ChartDataItem) => void;
 }
 
 export default function RiskTreatmentChart({ data, onClick }: RiskTreatmentChartProps) {
@@ -26,7 +26,7 @@ export default function RiskTreatmentChart({ data, onClick }: RiskTreatmentChart
             onClick={onClick}
             style={{ cursor: 'pointer' }}
           >
-            {data.map((d: any) => (
+            {data.map((d: ChartDataItem) => (
               <Cell key={d.name} fill={TREATMENT_COLOR_MAP[d.name as RiskTreatment]} />
             ))}
           </Pie>

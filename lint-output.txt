@@ -1,0 +1,5 @@
+...(123 lines)
+  2:10  error  'getControlsLabel' is defined but never used  @typescript-eslint/no-unused-vars
+  4:18  error  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+✖ 73 problems (73 errors, 0 warnings)
+[lean-ctx: 2881→67 tok, -98%]

@@ -1,5 +1,4 @@
 import type { RiskRecord } from "../types";
-import { getControlsLabel } from "./riskLevels";
 
 const RAW_RISKS: any[] = [
   // ─── Accounting Department ────────────────────────────────────────────

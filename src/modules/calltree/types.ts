@@ -6,6 +6,7 @@ export interface Contact {
   location: string;
   position: string;
   level?: string;
+  date?: Date;
 }
 
 export interface Response {

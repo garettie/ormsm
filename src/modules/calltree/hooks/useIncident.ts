@@ -6,6 +6,7 @@ import type { Incident, Contact } from "../types";
 export function useIncident() {
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const checkActiveIncident = async () => {
     try {
@@ -59,6 +60,7 @@ export function useIncident() {
 
     if (error) {
       console.error("Error starting incident:", error);
+      setError(error.message);
       return;
     }
 
@@ -79,6 +81,7 @@ export function useIncident() {
 
       if (contactError) {
         console.error("Error inserting event contacts:", contactError);
+        setError("Failed to add some contacts");
       }
     }
 
@@ -94,5 +97,5 @@ export function useIncident() {
     setActiveIncident(null);
   };
 
-  return { activeIncident, startIncident, endIncident, loading };
+  return { activeIncident, startIncident, endIncident, loading, error, setError };
 }

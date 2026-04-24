@@ -3,9 +3,10 @@ import { RISK_LEVELS, RISK_COLORS } from '../../utils/riskLevels'
 import { WrapTick } from '../../utils/chartUtils'
 import DarkTooltip from '../DarkTooltip'
 import LegendRow from '../LegendRow'
+import type { ChartDataItem } from '../../types'
 
 interface DepartmentRiskChartProps {
-  data: any[];
+  data: ChartDataItem[];
 }
 
 export default function DepartmentRiskChart({ data }: DepartmentRiskChartProps) {

@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, ElementType } from 'react'
 
 interface KpiCardProps {
   label: string;
   value: string | number;
   sub?: string;
   accentColor: string;
-  icon: any;
+  icon: ElementType;
   borderColor?: string;
   children?: ReactNode;
   onClick?: () => void;

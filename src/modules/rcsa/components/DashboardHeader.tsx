@@ -1,14 +1,9 @@
-import { Filter, X } from "lucide-react";
+import { X } from "lucide-react";
 import { 
   DEPARTMENTS, 
   RISK_LEVELS, 
   CONTROLS_LABEL_COLORS, 
   shortDept,
-  RISK_COLORS,
-  RISK_BG,
-  RISK_TEXT,
-  CONTROL_BG,
-  CONTROL_TEXT
 } from "../utils/riskLevels";
 import MultiFilter from "./MultiFilter";
 

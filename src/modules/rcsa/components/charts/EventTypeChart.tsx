@@ -9,8 +9,9 @@ import {
 } from "recharts";
 import { WrapTick } from "../../utils/chartUtils";
 import DarkTooltip from "../DarkTooltip";
+import type { ChartDataItem } from "../../types";
 
-export default function EventTypeChart({ data, onClick }: { data: any[]; onClick: (d: any) => void }) {
+export default function EventTypeChart({ data, onClick }: { data: ChartDataItem[]; onClick?: (d: unknown) => void }) {
   return (
     <ResponsiveContainer width="100%" height={Math.max(220, data.length * 36)}>
       <BarChart data={data} layout="vertical" margin={{ left: 0, right: 80 }}>

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { RiskRecord, RiskLevel, ControlRating, ControlType, RootCause, RiskTreatment, RiskStatus } from "../types";
+import type { RiskRecord } from "../types";
 import {
   getRiskLevel,
   getControlsLabel,
@@ -13,7 +13,7 @@ import {
 } from "../utils/riskLevels";
 
 interface DashboardFilters {
-  risks: any[];
+  risks: RiskRecord[];
   deptFilter: string[];
   periodFilter: string[];
   statusFilter: string[];
@@ -80,7 +80,7 @@ export function useDashboardData({
           return false;
         if (
           controlRatingFilter.length > 0 &&
-          !controlRatingFilter.includes(r.control_rating)
+          !controlRatingFilter.includes(r.control_rating ?? "")
         )
           return false;
         if (

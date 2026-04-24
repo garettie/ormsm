@@ -31,7 +31,6 @@ export default function RiskRegisterModal({ risks, onClose }: RiskRegisterModalP
           risks={risks}
           title="Risk Register"
           onClose={onClose}
-          isModal
         />
       </div>
     </div>

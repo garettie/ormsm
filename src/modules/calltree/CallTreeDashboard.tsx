@@ -24,6 +24,7 @@ export default function CallTreeDashboard() {
     loading: incidentLoading,
     startIncident,
     endIncident,
+    error: incidentError,
   } = useIncident();
 
   useEffect(() => {
@@ -144,6 +145,11 @@ export default function CallTreeDashboard() {
             onEnd={endIncident}
             rightSlot={<><DataUploadButton onUpload={() => setShowUpload(true)} />{viewToggle}{refreshControls}</>}
           />
+          {incidentError && (
+            <div className="mt-2 px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+              {incidentError}
+            </div>
+          )}
 
           <DashboardContent
             data={data}

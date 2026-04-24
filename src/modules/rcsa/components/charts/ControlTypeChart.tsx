@@ -1,12 +1,12 @@
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
 import { CONTROL_TYPES, CT_COLOR_MAP } from '../../utils/riskLevels'
-import type { ControlType } from '../../types'
+import type { ControlType, ChartDataItem } from '../../types'
 import DarkTooltip from '../DarkTooltip'
 import LegendRow from '../LegendRow'
 
 interface ControlTypeChartProps {
-  data: any[];
-  onClick: (data: any) => void;
+  data: ChartDataItem[];
+  onClick: (data: ChartDataItem) => void;
 }
 
 export default function ControlTypeChart({ data, onClick }: ControlTypeChartProps) {
@@ -26,7 +26,7 @@ export default function ControlTypeChart({ data, onClick }: ControlTypeChartProp
             onClick={onClick}
             style={{ cursor: 'pointer' }}
           >
-            {data.map((d: any) => (
+            {data.map((d: ChartDataItem) => (
               <Cell key={d.name} fill={CT_COLOR_MAP[d.name as ControlType]} />
             ))}
           </Pie>

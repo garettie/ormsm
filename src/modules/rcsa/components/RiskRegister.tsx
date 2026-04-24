@@ -1,11 +1,15 @@
 import { useState, useMemo, Fragment } from 'react'
-import type { ReactNode } from 'react'
+import type { RiskRecord } from '../types'
 import { ArrowUpDown, ChevronDown, ChevronUp, Filter, X, Maximize2, Search, Download } from 'lucide-react'
 import { shortDept, getRiskLevel, getRiskLevelSmall, getControlsLabel, getControlsLabelSmall, getImplementationLabel, RISK_LEVELS, RISK_BG, RISK_TEXT, RISK_COLORS, CONTROLS_LABEL_COLORS, IMPLEMENTATION_COLORS } from '../utils/riskLevels'
 import RiskBadge from './RiskBadge'
-import type { RiskRecord, RiskLevel, RootCause, ControlType, RiskTreatment, RiskStatus } from '../types'
 
 const CONTROLS_LABELS = ['Strong', 'Satisfactory', 'Needs Improvement', 'Unsatisfactory']
+
+interface Column {
+  key: string;
+  label: string;
+}
 
 interface FilterSelectProps {
   value: string;
@@ -46,14 +50,13 @@ function FilterInput({ value, onChange, placeholder }: FilterInputProps) {
 }
 
 interface RiskRegisterProps {
-  risks: any[];
+  risks: RiskRecord[];
   title?: string;
   onOpenModal?: () => void;
   onClose?: () => void;
-  isModal?: boolean;
 }
 
-export default function RiskRegister({ risks, title = "Risk Register", onOpenModal, onClose, isModal }: RiskRegisterProps) {
+export default function RiskRegister({ risks, title = "Risk Register", onOpenModal, onClose }: RiskRegisterProps) {
   const [expandedRow, setExpandedRow] = useState<string | number | null>(null)
   const [showFilters, setShowFilters] = useState(false)
   const [colFilters, setColFilters] = useState<Record<string, string>>({})
@@ -79,7 +82,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
   const hasActiveFilters = Object.values(colFilters).some(v => v) || searchTerm
 
   const filteredRisks = useMemo(() => {
-    let result = risks.filter((r: any) => {
+    let result = risks.filter((r: RiskRecord) => {
       if (searchTerm) {
         const q = searchTerm.toLowerCase()
         const searchable = [r.department, r.process_name, r.risk_description, r.possible_causes, r.root_cause, r.event_type].filter(Boolean).join(' ').toLowerCase()
@@ -105,7 +108,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
 
     // Sort
     const { key, direction } = sortConfig
-    result = [...result].sort((a: any, b: any) => {
+    result = [...result].sort((a: RiskRecord, b: RiskRecord) => {
       let aVal, bVal
       switch (key) {
         case 'department': aVal = a.department; bVal = b.department; break
@@ -156,7 +159,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
     { key: 'expand', label: '' },
   ]
 
-  const renderFilterCell = (col: any) => {
+  const renderFilterCell = (col: Column) => {
     switch (col.key) {
       case 'department': return <FilterSelect value={colFilters.department || ''} onChange={(v: string) => setFilter('department', v)} options={deptOptions} />
       case 'process': return <FilterSelect value={colFilters.process || ''} onChange={(v: string) => setFilter('process', v)} options={processOptions} />
@@ -290,12 +293,13 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                 </td>
               </tr>
             )}
-            {filteredRisks.map((r, idx) => {
-              const isExpanded = expandedRow === r.id
+            {filteredRisks.map((r) => {
+              const rowId = r.id ?? null;
+              const isExpanded = expandedRow === rowId;
               return (
-                <Fragment key={r.id}>
+                <Fragment key={rowId}>
                   <tr
-                    onClick={() => setExpandedRow(isExpanded ? null : r.id)}
+                    onClick={() => setExpandedRow(isExpanded ? null : rowId)}
                     className="hover:bg-gray-50/50 transition-colors cursor-pointer"
                   >
                     <td className="px-4 py-3 text-gray-900 font-medium">{shortDept(r.department)}</td>
@@ -423,10 +427,10 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
   )
 }
 
-function downloadCSV(data: any[]) {
+function downloadCSV(data: RiskRecord[]) {
   if (!data.length) return
   const headers = ['Department', 'Process', 'Risk Description', 'Possible Causes', 'Root Cause', 'Event Type', 'Likelihood', 'Impact', 'Inherent Risk', 'Control Design', 'Control Implementation', 'Controls Rating', 'Residual Risk', 'Control Type', 'Control Description', 'Risk Treatment', 'Status', 'Action Plan', 'Deadline']
-  const rows = data.map((r: any) => [
+  const rows = data.map((r: RiskRecord) => [
     r.department,
     r.process_name,
     r.risk_description,

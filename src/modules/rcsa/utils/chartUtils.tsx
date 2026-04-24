@@ -1,6 +1,16 @@
 import { Sector } from "recharts";
 
-export const renderActiveDonut = (props: any) => {
+interface DonutProps {
+  cx: number;
+  cy: number;
+  innerRadius: number;
+  outerRadius: number;
+  startAngle: number;
+  endAngle: number;
+  fill: string;
+}
+
+export const renderActiveDonut = (props: DonutProps) => {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } =
     props;
   return (
@@ -17,8 +27,18 @@ export const renderActiveDonut = (props: any) => {
   );
 };
 
-export function WrapTick({ x, y, payload }: any) {
-  const text = payload.value;
+interface TickPayload {
+  value: string;
+}
+
+type TickProps = {
+  x?: number;
+  y?: number;
+  payload?: TickPayload;
+};
+
+export function WrapTick({ x = 0, y = 0, payload }: TickProps) {
+  const text = payload?.value ?? "";
   if (text.length <= 28) {
     return (
       <text
@@ -35,19 +55,20 @@ export function WrapTick({ x, y, payload }: any) {
   }
   const mid = text.lastIndexOf(" ", 28);
   const bp = mid > 0 ? mid : 28;
+  const xPos = x - 4;
   return (
     <text
-      x={x - 4}
+      x={xPos}
       y={y}
       textAnchor="end"
       fill="#475569"
       fontSize={11}
       dominantBaseline="middle"
     >
-      <tspan x={x - 4} dy="-0.6em">
+      <tspan x={xPos} dy="-0.6em">
         {text.slice(0, bp)}
       </tspan>
-      <tspan x={x - 4} dy="1.2em">
+      <tspan x={xPos} dy="1.2em">
         {text.slice(bp + 1)}
       </tspan>
     </text>

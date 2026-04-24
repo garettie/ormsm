@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { sankey as d3Sankey, sankeyLinkHorizontal, sankeyJustify } from 'd3-sankey'
 import { getRiskLevel, RC_COLOR_MAP, RISK_COLORS } from '../../utils/riskLevels'
 import type { RiskRecord, RiskLevel } from '../../types'
@@ -104,7 +104,20 @@ interface SankeyEventTypeProps {
 export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeProps) {
   const [tooltip, setTooltip] = useState<{ text: string; value: number } | null>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  const [containerWidth, setContainerWidth] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!containerRef.current) return
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setContainerWidth(entry.contentRect.width)
+      }
+    })
+    observer.observe(containerRef.current)
+    setContainerWidth(containerRef.current.offsetWidth)
+    return () => observer.disconnect()
+  }, [])
 
   const layout = useMemo(() => {
     const { nodes, links } = buildGraph(risks)
@@ -237,14 +250,13 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
       </svg>
 
       {/* Tooltip */}
-      {tooltip && containerRef.current && (() => {
-        const containerW = containerRef.current.offsetWidth;
-        const flipLeft = mousePos.x > containerW * 0.6;
+      {tooltip && containerWidth > 0 && (() => {
+        const flipLeft = mousePos.x > containerWidth * 0.6;
         return (
           <div style={{
             position: 'absolute',
             left: flipLeft ? undefined : mousePos.x + 12,
-            right: flipLeft ? containerW - mousePos.x + 12 : undefined,
+            right: flipLeft ? containerWidth - mousePos.x + 12 : undefined,
             top: mousePos.y - 10,
             background: '#fff',
             color: '#334155',

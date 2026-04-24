@@ -1,0 +1,5 @@
+npm error Missing script: "typecheck"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run
+npm error A complete log of this run can be found in: /home/sgaret/.npm/_logs/2026-04-24T01_14_23_342Z-debug-0.log

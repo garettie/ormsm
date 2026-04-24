@@ -37,3 +37,9 @@ export interface DashboardData {
   loading: boolean;
   error: string | null;
 }
+
+export interface ChartDataItem {
+  name: string;
+  value?: number;
+  [key: string]: string | number | undefined;
+}

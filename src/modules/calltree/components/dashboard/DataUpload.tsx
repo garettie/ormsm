@@ -107,9 +107,12 @@ export function DataUploadModal({ onClose, onSuccess }: { onClose: () => void; o
       const phone = String(row["From Presentation"] || "");
       const dtValue = row["Client Submit Time"];
       const datetime = dtValue != null && dtValue !== "" ? String(dtValue) : null;
+      // Normalize to 63 format (no + prefix) to match MasterContacts
+      const normalizedPhone = phone.startsWith("+") ? phone.slice(1) : phone;
+      const contact = normalizedPhone.startsWith("63") ? normalizedPhone : "63" + normalizedPhone.slice(1);
       return {
         uid: crypto.randomUUID(),
-        contact: phone.startsWith("+") ? phone : "+" + phone,
+        contact,
         datetime,
         contents: String(row["Message"] || ""),
       };
@@ -186,14 +189,18 @@ export function DataUploadModal({ onClose, onSuccess }: { onClose: () => void; o
         const id = String(row["id"] ?? "").replace(/\.0$/, "").trim();
         const status = String(row["status"] ?? "").toLowerCase();
         if (status === "resigned" || status === "terminated") return null;
-        let number = String(row["number"] ?? "").replace(/\.0$/, "");
-        number = number.toLowerCase() === "nan"
-          ? ""
-          : number.startsWith("09")
-            ? "639" + number.slice(1)
-            : number.startsWith("9") && number.length === 10
-              ? "63" + number
-              : number;
+        
+        // Clean phone number: remove all non-digits first, then normalize
+        let number = String(row["number"] ?? "")
+          .replace(/[^0-9]/g, "")            // Strip ALL non-digits (dots, commas, dashes, etc)
+          .replace(/^63/, "")             // Remove existing 63 prefix if present
+          .replace(/^0/, "");             // Remove leading 0
+        
+        // Normalize to 63 format if it's a valid 10-digit number starting with 9
+        number = number.startsWith("9") && number.length === 10
+          ? "63" + number
+          : number;
+          
         const name = String(row["name"] ?? "").replace(" - ", " ");
         let department = String(row["department"] ?? "");
         let location = department;

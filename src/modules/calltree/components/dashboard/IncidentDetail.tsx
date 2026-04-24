@@ -17,7 +17,7 @@ import {
   formatDuration,
   formatTimeShort,
 } from "../../../../lib/utils";
-import type { Incident } from "../../types";
+import type { Incident, Contact } from "../../types";
 import { DataUploadButton } from "./DataUploadButton";
 
 const DataUploadModal = lazy(() => import("./DataUpload").then(module => ({ default: module.DataUploadModal })));

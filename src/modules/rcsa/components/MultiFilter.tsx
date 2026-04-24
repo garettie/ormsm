@@ -7,16 +7,11 @@ interface MultiFilterProps {
   selected: string[];
   onChange: (val: string[]) => void;
   formatLabel?: (s: string) => string;
-  width?: string | number;
-  bgMap?: Record<string, string> | null;
-  textMap?: Record<string, string> | null;
-  colorMap?: Record<string, string> | null;
 }
 
 export default function MultiFilter({ 
   label, options, selected, onChange, 
-  formatLabel = (s) => s, width,
-  bgMap = null, textMap = null, colorMap = null
+  formatLabel = (s) => s
 }: MultiFilterProps) {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')

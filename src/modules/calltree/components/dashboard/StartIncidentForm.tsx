@@ -85,7 +85,7 @@ export function StartIncidentForm({ onStart, onCancel }: StartIncidentFormProps)
         }
 
         if (number.length >= 10) {
-          const entry: any = { name: formattedName, number };
+          const entry: Contact = { name: formattedName, number, department: "", location: "", position: "", date: undefined };
           
           let parsedDate: Date | null = null;
           if (rawDateValue instanceof Date) {

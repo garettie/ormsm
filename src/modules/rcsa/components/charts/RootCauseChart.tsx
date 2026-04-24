@@ -1,12 +1,12 @@
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
 import { ROOT_CAUSES, RC_COLOR_MAP } from '../../utils/riskLevels'
-import type { RootCause } from '../../types'
+import type { RootCause, ChartDataItem } from '../../types'
 import DarkTooltip from '../DarkTooltip'
 import LegendRow from '../LegendRow'
 
 interface RootCauseChartProps {
-  data: any[];
-  onClick: (data: any) => void;
+  data: ChartDataItem[];
+  onClick: (data: ChartDataItem) => void;
 }
 
 export default function RootCauseChart({ data, onClick }: RootCauseChartProps) {
@@ -26,7 +26,7 @@ export default function RootCauseChart({ data, onClick }: RootCauseChartProps) {
             onClick={onClick}
             style={{ cursor: 'pointer' }}
           >
-            {data.map((d: any) => (
+            {data.map((d: ChartDataItem) => (
               <Cell key={d.name} fill={RC_COLOR_MAP[d.name as RootCause]} />
             ))}
           </Pie>

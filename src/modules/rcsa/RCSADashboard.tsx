@@ -64,8 +64,8 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
         const { data: risksData, error: risksError } = await supabase.from("risks").select("*");
         if (risksError) throw risksError;
         setRisks(risksData || []);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch data");
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Failed to fetch data");
       } finally {
         setLoading(false);
       }
@@ -104,15 +104,17 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
     setControlRatingFilter([]);
   };
 
-  const handlePieClick = (chartData: any, setFilterFn: React.Dispatch<React.SetStateAction<string | null>>) => {
-    if (chartData?.name) {
-      setFilterFn((prev) => (prev === chartData.name ? null : chartData.name));
+  const handlePieClick = (chartData: { name?: string }, setFilterFn: React.Dispatch<React.SetStateAction<string | null>>) => {
+    const name = chartData?.name;
+    if (name) {
+      setFilterFn((prev) => (prev === name ? null : name));
     }
   };
 
-  const handleEventTypeClick = (chartData: any) => {
-    if (chartData?.activePayload?.[0]) {
-      const name = chartData.activeLabel;
+  const handleEventTypeClick = (chartData: unknown) => {
+    const data = chartData as { activeLabel?: string };
+    const name = data?.activeLabel;
+    if (name) {
       setEventTypeFilter((prev) => (prev === name ? null : name));
     }
   };
@@ -256,14 +258,14 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
           <SectionCard title="Control Types">
             <ControlTypeChart
               data={data.controlTypeData}
-              onClick={(d: any) => handlePieClick(d, setControlTypeFilter)}
+              onClick={(d) => handlePieClick(d, setControlTypeFilter)}
             />
           </SectionCard>
 
           <SectionCard title="Root Cause">
             <RootCauseChart
               data={data.rootCauseData}
-              onClick={(d: any) => handlePieClick(d, setRootCauseFilter)}
+              onClick={(d) => handlePieClick(d, setRootCauseFilter)}
             />
           </SectionCard>
 
@@ -279,7 +281,7 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
           <SectionCard title="Risk Treatment">
             <RiskTreatmentChart
               data={data.treatmentData}
-              onClick={(d: any) => handlePieClick(d, setTreatmentFilter)}
+              onClick={(d) => handlePieClick(d, setTreatmentFilter)}
             />
           </SectionCard>
         </div>

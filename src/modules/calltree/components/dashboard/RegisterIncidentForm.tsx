@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { CheckCircle2, AlertTriangle, Plus, X, Pencil, FileSpreadsheet, Loader, Clock } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Plus, X, Pencil, FileSpreadsheet, Loader } from "lucide-react";
 import * as XLSX from "xlsx";
 import { supabase } from "../../lib/supabase";
 import type { Incident, Contact } from "../../types";
@@ -106,7 +106,7 @@ export default function RegisterIncidentForm({
         }
 
         if (number.length >= 10) {
-          const entry: any = { name: formattedName, number };
+          const entry: Contact = { name: formattedName, number, department: "", location: "", position: "", date: undefined };
           
           let parsedDate: Date | null = null;
           if (rawDateValue instanceof Date) {

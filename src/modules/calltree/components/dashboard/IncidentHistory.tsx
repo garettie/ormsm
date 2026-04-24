@@ -16,7 +16,7 @@ import {
   formatDuration,
   formatTimeShort,
 } from "../../../../lib/utils";
-import type { Incident } from "../../types";
+import type { Incident, Contact } from "../../types";
 import IncidentDetail from "./IncidentDetail";
 import RegisterIncidentForm from "./RegisterIncidentForm";
 import { DataUploadButton } from "./DataUploadButton";
