@@ -141,10 +141,12 @@ export function getImplementationLabel(score: number): ImplementationRating {
 }
 
 export function shortDept(name: string): string {
+  if (!name) return "";
   return name
-    .replace(" Department", "")
-    .replace(" Group", "")
-    .replace(" Office", "")
-    .replace(" Management", "")
-    .replace(" Monitoring", "");
+    .replace(/\s+Department$/i, "")
+    .replace(/\s+Office$/i, "")
+    .replace(/\s+Group$/i, "")
+    .replace(/\s+Management$/i, "")
+    .replace(/\s+Monitoring$/i, "")
+    .trim();
 }
