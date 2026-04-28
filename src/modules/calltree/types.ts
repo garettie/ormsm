@@ -23,7 +23,7 @@ export interface ProcessedContact extends Contact {
   status: Status;
   responseContent?: string;
   responseTime?: string;
-  matchType?: "phone" | "name" | "manual";
+  matchType?: "phone" | "name" | "manual" | "alt-phone";
   cleanNumber: string;
 }
 

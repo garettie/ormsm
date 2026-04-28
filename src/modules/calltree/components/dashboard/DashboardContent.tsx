@@ -305,7 +305,7 @@ export function DashboardContent({
 
       {/* Auxiliary Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <UnknownTable data={data.unknownResponses} />
+        <UnknownTable data={data.unknownResponses} contacts={data.contacts} onLinked={handleResponseAdded} />
         <PendingTable
           data={pendingData}
           onResponseAdded={handleResponseAdded}

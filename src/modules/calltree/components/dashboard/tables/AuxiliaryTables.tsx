@@ -1,5 +1,5 @@
 import { useState, useMemo, useDeferredValue, type FC } from "react";
-import { Download, AlertTriangle, Search, Clock, X, Save } from "lucide-react";
+import { Download, AlertTriangle, Search, Clock, X, Save, Link } from "lucide-react";
 import type { ProcessedContact, Response } from "../../../types";
 import { downloadCSV } from "../../../lib/csv";
 import {
@@ -47,9 +47,126 @@ const DownloadButton: FC<{ onClick: () => void }> = ({ onClick }) => (
   </button>
 );
 
+// --- LinkContactModal ---
+
+interface LinkContactModalProps {
+  response: Response;
+  contacts: ProcessedContact[];
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+const LinkContactModal: FC<LinkContactModalProps> = ({ response, contacts, onClose, onSuccess }) => {
+  const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState<ProcessedContact | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const filtered = useMemo(() => {
+    if (!search) return contacts;
+    const q = search.toLowerCase();
+    return contacts.filter((c) =>
+      c.name.toLowerCase().includes(q) || c.department.toLowerCase().includes(q)
+    );
+  }, [contacts, search]);
+
+  const handleConfirm = async () => {
+    if (!selected) return;
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const contactId = selected.cleanNumber;
+      if (!contactId) throw new Error(`Contact has no primary number. Name: ${selected.name}`);
+      const { error } = await supabase.from("ContactAltNumbers").insert({
+        contact_id: String(contactId),
+        contact_name: selected.name,
+        number: response.contact,
+        source_response_id: response.uid ?? null,
+      });
+      if (error) throw new Error(error.message + (error.details ? ` (${error.details})` : ""));
+      onSuccess();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      const details = (err as Record<string, string>)?.details;
+      setErrorMsg(msg + (details ? ` (${details})` : ""));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+          <h3 className="font-semibold text-gray-900">Link to Contact</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-4">
+          <div className="text-xs text-gray-500 font-mono bg-gray-50 px-3 py-2 rounded-lg">
+            {formatPhoneNumber(response.contact)} — {response.contents}
+          </div>
+
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by name or department..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary/20 focus:border-accent-primary transition-all"
+              autoFocus
+            />
+          </div>
+
+          <div className="max-h-48 overflow-y-auto divide-y divide-gray-100 border border-gray-200 rounded-lg">
+            {filtered.length === 0 && (
+              <div className="p-4 text-xs text-center text-gray-400">No contacts found.</div>
+            )}
+            {filtered.map((c) => (
+              <button
+                key={c.id ?? c.number}
+                onClick={() => setSelected(c)}
+                className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                  selected?.id === c.id ? "bg-accent-primary/10 text-accent-primary" : "hover:bg-gray-50"
+                }`}
+              >
+                <div className="font-medium text-gray-900">{c.name}</div>
+                <div className="text-xs text-gray-400">{c.department} · {formatPhoneNumber(c.number)}</div>
+              </button>
+            ))}
+          </div>
+
+          {errorMsg && (
+            <div className="p-3 bg-red-50 text-red-600 text-xs rounded-lg border border-red-100">
+              {errorMsg}
+            </div>
+          )}
+
+          <button
+            onClick={handleConfirm}
+            disabled={!selected || loading}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-accent-primary text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+          >
+            {loading ? "Saving..." : (
+              <>
+                <Save className="w-4 h-4" /> Link & Record
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // --- UnknownTable ---
 
-export const UnknownTable: FC<{ data: Response[] }> = ({ data }) => {
+export const UnknownTable: FC<{ data: Response[]; contacts: ProcessedContact[]; onLinked: () => void }> = ({ data, contacts, onLinked }) => {
+  const [linking, setLinking] = useState<Response | null>(null);
+
   if (data.length === 0) return null;
 
   const handleDownload = () => {
@@ -62,6 +179,7 @@ export const UnknownTable: FC<{ data: Response[] }> = ({ data }) => {
   };
 
   return (
+    <>
     <TableCard
       title={`Unknown Responses (${data.length})`}
       action={<DownloadButton onClick={handleDownload} />}
@@ -78,13 +196,14 @@ export const UnknownTable: FC<{ data: Response[] }> = ({ data }) => {
             <th className={TH}>Phone</th>
             <th className={TH}>Message</th>
             <th className={TH}>Time</th>
+            <th className={TH}></th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
           {data.map((row, i) => (
             <tr
               key={`${row.contact}-${row.datetime}-${i}`}
-              className="hover:bg-gray-50/50"
+              className="hover:bg-gray-50/50 group"
             >
               <td className={CELL_PHONE}>{formatPhoneNumber(row.contact)}</td>
               <td className={`${CELL} max-w-50 truncate`} title={row.contents}>
@@ -93,11 +212,32 @@ export const UnknownTable: FC<{ data: Response[] }> = ({ data }) => {
               <td className={`${CELL} text-xs whitespace-nowrap`}>
                 {formatDateTime(row.datetime)}
               </td>
+              <td className="px-4 py-2">
+                <button
+                  onClick={() => setLinking(row)}
+                  className="text-xs text-accent-primary hover:text-green-700 font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
+                >
+                  <Link className="w-3 h-3" /> Link
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
     </TableCard>
+
+    {linking && (
+      <LinkContactModal
+        response={linking}
+        contacts={contacts}
+        onClose={() => setLinking(null)}
+        onSuccess={() => {
+          setLinking(null);
+          onLinked();
+        }}
+      />
+    )}
+    </>
   );
 };
 

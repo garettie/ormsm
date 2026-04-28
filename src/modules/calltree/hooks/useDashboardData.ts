@@ -150,12 +150,13 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
           return allData;
         };
 
-        // 1. Fetch Incident Context, Contacts and Responses in parallel
-        const [activeIncidentData, pastIncidentData, contactsData, responsesData] = await Promise.all([
+        // 1. Fetch Incident Context, Contacts, Responses, and Alt Numbers in parallel
+        const [activeIncidentData, pastIncidentData, contactsData, responsesData, altNumbersData] = await Promise.all([
           supabase.from("incidents").select("*").is("end_time", null).maybeSingle(),
           startDate ? supabase.from("incidents").select("*").eq("start_time", startDate).maybeSingle() : Promise.resolve({ data: null }),
           fetchAll("MasterContacts"),
           fetchAll("Responses", "datetime", startDate, endDate),
+          supabase.from("ContactAltNumbers").select("*"),
         ]);
 
         const incident = activeIncidentData.data || pastIncidentData.data;
@@ -185,15 +186,27 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
         const knownNumbers = new Set(
           processedContacts.map((c) => c.cleanNumber),
         );
+
+        // Build alt number lookup: altCleanNumber → contact's primary cleanNumber
+        const altNumberMap = new Map<string, string>();
+        const altNumbers = (altNumbersData.data || []) as { contact_id: string; number: string }[];
+        for (const alt of altNumbers) {
+          const contact = processedContacts.find((c) => c.cleanNumber === alt.contact_id);
+          if (contact) {
+            altNumberMap.set(cleanNumber(alt.number), contact.cleanNumber);
+          }
+        }
+
         const unknownResponses: Response[] = [];
         const responseMap = new Map<string, Response>(); // To store ONLY the latest response
+        const altNumbersToSave: { contact_id: string; contact_name: string; number: string; source_response_id: string | null }[] = [];
 
         // Filter responses to find latest per contact and separate unknowns
         responses.forEach((r) => {
           const cleanParams = cleanNumber(r.contact);
           const { status, name } = parseResponse(r.contents);
           let matchedContactCleanNumber: string | null = null;
-          let matchType: "phone" | "name" | "manual" | undefined = undefined;
+          let matchType: "phone" | "name" | "manual" | "alt-phone" | undefined = undefined;
 
           // 1. Try name match FIRST (handles co-worker replies with typed name)
           if (name && status !== "No Response") {
@@ -201,6 +214,19 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
             if (matchedContact) {
               matchedContactCleanNumber = matchedContact.cleanNumber;
               matchType = "name";
+              // Auto-save alt number only if the replying number is unknown —
+              // meaning it's likely their own alt number, not a co-worker's phone
+              const isUnknownNumber = !knownNumbers.has(cleanParams) && !altNumberMap.has(cleanParams);
+              if (isUnknownNumber) {
+                altNumbersToSave.push({
+                  contact_id: matchedContact.cleanNumber,
+                  contact_name: matchedContact.name,
+                  number: r.contact,
+                  source_response_id: r.uid ?? null,
+                });
+                // Optimistically update local map so subsequent responses from same number also match
+                altNumberMap.set(cleanParams, matchedContact.cleanNumber);
+              }
             }
           }
 
@@ -210,6 +236,12 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
             matchType = "phone";
           }
 
+          // 3. If no primary phone match, try alt number match
+          if (!matchedContactCleanNumber && altNumberMap.has(cleanParams)) {
+            matchedContactCleanNumber = altNumberMap.get(cleanParams)!;
+            matchType = "alt-phone";
+          }
+
           if (r.contents.toLowerCase().includes("manual entry")) {
             matchType = "manual";
           }
@@ -217,7 +249,7 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
           if (matchedContactCleanNumber) {
             if (!responseMap.has(matchedContactCleanNumber)) {
               const boostedResponse = { ...r, matchType } as Response & {
-                matchType: "phone" | "name" | "manual";
+                matchType: "phone" | "name" | "manual" | "alt-phone";
               };
               responseMap.set(matchedContactCleanNumber, boostedResponse);
             }
@@ -226,10 +258,20 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
           }
         });
 
+        // Fire-and-forget: save newly discovered alt numbers (name-matched from unknown number)
+        // Upsert on number column to avoid duplicate errors on repeated fetches
+        if (altNumbersToSave.length > 0) {
+          supabase.from("ContactAltNumbers")
+            .upsert(altNumbersToSave, { onConflict: "number" })
+            .then(({ error }) => {
+              if (error) console.warn("Failed to auto-save alt numbers:", error.message);
+            });
+        }
+
         // Merge response data into contacts
         processedContacts.forEach((c) => {
           const resp = responseMap.get(c.cleanNumber) as
-            | (Response & { matchType?: "phone" | "name" | "manual" })
+            | (Response & { matchType?: "phone" | "name" | "manual" | "alt-phone" })
             | undefined;
           if (resp) {
             // We re-parse here to ensure we get the status correctly even if it has a name after it

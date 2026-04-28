@@ -9,6 +9,7 @@ import {
   User,
   Keyboard,
   HelpCircle,
+  PhoneForwarded,
 } from "lucide-react";
 import type { ProcessedContact } from "../../../types";
 import { COLORS } from "../../../lib/constants";
@@ -113,7 +114,7 @@ const StatusBadge: FC<{ status: string }> = memo(({ status }) => {
 });
 
 // --- MatchTypeIndicator ---
-const MatchTypeIndicator: FC<{ type?: "phone" | "name" | "manual" }> = memo(({
+const MatchTypeIndicator: FC<{ type?: "phone" | "name" | "manual" | "alt-phone" }> = memo(({
   type,
 }) => {
   if (!type) return null;
@@ -137,6 +138,11 @@ const MatchTypeIndicator: FC<{ type?: "phone" | "name" | "manual" }> = memo(({
       Icon = Keyboard;
       title = "Manually Entered";
       colorClass = "text-amber-400";
+      break;
+    case "alt-phone":
+      Icon = PhoneForwarded;
+      title = "Matched by Alternate Number";
+      colorClass = "text-teal-400";
       break;
   }
 
