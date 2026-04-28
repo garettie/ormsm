@@ -1,14 +1,15 @@
-import { useState, lazy, Suspense, useEffect } from "react";
+import { useState, Suspense, useEffect } from "react";
 import AppShell from "./components/AppShell";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Login } from "./components/Login";
 import { supabase } from "./lib/supabase";
+import { lazyWithRetry } from "./lib/utils";
 
-const CallTreeDashboard = lazy(() =>
+const CallTreeDashboard = lazyWithRetry(() =>
   import("./modules/calltree/CallTreeDashboard")
 );
 
-const RCSADashboard = lazy(() =>
+const RCSADashboard = lazyWithRetry(() =>
   import("./modules/rcsa/RCSADashboard")
 );
 

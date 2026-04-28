@@ -126,7 +126,7 @@ export default function CallTreeDashboard() {
   const showHistory = view === "history" || defaultIncident;
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="max-w-[1600px] mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
       {showHistory ? (
         <IncidentHistory
           defaultIncident={defaultIncident}

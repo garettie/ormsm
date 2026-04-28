@@ -1,8 +1,31 @@
+import { lazy, type ComponentType } from "react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+/**
+ * Enhanced lazy loader that catches ChunkLoadErrors (caused by new deployments)
+ * and triggers a full page reload to fetch the latest assets.
+ */
+export function lazyWithRetry<T extends ComponentType<any>>(
+  factory: () => Promise<{ default: T }>,
+): ComponentType<any> {
+  return lazy(() =>
+    factory().catch((error) => {
+      const isChunkLoadFailed =
+        error.name === "ChunkLoadError" ||
+        /loading.*chunk.*failed/i.test(error.message);
+
+      if (isChunkLoadFailed) {
+        // Simple reload to get new manifest
+        window.location.reload();
+      }
+      throw error;
+    }),
+  );
 }
 
 export function formatDateTime(iso: string | null | undefined): string {
