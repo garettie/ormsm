@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 import type {
   Contact,
   Response,
@@ -267,24 +267,19 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
     [startDate, endDate],
   );
 
-  const fetchDataRef = useRef(fetchData);
-  useEffect(() => {
-    fetchDataRef.current = fetchData;
-  }, [fetchData]);
-
   useEffect(() => {
     // Initial fetch
-    fetchDataRef.current();
+    fetchData();
 
     const interval = setInterval(
-      () => fetchDataRef.current({ background: true }),
+      () => fetchData({ background: true }),
       60000,
     ); // Auto-refresh every 60s
 
     return () => {
       clearInterval(interval);
     };
-  }, []); // Empty dependency array = Run once on mount
+  }, [fetchData]); // Recreate interval when fetchData changes (startDate/endDate)
 
   return { data, loading, error, refresh: fetchData };
 };

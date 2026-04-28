@@ -50,11 +50,11 @@ export default function IncidentDetail({
     <div className="animate-in fade-in duration-300">
       {/* Combined: Back + Event Info + Start New — single row */}
       <div
-        className={`mb-6 p-4 rounded-lg flex items-center justify-between shadow-sm border-l-4 ${
+        className={`mb-6 p-4 rounded-lg flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-sm border-l-4 ${
           isTest ? "bg-blue-50 border-blue-500" : "bg-red-50 border-red-500"
         }`}
       >
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <button
             onClick={onBack}
             className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors group shrink-0"
@@ -63,11 +63,11 @@ export default function IncidentDetail({
             Back to History
           </button>
 
-          <div className="w-px h-8 bg-gray-200/60 shrink-0" />
+          <div className="hidden sm:block w-px h-8 bg-gray-200/60 shrink-0" />
 
           <div className="flex items-center gap-3">
             <div
-              className={`p-1.5 rounded-full ${isTest ? "bg-blue-100 text-blue-600" : "bg-red-100 text-red-600"}`}
+              className={`p-1.5 rounded-full shrink-0 ${isTest ? "bg-blue-100 text-blue-600" : "bg-red-100 text-red-600"}`}
             >
               {isTest ? (
                 <CheckCircle2 className="w-5 h-5" />
@@ -81,7 +81,7 @@ export default function IncidentDetail({
               >
                 {incident.name}
               </h2>
-              <div className="flex items-center gap-3 text-xs text-gray-600 mt-0.5">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-600 mt-0.5">
                 <span className="flex items-center gap-1">
                   <Calendar className="w-3 h-3" />
                   {formatDateShort(incident.start_time)}
@@ -111,7 +111,7 @@ export default function IncidentDetail({
         </div>
 
         {!showStartForm && (
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {rightSlot}
             <DataUploadButton onUpload={() => setShowUpload(true)} />
             {onStartNew && (
@@ -123,7 +123,7 @@ export default function IncidentDetail({
                 Start New Event
               </button>
             )}
-            <div className="hidden md:flex flex-col items-end mr-0">
+            <div className="hidden sm:flex flex-col items-end mr-0">
               <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Last Updated</span>
               <span className="text-sm font-mono font-medium text-gray-700 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-100">
                 {data.lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}

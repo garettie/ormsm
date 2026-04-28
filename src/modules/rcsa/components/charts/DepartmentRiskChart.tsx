@@ -45,7 +45,7 @@ export default function DepartmentRiskChart({ data }: DepartmentRiskChartProps) 
                   stackId="a"
                   fill={RISK_COLORS[level]}
                   name={level}
-                  barSize={14}
+                  barSize={18}
                 />
               ))}
             </BarChart>

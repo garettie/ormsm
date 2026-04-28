@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 import { localNowAsUTC } from "../../../lib/utils";
 import type { Incident, Contact } from "../types";
 

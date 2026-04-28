@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { ShieldAlert, Loader, BarChart3, GitMerge } from "lucide-react";
-import { supabase } from "./lib/supabase";
+import { supabase } from "../../lib/supabase";
 import { useDashboardData } from "./hooks/useDashboardData";
 import { getRiskLevel } from "./utils/riskLevels";
 import { RISKS } from "./utils/mockData";

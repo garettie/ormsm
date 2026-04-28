@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
-export function Login({ onLogin }: { onLogin: () => void }) {
+export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,9 +20,8 @@ export function Login({ onLogin }: { onLogin: () => void }) {
     if (error) {
       setError(error.message);
       setLoading(false);
-    } else {
-      onLogin();
     }
+    // Auth state change listener in App.tsx will handle session update
   };
 
   return (

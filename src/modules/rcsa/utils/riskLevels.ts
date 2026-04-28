@@ -1,5 +1,24 @@
 import type { RiskLevel, ControlRating, ControlType, RiskTreatment, RootCause, ImplementationRating } from "../types";
 
+// Use department list from lib/constants (single source of truth)
+// Listed here for direct usage without importing readonly tuple
+export const DEPARTMENTS: string[] = [
+  "Accounting Department",
+  "Branch Banking Group",
+  "Compliance Monitoring Office",
+  "Credit Department",
+  "Digital Banking Department",
+  "Human Resource Department",
+  "Information Technology Department",
+  "Internal Audit Department",
+  "Legal Department",
+  "Loans and Assets Management Department",
+  "Marketing Department",
+  "Risk Management Office",
+  "Security and Safety Department",
+  "Treasury Department",
+];
+
 export const RISK_COLORS: Record<RiskLevel, string> = {
   Minor: "#22c55e",
   Moderate: "#f59e0b",
@@ -47,23 +66,6 @@ export const CONTROL_TEXT: Record<ControlRating, string> = {
   "Needs Improvement": "#9a3412",
   Unsatisfactory: "#991b1b",
 };
-
-export const DEPARTMENTS = [
-  "Accounting Department",
-  "Branch Banking Group",
-  "Compliance Monitoring Office",
-  "Credit Department",
-  "Digital Banking Department",
-  "Human Resource Department",
-  "Information Technology Department",
-  "Internal Audit Department",
-  "Legal Department",
-  "Loans and Assets Management Department",
-  "Marketing Department",
-  "Risk Management Office",
-  "Security and Safety Department",
-  "Treasury Department",
-];
 
 export const EVENT_TYPES = [
   "Execution delivery and process management",

@@ -1,7 +1,7 @@
 import { lazy, useState, useEffect, useRef, Suspense } from "react";
 import { DashboardContent } from "./components/dashboard/DashboardContent";
 import { useDashboardData } from "./hooks/useDashboardData";
-import { supabase } from "./lib/supabase";
+import { supabase } from "../../lib/supabase";
 import { localNowAsUTC } from "../../lib/utils";
 import { useIncident } from "./hooks/useIncident";
 import IncidentControls from "./components/dashboard/IncidentControls";

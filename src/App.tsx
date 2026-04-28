@@ -5,15 +5,11 @@ import { Login } from "./components/Login";
 import { supabase } from "./lib/supabase";
 
 const CallTreeDashboard = lazy(() =>
-  import("./modules/calltree/CallTreeDashboard").then((m) => ({
-    default: m.default,
-  })),
+  import("./modules/calltree/CallTreeDashboard")
 );
 
 const RCSADashboard = lazy(() =>
-  import("./modules/rcsa/RCSADashboard").then((m) => ({
-    default: m.default,
-  })),
+  import("./modules/rcsa/RCSADashboard")
 );
 
 type Module = "calltree" | "rcsa";
@@ -46,7 +42,7 @@ function App() {
   }
 
   if (!session) {
-    return <Login onLogin={() => {}} />;
+    return <Login />;
   }
 
   return (

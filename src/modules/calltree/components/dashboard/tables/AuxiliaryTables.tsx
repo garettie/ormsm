@@ -7,7 +7,7 @@ import {
   formatPhoneNumber,
   localNowAsUTC,
 } from "../../../../../lib/utils";
-import { supabase } from "../../../lib/supabase";
+import { supabase } from "../../../../../lib/supabase";
 import { COLORS } from "../../../lib/constants";
 
 // --- Shared class-name tokens ---

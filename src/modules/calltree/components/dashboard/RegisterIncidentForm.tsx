@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { CheckCircle2, AlertTriangle, Plus, X, Pencil, FileSpreadsheet, Loader } from "lucide-react";
 import * as XLSX from "xlsx";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "../../../../lib/supabase";
 import type { Incident, Contact } from "../../types";
 
 /** Format a Date to YYYY-MM-DD for date inputs (Wall Clock) */

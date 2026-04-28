@@ -3,7 +3,7 @@ import { Upload, X, FileSpreadsheet, MessageSquare, CheckCircle2, AlertCircle, L
 import * as XLSX from "xlsx";
 import Papa from "papaparse";
 import JSZip from "jszip";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "../../../../lib/supabase";
 
 type Tab = "responses" | "employees";
 type Status = "idle" | "loading" | "success" | "error";

@@ -29,13 +29,13 @@ export default function IncidentControls({
 
     return (
       <div
-        className={`mb-6 p-4 rounded-lg flex items-center justify-between shadow-sm border-l-4 ${
+        className={`mb-6 p-4 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm border-l-4 ${
           isTest ? "bg-blue-50 border-blue-500" : "bg-red-50 border-red-500"
         }`}
       >
         <div className="flex items-center gap-4">
           <div
-            className={`p-2 rounded-full ${isTest ? "bg-blue-100 text-blue-600" : "bg-red-100 text-red-600"}`}
+            className={`p-2 rounded-full shrink-0 ${isTest ? "bg-blue-100 text-blue-600" : "bg-red-100 text-red-600"}`}
           >
             {isTest ? (
               <CheckCircle2 className="w-6 h-6" />
@@ -62,7 +62,7 @@ export default function IncidentControls({
 
         <button
           onClick={onEnd}
-          className="flex items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded shadow-sm text-sm font-bold hover:bg-gray-50 text-red-600 transition-colors"
+          className="flex items-center justify-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded shadow-sm text-sm font-bold hover:bg-gray-50 text-red-600 transition-colors shrink-0"
         >
           <Square className="w-4 h-4 fill-current" />
           End Event

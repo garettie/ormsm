@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Plus, CheckCircle2, AlertTriangle, Play, FileSpreadsheet, X, Loader, Clock } from "lucide-react";
 import * as XLSX from "xlsx";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "../../../../lib/supabase";
 import type { Contact } from "../../types";
 
 interface StartIncidentFormProps {
