@@ -28,7 +28,7 @@ export default function DepartmentRiskChart({ data }: DepartmentRiskChartProps) 
             <BarChart
               data={data}
               layout="vertical"
-              margin={{ left: 0, right: isMobile ? 20 : 80 }}
+              margin={{ left: isMobile ? 12 : 20, right: isMobile ? 20 : 80 }}
             >
               <XAxis
                 type="number"
@@ -43,7 +43,7 @@ export default function DepartmentRiskChart({ data }: DepartmentRiskChartProps) 
                 tick={<WrapTick />}
                 axisLine={false}
                 tickLine={false}
-                width={isMobile ? 120 : 180}
+                width={isMobile ? 130 : 180}
                 interval={0}
                 tickFormatter={(val) => isMobile ? shortDept(val) : val}
               />
