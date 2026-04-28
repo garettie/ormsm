@@ -37,12 +37,11 @@ const cleanNumber = (num: string | number): string => {
 const parseResponse = (content: string): { status: Status; name: string } => {
   if (!content) return { status: "No Response", name: "" };
 
-  const tokens = content.trim().split(/\s+/);
+  const tokens = content.trim().split(/[\s,-]+/);
   let foundStatus: Status | null = null;
   let statusIndex = -1;
 
   for (let i = 0; i < tokens.length; i++) {
-    // Clean punctuation from token to check for status (e.g. "2," -> "2")
     const cleanToken = tokens[i].replace(/[^\w\s]/g, "").toLowerCase();
 
     if (STATUS_MAPPING[cleanToken]) {
@@ -71,7 +70,7 @@ const findContactByName = (
 
   const searchTokens = searchName
     .toLowerCase()
-    .split(/\s+/)
+    .split(/[\s,-]+/)
     .map((t) => t.replace(/[^a-z0-9]/g, ""))
     .filter((t) => t.length > 0);
   if (searchTokens.length === 0) return null;
@@ -79,14 +78,12 @@ const findContactByName = (
   const matches = contacts.filter((contact) => {
     const contactNameParts = contact.name
       .toLowerCase()
-      .split(/\s+/)
+      .split(/[\s,-]+/)
       .map((t) => t.replace(/[^a-z0-9]/g, ""));
 
     return searchTokens.every((sToken) => {
       return contactNameParts.some((cToken) => {
-        if (sToken.length === 1) {
-          return cToken.startsWith(sToken);
-        }
+        if (sToken.length === 1) return true;
         return cToken.startsWith(sToken);
       });
     });
@@ -194,26 +191,23 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
         // Filter responses to find latest per contact and separate unknowns
         responses.forEach((r) => {
           const cleanParams = cleanNumber(r.contact);
-          let matchedContactCleanNumber = knownNumbers.has(cleanParams)
-            ? cleanParams
-            : null;
+          const { status, name } = parseResponse(r.contents);
+          let matchedContactCleanNumber: string | null = null;
           let matchType: "phone" | "name" | "manual" | undefined = undefined;
 
-          if (matchedContactCleanNumber) {
-            matchType = "phone";
+          // 1. Try name match FIRST (handles co-worker replies with typed name)
+          if (name && status !== "No Response") {
+            const matchedContact = findContactByName(name, processedContacts);
+            if (matchedContact) {
+              matchedContactCleanNumber = matchedContact.cleanNumber;
+              matchType = "name";
+            }
           }
 
-          // If not matched by number, try matching by name
-          if (!matchedContactCleanNumber) {
-            const { status, name } = parseResponse(r.contents);
-            // Only try name match if we found a valid status and have a name
-            if (status !== "No Response" && name) {
-              const matchedContact = findContactByName(name, processedContacts);
-              if (matchedContact) {
-                matchedContactCleanNumber = matchedContact.cleanNumber;
-                matchType = "name";
-              }
-            }
+          // 2. If no name match, try phone match
+          if (!matchedContactCleanNumber && knownNumbers.has(cleanParams)) {
+            matchedContactCleanNumber = cleanParams;
+            matchType = "phone";
           }
 
           if (r.contents.toLowerCase().includes("manual entry")) {
@@ -247,6 +241,13 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
             // Allow matchType to flow through (phone or name)
             c.matchType = resp.matchType;
           }
+        });
+
+        // Sort unknown responses: prioritize those with extracted name
+        unknownResponses.sort((a, b) => {
+          const aHasName = parseResponse(a.contents).name ? 1 : 0;
+          const bHasName = parseResponse(b.contents).name ? 1 : 0;
+          return bHasName - aHasName;
         });
 
         setData({
