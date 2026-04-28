@@ -11,6 +11,18 @@ interface InherentRiskHeatmapProps {
 }
 
 export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFilter, getRiskLevel }: InherentRiskHeatmapProps) {
+    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 640 : false)
+
+    useMemo(() => {
+        if (typeof window === 'undefined') return;
+        const handleResize = () => setIsMobile(window.innerWidth < 640);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const cellSize = isMobile ? { w: 42, h: 36, f: 14 } : { w: 56, h: 44, f: 17 };
+    const headerWidth = isMobile ? 54 : 72;
+
     const [hoveredHeatCell, setHoveredHeatCell] = useState<string | null>(null)
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
     const containerRef = useRef<HTMLDivElement>(null)
@@ -74,20 +86,21 @@ export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFi
             >
                 Risk count by Likelihood × Impact
             </div>
-            <div style={{ position: "relative" }} ref={containerRef} onMouseMove={handleMouseMove}>
+            <div style={{ position: "relative", overflowX: "auto", paddingBottom: 4 }} ref={containerRef} onMouseMove={handleMouseMove}>
                 <table
                     style={{
                         borderCollapse: "separate",
-                        borderSpacing: 4,
+                        borderSpacing: isMobile ? 3 : 4,
                         margin: "0 auto",
+                        minWidth: isMobile ? 'auto' : undefined
                     }}
                 >
                     <thead>
                         <tr>
                             <th
                                 style={{
-                                    width: 72,
-                                    fontSize: 10,
+                                    width: headerWidth,
+                                    fontSize: isMobile ? 9 : 10,
                                     color: "#94a3b8",
                                     textAlign: "right",
                                     paddingRight: 6,
@@ -98,11 +111,11 @@ export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFi
                                 <th
                                     key={l}
                                     style={{
-                                        fontSize: 10,
+                                        fontSize: isMobile ? 9 : 10,
                                         color: "#64748b",
                                         fontWeight: 600,
                                         textAlign: "center",
-                                        width: 56,
+                                        width: cellSize.w,
                                         paddingBottom: 4,
                                     }}
                                 >
@@ -116,7 +129,7 @@ export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFi
                             <tr key={l}>
                                 <td
                                     style={{
-                                        fontSize: 10,
+                                        fontSize: isMobile ? 9 : 10,
                                         color: "#64748b",
                                         fontWeight: 600,
                                         paddingRight: 6,
@@ -141,21 +154,21 @@ export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFi
                                             }
                                             onMouseLeave={() => setHoveredHeatCell(null)}
                                             style={{
-                                                width: 56,
-                                                height: 44,
+                                                width: cellSize.w,
+                                                height: cellSize.h,
                                                 textAlign: "center",
                                                 background: count > 0 ? bg : "#f8fafc",
                                                 color: count > 0 ? text : "#cbd5e1",
-                                                fontSize: count > 0 ? 17 : 13,
+                                                fontSize: count > 0 ? cellSize.f : (isMobile ? 11 : 13),
                                                 fontWeight: 700,
                                                 border: selected
                                                     ? `2px solid #0f172a`
                                                     : `1px solid ${count > 0 ? border : "#e2e8f0"}`,
-                                                borderRadius: 8,
+                                                borderRadius: isMobile ? 6 : 8,
                                                 cursor: count > 0 ? "pointer" : "default",
-                                                transform: isHov ? "scale(1.18)" : "scale(1)",
+                                                transform: (isHov && !isMobile) ? "scale(1.18)" : "scale(1)",
                                                 transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                                                boxShadow: isHov ? "0 4px 12px rgba(0,0,0,0.12)" : "none",
+                                                boxShadow: (isHov && !isMobile) ? "0 4px 12px rgba(0,0,0,0.12)" : "none",
                                                 position: "relative",
                                                 zIndex: isHov ? 5 : 1,
                                             }}

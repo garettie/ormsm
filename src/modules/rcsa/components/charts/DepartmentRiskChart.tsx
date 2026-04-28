@@ -1,15 +1,24 @@
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts'
-import { RISK_LEVELS, RISK_COLORS } from '../../utils/riskLevels'
+import { RISK_LEVELS, RISK_COLORS, shortDept } from '../../utils/riskLevels'
 import { WrapTick } from '../../utils/chartUtils'
 import DarkTooltip from '../DarkTooltip'
 import LegendRow from '../LegendRow'
 import type { ChartDataItem } from '../../types'
+import { useState, useEffect } from 'react'
 
 interface DepartmentRiskChartProps {
   data: ChartDataItem[];
 }
 
 export default function DepartmentRiskChart({ data }: DepartmentRiskChartProps) {
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 640 : false)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div className="flex flex-col">
       {/* Scrollable chart area */}
@@ -19,7 +28,7 @@ export default function DepartmentRiskChart({ data }: DepartmentRiskChartProps) 
             <BarChart
               data={data}
               layout="vertical"
-              margin={{ left: 0, right: 80 }}
+              margin={{ left: 0, right: isMobile ? 20 : 80 }}
             >
               <XAxis
                 type="number"
@@ -34,8 +43,9 @@ export default function DepartmentRiskChart({ data }: DepartmentRiskChartProps) 
                 tick={<WrapTick />}
                 axisLine={false}
                 tickLine={false}
-                width={200}
+                width={isMobile ? 120 : 180}
                 interval={0}
+                tickFormatter={(val) => isMobile ? shortDept(val) : val}
               />
               <Tooltip content={<DarkTooltip />} cursor={false} />
               {RISK_LEVELS.map((level) => (

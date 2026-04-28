@@ -253,8 +253,8 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
 
       {/* Charts: 2-column layout — left: 2×2 small charts, right: stacked tall charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 items-start">
-        {/* Left: 2×2 grid of small charts */}
-        <div className="grid grid-cols-2 gap-4 items-start">
+        {/* Left: 2×2 grid of small charts (stacks on mobile) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
           <SectionCard title="Control Types">
             <ControlTypeChart
               data={data.controlTypeData}
