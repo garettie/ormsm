@@ -4,7 +4,7 @@ import { WrapTick } from '../../utils/chartUtils'
 import DarkTooltip from '../DarkTooltip'
 import LegendRow from '../LegendRow'
 import type { ChartDataItem } from '../../types'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 interface DepartmentRiskChartProps {
   data: ChartDataItem[];
@@ -19,6 +19,14 @@ export default function DepartmentRiskChart({ data }: DepartmentRiskChartProps) 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const chartData = useMemo(() => {
+    return data.map(item => ({
+      ...item,
+      // Create a display name for the axis
+      displayName: isMobile ? shortDept(item.name) : item.name
+    }));
+  }, [data, isMobile]);
+
   return (
     <div className="flex flex-col">
       {/* Scrollable chart area */}
@@ -26,7 +34,7 @@ export default function DepartmentRiskChart({ data }: DepartmentRiskChartProps) 
         <div style={{ height: Math.max(260, data.length * 30) }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={data}
+              data={chartData}
               layout="vertical"
               margin={{ left: isMobile ? 12 : 20, right: isMobile ? 20 : 80 }}
             >
@@ -39,13 +47,12 @@ export default function DepartmentRiskChart({ data }: DepartmentRiskChartProps) 
               />
               <YAxis
                 type="category"
-                dataKey="name"
+                dataKey="displayName"
                 tick={<WrapTick />}
                 axisLine={false}
                 tickLine={false}
                 width={isMobile ? 130 : 180}
                 interval={0}
-                tickFormatter={(val) => isMobile ? shortDept(val) : val}
               />
               <Tooltip content={<DarkTooltip />} cursor={false} />
               {RISK_LEVELS.map((level) => (
