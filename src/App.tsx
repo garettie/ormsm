@@ -4,6 +4,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Login } from "./components/Login";
 import { supabase } from "./lib/supabase";
 import { lazyWithRetry } from "./lib/utils";
+import type { Session } from "@supabase/supabase-js";
 
 const CallTreeDashboard = lazyWithRetry(() =>
   import("./modules/calltree/CallTreeDashboard")
@@ -20,7 +21,7 @@ const isRcsaMode = import.meta.env.VITE_APP_MODE === "rcsa";
 function App() {
   const [activeModule, setActiveModule] = useState<Module>(isRcsaMode ? "rcsa" : "calltree");
   const [demoMode, setDemoMode] = useState(false);
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

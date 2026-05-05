@@ -30,7 +30,7 @@ export default function DepartmentRiskChart({ data }: DepartmentRiskChartProps) 
   return (
     <div className="flex flex-col">
       {/* Scrollable chart area */}
-      <div className="max-h-72 overflow-y-auto">
+      <div className="max-h-72 overflow-y-auto overflow-visible">
         <div style={{ height: Math.max(260, data.length * 30) }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart

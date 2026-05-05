@@ -1,6 +1,6 @@
 import type { RiskRecord } from "../types";
 
-const RAW_RISKS: any[] = [
+const RAW_RISKS: Partial<RiskRecord>[] = [
   // ─── Accounting Department ────────────────────────────────────────────
   {
     department: "Accounting Department",

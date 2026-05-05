@@ -80,7 +80,7 @@ export function useDashboardData({
           return false;
         if (
           controlRatingFilter.length > 0 &&
-          !controlRatingFilter.includes(r.control_rating ?? "")
+          !controlRatingFilter.includes(getControlsLabel(r.controls_rating))
         )
           return false;
         if (

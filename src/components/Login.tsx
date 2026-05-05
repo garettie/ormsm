@@ -18,7 +18,7 @@ export function Login() {
     });
 
     if (error) {
-      setError(error.message);
+      setError("Invalid email or password. Please try again.");
       setLoading(false);
     }
     // Auth state change listener in App.tsx will handle session update

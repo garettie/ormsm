@@ -4,7 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { useDashboardData } from "./hooks/useDashboardData";
 import { getRiskLevel } from "./utils/riskLevels";
 import { RISKS } from "./utils/mockData";
-import type { RiskRecord } from "./types";
+import type { RiskRecord, FilterState } from "./types";
 
 import DashboardHeader from "./components/DashboardHeader";
 import DashboardKPIs from "./components/DashboardKPIs";
@@ -27,26 +27,29 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [deptFilter, setDeptFilter] = useState<string[]>([]);
-  const [periodFilter, setPeriodFilter] = useState<string[]>([]);
-  const [statusFilter, setStatusFilter] = useState<string[]>([]);
-
-  const [riskLevelFilter, setRiskLevelFilter] = useState<string[]>([]);
-  const [heatmapFilter, setHeatmapFilter] = useState<{ l: number; i: number } | null>(null);
-
-  const [controlTypeFilter, setControlTypeFilter] = useState<string | null>(null);
-  const [rootCauseFilter, setRootCauseFilter] = useState<string | null>(null);
-  const [treatmentFilter, setTreatmentFilter] = useState<string | null>(null);
-  const [eventTypeFilter, setEventTypeFilter] = useState<string | null>(null);
-  const [inherentRiskFilter, setInherentRiskFilter] = useState<string[]>([]);
-  const [controlRatingFilter, setControlRatingFilter] = useState<string[]>([]);
+  const [filters, setFilters] = useState<FilterState>({
+    deptFilter: [],
+    periodFilter: [],
+    statusFilter: [],
+    riskLevelFilter: [],
+    heatmapFilter: null,
+    controlTypeFilter: null,
+    rootCauseFilter: null,
+    treatmentFilter: null,
+    eventTypeFilter: null,
+    inherentRiskFilter: [],
+    controlRatingFilter: [],
+  });
 
   const [kpiModal, setKpiModal] = useState<string | null>(null);
   const [sankeyView, setSankeyView] = useState(true);
   const [registerModal, setRegisterModal] = useState(false);
 
   const sankeyMounted = useRef(false);
-  if (sankeyView) sankeyMounted.current = true;
+
+  useEffect(() => {
+    if (sankeyView) sankeyMounted.current = true;
+  }, [sankeyView]);
 
   useEffect(() => {
     async function fetchData() {
@@ -75,39 +78,30 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
 
   const data = useDashboardData({
     risks,
-    deptFilter,
-    periodFilter,
-    statusFilter,
-    riskLevelFilter,
-    heatmapFilter,
+    ...filters,
     drillDept: null,
-    controlTypeFilter,
-    rootCauseFilter,
-    treatmentFilter,
-    eventTypeFilter,
-    inherentRiskFilter,
-    controlRatingFilter,
   });
 
   const clearAllFilters = () => {
-    setDeptFilter([]);
-    setPeriodFilter([]);
-    setStatusFilter([]);
-
-    setRiskLevelFilter([]);
-    setHeatmapFilter(null);
-    setControlTypeFilter(null);
-    setRootCauseFilter(null);
-    setTreatmentFilter(null);
-    setEventTypeFilter(null);
-    setInherentRiskFilter([]);
-    setControlRatingFilter([]);
+    setFilters({
+      deptFilter: [],
+      periodFilter: [],
+      statusFilter: [],
+      riskLevelFilter: [],
+      heatmapFilter: null,
+      controlTypeFilter: null,
+      rootCauseFilter: null,
+      treatmentFilter: null,
+      eventTypeFilter: null,
+      inherentRiskFilter: [],
+      controlRatingFilter: [],
+    });
   };
 
-  const handlePieClick = (chartData: { name?: string }, setFilterFn: React.Dispatch<React.SetStateAction<string | null>>) => {
+  const handlePieClick = (chartData: { name?: string }, field: keyof FilterState) => {
     const name = chartData?.name;
     if (name) {
-      setFilterFn((prev) => (prev === name ? null : name));
+      setFilters((prev) => ({ ...prev, [field]: prev[field] === name ? null : name } as unknown as FilterState));
     }
   };
 
@@ -115,19 +109,22 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
     const data = chartData as { activeLabel?: string };
     const name = data?.activeLabel;
     if (name) {
-      setEventTypeFilter((prev) => (prev === name ? null : name));
+      setFilters((prev) => ({ ...prev, eventTypeFilter: prev.eventTypeFilter === name ? null : name }));
     }
   };
 
   const handleSankeyNodeClick = (layer: number, name: string) => {
     if (layer === 0)
-      setRootCauseFilter((prev) => (prev === name ? null : name));
+      setFilters((prev) => ({ ...prev, rootCauseFilter: prev.rootCauseFilter === name ? null : name }));
     if (layer === 1)
-      setEventTypeFilter((prev) => (prev === name ? null : name));
+      setFilters((prev) => ({ ...prev, eventTypeFilter: prev.eventTypeFilter === name ? null : name }));
     if (layer === 2) {
-      setRiskLevelFilter((prev) =>
-        prev.includes(name) ? prev.filter((x) => x !== name) : [...prev, name],
-      );
+      setFilters((prev) => ({
+        ...prev,
+        riskLevelFilter: prev.riskLevelFilter.includes(name)
+          ? prev.riskLevelFilter.filter((x) => x !== name)
+          : [...prev.riskLevelFilter, name],
+      }));
     }
   };
 
@@ -148,36 +145,13 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
 
   if (error) {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: 400,
-        }}
-      >
-        <div
-          style={{
-            background: "#fff",
-            border: "1px solid #fecaca",
-            borderRadius: 12,
-            padding: "32px 40px",
-            textAlign: "center",
-            maxWidth: 420,
-          }}
-        >
-          <ShieldAlert size={32} color="#ef4444" />
-          <div
-            style={{
-              marginTop: 12,
-              fontSize: 16,
-              fontWeight: 700,
-              color: "#0f172a",
-            }}
-          >
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="bg-white border border-red-200 rounded-xl p-8 sm:px-10 text-center max-w-[420px] shadow-sm">
+          <ShieldAlert size={32} className="text-red-500 mx-auto" />
+          <div className="mt-3 text-base font-bold text-slate-900">
             Failed to load data
           </div>
-          <div style={{ marginTop: 8, fontSize: 13, color: "#64748b" }}>
+          <div className="mt-2 text-[13px] text-slate-500 leading-relaxed">
             {error}
           </div>
           <button
@@ -185,18 +159,7 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
               setError(null);
               setRisks(RISKS);
             }}
-            style={{
-              marginTop: 20,
-              padding: "8px 24px",
-              background: "#f1f5f9",
-              color: "#334155",
-              border: "1px solid #cbd5e1",
-              borderRadius: 8,
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: "pointer",
-              fontFamily: "inherit",
-            }}
+            className="mt-5 px-6 py-2 bg-slate-50 text-slate-600 border border-slate-200 rounded-lg text-[13px] font-semibold hover:bg-slate-100 transition-colors cursor-pointer"
           >
             Load Demo Data
           </button>
@@ -209,28 +172,8 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
     <div className="max-w-[1600px] mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
       <DashboardHeader
         periods={data.periods}
-        deptFilter={deptFilter}
-        setDeptFilter={setDeptFilter}
-        periodFilter={periodFilter}
-        setPeriodFilter={setPeriodFilter}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        inherentRiskFilter={inherentRiskFilter}
-        setInherentRiskFilter={setInherentRiskFilter}
-        controlRatingFilter={controlRatingFilter}
-        setControlRatingFilter={setControlRatingFilter}
-        riskLevelFilter={riskLevelFilter}
-        setRiskLevelFilter={setRiskLevelFilter}
-        controlTypeFilter={controlTypeFilter}
-        setControlTypeFilter={setControlTypeFilter}
-        rootCauseFilter={rootCauseFilter}
-        setRootCauseFilter={setRootCauseFilter}
-        treatmentFilter={treatmentFilter}
-        setTreatmentFilter={setTreatmentFilter}
-        eventTypeFilter={eventTypeFilter}
-        setEventTypeFilter={setEventTypeFilter}
-        heatmapFilter={heatmapFilter}
-        setHeatmapFilter={setHeatmapFilter}
+        filters={filters}
+        onFilterChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
         clearAllFilters={clearAllFilters}
       />
 
@@ -246,8 +189,14 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
         avgResidualScore={data.avgResidualScore}
         avgResidualLevel={data.avgResidualLevel}
         residualColor={data.residualColor}
-        riskLevelFilter={riskLevelFilter}
-        setRiskLevelFilter={setRiskLevelFilter}
+        riskLevelFilter={filters.riskLevelFilter}
+        setRiskLevelFilter={(val) => {
+          if (typeof val === 'function') {
+            setFilters(prev => ({ ...prev, riskLevelFilter: val(prev.riskLevelFilter) }));
+          } else {
+            setFilters(prev => ({ ...prev, riskLevelFilter: val }));
+          }
+        }}
         setKpiModal={setKpiModal}
       />
 
@@ -258,22 +207,22 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
           <SectionCard title="Control Types">
             <ControlTypeChart
               data={data.controlTypeData}
-              onClick={(d) => handlePieClick(d, setControlTypeFilter)}
+              onClick={(d) => handlePieClick(d, "controlTypeFilter")}
             />
           </SectionCard>
 
           <SectionCard title="Root Cause">
             <RootCauseChart
               data={data.rootCauseData}
-              onClick={(d) => handlePieClick(d, setRootCauseFilter)}
+              onClick={(d) => handlePieClick(d, "rootCauseFilter")}
             />
           </SectionCard>
 
           <SectionCard title="Inherent Risk Heatmap">
             <InherentRiskHeatmap
               risks={data.filtered}
-              heatmapFilter={heatmapFilter}
-              setHeatmapFilter={setHeatmapFilter}
+              heatmapFilter={filters.heatmapFilter}
+              setHeatmapFilter={(val) => setFilters(prev => ({ ...prev, heatmapFilter: val }))}
               getRiskLevel={getRiskLevel}
             />
           </SectionCard>
@@ -281,7 +230,7 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
           <SectionCard title="Risk Treatment">
             <RiskTreatmentChart
               data={data.treatmentData}
-              onClick={(d) => handlePieClick(d, setTreatmentFilter)}
+              onClick={(d) => handlePieClick(d, "treatmentFilter")}
             />
           </SectionCard>
         </div>

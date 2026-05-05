@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "typecheck": "tsc --noEmit",
     "dev:host": "vite --host",
     "dev:rcsa": "vite --mode rcsa",
     "build": "tsc -b && vite build",

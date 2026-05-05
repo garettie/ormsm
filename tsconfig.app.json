@@ -8,8 +8,6 @@
     "types": ["vite/client"],
     "skipLibCheck": true,
 
-    /* Allow JSX imports from RCSA */
-    "allowJs": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",

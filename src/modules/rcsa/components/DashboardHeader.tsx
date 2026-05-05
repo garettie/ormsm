@@ -6,67 +6,28 @@ import {
   shortDept,
 } from "../utils/riskLevels";
 import MultiFilter from "./MultiFilter";
+import type { FilterState } from "../types";
 
 interface DashboardHeaderProps {
   periods: string[];
-  deptFilter: string[];
-  setDeptFilter: React.Dispatch<React.SetStateAction<string[]>>;
-  periodFilter: string[];
-  setPeriodFilter: React.Dispatch<React.SetStateAction<string[]>>;
-  statusFilter: string[];
-  setStatusFilter: React.Dispatch<React.SetStateAction<string[]>>;
-  inherentRiskFilter: string[];
-  setInherentRiskFilter: React.Dispatch<React.SetStateAction<string[]>>;
-  controlRatingFilter: string[];
-  setControlRatingFilter: React.Dispatch<React.SetStateAction<string[]>>;
-  riskLevelFilter: string[];
-  setRiskLevelFilter: React.Dispatch<React.SetStateAction<string[]>>;
-  controlTypeFilter: string | null;
-  setControlTypeFilter: React.Dispatch<React.SetStateAction<string | null>>;
-  rootCauseFilter: string | null;
-  setRootCauseFilter: React.Dispatch<React.SetStateAction<string | null>>;
-  treatmentFilter: string | null;
-  setTreatmentFilter: React.Dispatch<React.SetStateAction<string | null>>;
-  eventTypeFilter: string | null;
-  setEventTypeFilter: React.Dispatch<React.SetStateAction<string | null>>;
-  heatmapFilter: { l: number; i: number } | null;
-  setHeatmapFilter: React.Dispatch<React.SetStateAction<{ l: number; i: number } | null>>;
+  filters: FilterState;
+  onFilterChange: <K extends keyof FilterState>(key: K, value: FilterState[K]) => void;
   clearAllFilters: () => void;
 }
 
 export default function DashboardHeader({
   periods,
-  deptFilter,
-  setDeptFilter,
-  periodFilter,
-  setPeriodFilter,
-  statusFilter,
-  setStatusFilter,
-  inherentRiskFilter,
-  setInherentRiskFilter,
-  controlRatingFilter,
-  setControlRatingFilter,
-  riskLevelFilter,
-  setRiskLevelFilter,
-  controlTypeFilter,
-  setControlTypeFilter,
-  rootCauseFilter,
-  setRootCauseFilter,
-  treatmentFilter,
-  setTreatmentFilter,
-  eventTypeFilter,
-  setEventTypeFilter,
-  heatmapFilter,
-  setHeatmapFilter,
+  filters,
+  onFilterChange,
   clearAllFilters,
 }: DashboardHeaderProps) {
   const hasActiveFilters = 
-    deptFilter.length > 0 || periodFilter.length > 0 || statusFilter.length > 0 || 
-    inherentRiskFilter.length > 0 || controlRatingFilter.length > 0 || riskLevelFilter.length > 0 || 
-    controlTypeFilter || rootCauseFilter || treatmentFilter || 
-    eventTypeFilter || heatmapFilter;
+    filters.deptFilter.length > 0 || filters.periodFilter.length > 0 || filters.statusFilter.length > 0 || 
+    filters.inherentRiskFilter.length > 0 || filters.controlRatingFilter.length > 0 || filters.riskLevelFilter.length > 0 || 
+    filters.controlTypeFilter || filters.rootCauseFilter || filters.treatmentFilter || 
+    filters.eventTypeFilter || filters.heatmapFilter;
 
-  const hasChartPills = controlTypeFilter || rootCauseFilter || treatmentFilter || eventTypeFilter || heatmapFilter;
+  const hasChartPills = filters.controlTypeFilter || filters.rootCauseFilter || filters.treatmentFilter || filters.eventTypeFilter || filters.heatmapFilter;
 
   return (
     <div className="mb-6">
@@ -75,39 +36,39 @@ export default function DashboardHeader({
         <MultiFilter
           label="All Departments"
           options={DEPARTMENTS}
-          selected={deptFilter}
-          onChange={setDeptFilter}
+          selected={filters.deptFilter}
+          onChange={(val) => onFilterChange("deptFilter", val)}
           formatLabel={shortDept}
         />
         <MultiFilter
           label="All Periods"
           options={periods}
-          selected={periodFilter}
-          onChange={setPeriodFilter}
+          selected={filters.periodFilter}
+          onChange={(val) => onFilterChange("periodFilter", val)}
         />
         <MultiFilter
           label="All Statuses"
           options={["Open", "In Progress", "Closed"]}
-          selected={statusFilter}
-          onChange={setStatusFilter}
+          selected={filters.statusFilter}
+          onChange={(val) => onFilterChange("statusFilter", val)}
         />
         <MultiFilter
           label="Inherent Risk"
           options={RISK_LEVELS}
-          selected={inherentRiskFilter}
-          onChange={setInherentRiskFilter}
+          selected={filters.inherentRiskFilter}
+          onChange={(val) => onFilterChange("inherentRiskFilter", val)}
         />
         <MultiFilter
           label="Control Rating"
           options={Object.keys(CONTROLS_LABEL_COLORS)}
-          selected={controlRatingFilter}
-          onChange={setControlRatingFilter}
+          selected={filters.controlRatingFilter}
+          onChange={(val) => onFilterChange("controlRatingFilter", val)}
         />
         <MultiFilter
           label="Residual Risk"
           options={RISK_LEVELS}
-          selected={riskLevelFilter}
-          onChange={setRiskLevelFilter}
+          selected={filters.riskLevelFilter}
+          onChange={(val) => onFilterChange("riskLevelFilter", val)}
         />
       </div>
 
@@ -127,34 +88,34 @@ export default function DashboardHeader({
               <span className="text-gray-400 text-[10px] font-semibold uppercase tracking-wide">
                 Active:
               </span>
-              {controlTypeFilter && (
+              {filters.controlTypeFilter && (
                 <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-accent-light text-accent-primary">
-                  Control: {controlTypeFilter}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setControlTypeFilter(null)} />
+                  Control: {filters.controlTypeFilter}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => onFilterChange("controlTypeFilter", null)} />
                 </span>
               )}
-              {rootCauseFilter && (
+              {filters.rootCauseFilter && (
                 <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-accent-light text-accent-primary">
-                  Cause: {rootCauseFilter}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setRootCauseFilter(null)} />
+                  Cause: {filters.rootCauseFilter}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => onFilterChange("rootCauseFilter", null)} />
                 </span>
               )}
-              {treatmentFilter && (
+              {filters.treatmentFilter && (
                 <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-accent-light text-accent-primary">
-                  Treatment: {treatmentFilter}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setTreatmentFilter(null)} />
+                  Treatment: {filters.treatmentFilter}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => onFilterChange("treatmentFilter", null)} />
                 </span>
               )}
-              {eventTypeFilter && (
+              {filters.eventTypeFilter && (
                 <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-accent-light text-accent-primary">
-                  Event: {eventTypeFilter}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setEventTypeFilter(null)} />
+                  Event: {filters.eventTypeFilter}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => onFilterChange("eventTypeFilter", null)} />
                 </span>
               )}
-              {heatmapFilter && (
+              {filters.heatmapFilter && (
                 <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-accent-light text-accent-primary">
-                  Heatmap: L{heatmapFilter.l}×I{heatmapFilter.i}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setHeatmapFilter(null)} />
+                  Heatmap: L{filters.heatmapFilter.l}×I{filters.heatmapFilter.i}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => onFilterChange("heatmapFilter", null)} />
                 </span>
               )}
 

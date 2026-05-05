@@ -11,7 +11,7 @@ import { StartIncidentForm } from "./StartIncidentForm";
 
 interface IncidentControlsProps {
   activeIncident: Incident | null;
-  onStart: (name: string, type: "test" | "actual", targetedContacts?: any[], startTime?: string) => void;
+  onStart: (name: string, type: "test" | "actual", targetedContacts?: Partial<Contact>[], startTime?: string) => void;
   onEnd: () => void;
   rightSlot?: React.ReactNode;
 }

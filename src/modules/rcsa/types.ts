@@ -6,6 +6,20 @@ export type RiskTreatment = "Accept" | "Avoid" | "Reduce" | "Transfer";
 export type RootCause = "People" | "Process" | "Systems" | "External Events";
 export type RiskStatus = "Open" | "In Progress" | "Closed";
 
+export interface FilterState {
+  deptFilter: string[];
+  periodFilter: string[];
+  statusFilter: string[];
+  riskLevelFilter: string[];
+  heatmapFilter: { l: number; i: number } | null;
+  controlTypeFilter: string | null;
+  rootCauseFilter: string | null;
+  treatmentFilter: string | null;
+  eventTypeFilter: string | null;
+  inherentRiskFilter: string[];
+  controlRatingFilter: string[];
+}
+
 export interface RiskRecord {
   id?: string | number;
   department: string;

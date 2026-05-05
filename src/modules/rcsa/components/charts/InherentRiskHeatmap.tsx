@@ -86,7 +86,7 @@ export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFi
             >
                 Risk count by Likelihood × Impact
             </div>
-            <div style={{ position: "relative", overflowX: "auto", paddingBottom: 4 }} ref={containerRef} onMouseMove={handleMouseMove}>
+            <div style={{ position: "relative", paddingBottom: 4 }} ref={containerRef} onMouseMove={handleMouseMove}>
                 <table
                     style={{
                         borderCollapse: "separate",

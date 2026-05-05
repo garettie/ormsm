@@ -1,7 +1,5 @@
 import type { RiskLevel, ControlRating, ControlType, RiskTreatment, RootCause, ImplementationRating } from "../types";
 
-// Use department list from lib/constants (single source of truth)
-// Listed here for direct usage without importing readonly tuple
 export const DEPARTMENTS: string[] = [
   "Accounting Department",
   "Branch Banking Group",

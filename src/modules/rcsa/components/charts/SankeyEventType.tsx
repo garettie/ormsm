@@ -124,7 +124,7 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
   useEffect(() => {
     if (!svgRef.current) return;
     const paths = svgRef.current.querySelectorAll('.sankey-link');
-    paths.forEach((path: any) => {
+    paths.forEach((path: SVGPathElement) => {
       const length = path.getTotalLength();
       path.style.strokeDasharray = length;
       path.style.strokeDashoffset = length;
@@ -140,7 +140,7 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
     if (!nodes.length) return null
 
     const generator = d3Sankey<SankeyNode, SankeyLink>()
-      .nodeId((d: any) => d.idx)
+      .nodeId((d: SankeyNode) => d.idx)
       .nodeWidth(NODE_W)
       .nodePadding(NODE_PAD)
       .nodeAlign(sankeyJustify)
@@ -153,7 +153,7 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
       nodes: nodes.map((n, i) => ({ ...n, idx: i })),
       links: links.map((l) => ({ ...l }))
     })
-    return graph as any
+    return graph as unknown as { nodes: SankeyNode[], links: SankeyLink[] }
   }, [risks])
 
   if (!layout || !layout.nodes || !layout.nodes.length) {
@@ -164,7 +164,7 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
     )
   }
 
-  const linkPath = sankeyLinkHorizontal() as any
+  const linkPath = sankeyLinkHorizontal() as unknown as (d: SankeyLink) => string
 
   return (
     <div style={{ position: 'relative' }} ref={containerRef} onMouseMove={(e: React.MouseEvent) => {
@@ -223,7 +223,7 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
         style={{ display: 'block', overflow: 'visible' }}
       >
         {/* Links */}
-        {layout.links.map((link: any) => {
+        {layout.links.map((link: SankeyLink) => {
           const key = `${link.source.layer}::${link.source.name}->${link.target.layer}::${link.target.name}`;
           return (
             <path
@@ -239,7 +239,7 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
         })}
 
         {/* Nodes */}
-        {layout.nodes.map((node: any) => {
+        {layout.nodes.map((node: SankeyNode) => {
           const w = node.x1 - node.x0
           const h = node.y1 - node.y0
           const isLeft = node.layer === 0
