@@ -1,6 +1,6 @@
 import type { RiskRecord } from "../types";
 
-const RAW_RISKS: Partial<RiskRecord>[] = [
+const RAW_RISKS = [
   // ─── Accounting Department ────────────────────────────────────────────
   {
     department: "Accounting Department",
@@ -1668,7 +1668,7 @@ const RAW_RISKS: Partial<RiskRecord>[] = [
   },
 ];
 
-export const RISKS: RiskRecord[] = RAW_RISKS.map((r, i) => {
+export const RISKS: RiskRecord[] = (RAW_RISKS as unknown as RiskRecord[]).map((r, i) => {
   const inherent = r.likelihood_score * r.impact_score;
   const controlStrength = (10 - r.controls_rating) / 10;
   const resL = Math.max(

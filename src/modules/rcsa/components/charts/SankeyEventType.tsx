@@ -124,10 +124,11 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
   useEffect(() => {
     if (!svgRef.current) return;
     const paths = svgRef.current.querySelectorAll('.sankey-link');
-    paths.forEach((path: SVGPathElement) => {
+    paths.forEach((node) => {
+      const path = node as SVGPathElement;
       const length = path.getTotalLength();
-      path.style.strokeDasharray = length;
-      path.style.strokeDashoffset = length;
+      path.style.strokeDasharray = `${length}`;
+      path.style.strokeDashoffset = `${length}`;
       // Trigger reflow to ensure animation starts from offset
       path.getBoundingClientRect();
       path.style.transition = 'stroke-dashoffset 1500ms cubic-bezier(0.215, 0.61, 0.355, 1)';
@@ -224,7 +225,9 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
       >
         {/* Links */}
         {layout.links.map((link: SankeyLink) => {
-          const key = `${link.source.layer}::${link.source.name}->${link.target.layer}::${link.target.name}`;
+          const src = link.source as SankeyNode;
+          const tgt = link.target as SankeyNode;
+          const key = `${src.layer}::${src.name}->${tgt.layer}::${tgt.name}`;
           return (
             <path
               key={key}
@@ -233,26 +236,26 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
               fill="none"
               stroke={link.color || '#94a3b8'}
               strokeOpacity={0.28}
-              strokeWidth={Math.max(1, link.width)}
+              strokeWidth={Math.max(1, link.width || 1)}
             />
           );
         })}
 
         {/* Nodes */}
         {layout.nodes.map((node: SankeyNode) => {
-          const w = node.x1 - node.x0
-          const h = node.y1 - node.y0
+          const w = node.x1! - node.x0!
+          const h = node.y1! - node.y0!
           const isLeft = node.layer === 0
           const isRight = node.layer === 2
           const isMid = node.layer === 1
 
           const labelX = isLeft
-            ? node.x1 + 6
+            ? node.x1! + 6
             : isRight
-              ? node.x0 - 6
-              : node.x0 + w / 2
+              ? node.x0! - 6
+              : node.x0! + w / 2
           const labelAnchor = isLeft ? 'start' : isRight ? 'end' : 'middle'
-          const labelY = node.y0 + h / 2
+          const labelY = node.y0! + h / 2
           const label = isMid ? abbreviate(node.name) : node.name
 
           return (
@@ -262,7 +265,7 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
               onMouseEnter={() => {
                 setTooltip({
                   text: node.fullName || node.name,
-                  value: node.value,
+                  value: node.value || 0,
                 })
               }}
               onMouseLeave={() => setTooltip(null)}

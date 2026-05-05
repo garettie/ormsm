@@ -10,9 +10,11 @@ export function cn(...inputs: ClassValue[]) {
  * Enhanced lazy loader that catches ChunkLoadErrors (caused by new deployments)
  * and triggers a full page reload to fetch the latest assets.
  */
-export function lazyWithRetry<T extends ComponentType<unknown>>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function lazyWithRetry<T extends ComponentType<any>>(
   factory: () => Promise<{ default: T }>,
-): ComponentType<unknown> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+): ComponentType<any> {
   return lazy(() =>
     factory().catch((error) => {
       const isChunkLoadFailed =

@@ -6,7 +6,7 @@ import {
   Square,
   History,
 } from "lucide-react";
-import type { Incident } from "../../types";
+import type { Incident, Contact } from "../../types";
 import { StartIncidentForm } from "./StartIncidentForm";
 
 interface IncidentControlsProps {

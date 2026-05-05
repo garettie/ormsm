@@ -1,6 +1,6 @@
 import * as XLSX from "xlsx";
 import { supabase } from "../../../lib/supabase";
-import type { Contact } from "../../types";
+import type { Contact } from "../types";
 
 export async function parseSmsBlastFile(file: File): Promise<{ contacts: Partial<Contact>[]; earliestDate?: Date }> {
   const arrayBuffer = await file.arrayBuffer();
