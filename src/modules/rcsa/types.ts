@@ -46,12 +46,6 @@ export interface RiskRecord {
   control_rating?: string;
 }
 
-export interface DashboardData {
-  risks: RiskRecord[];
-  loading: boolean;
-  error: string | null;
-}
-
 export interface ChartDataItem {
   name: string;
   value?: number;

@@ -98,10 +98,10 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
     });
   };
 
-  const handlePieClick = (chartData: { name?: string }, field: keyof FilterState) => {
+  const handlePieClick = (chartData: { name?: string }, field: "controlTypeFilter" | "rootCauseFilter" | "treatmentFilter") => {
     const name = chartData?.name;
     if (name) {
-      setFilters((prev) => ({ ...prev, [field]: prev[field] === name ? null : name } as unknown as FilterState));
+      setFilters((prev) => ({ ...prev, [field]: prev[field] === name ? null : name }));
     }
   };
 

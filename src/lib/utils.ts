@@ -98,17 +98,3 @@ export function formatTimeShort(iso: string): string {
     hour12: true,
   });
 }
-
-export function getRiskLevel(score: number): "Minor" | "Moderate" | "Major" | "Critical" {
-  if (score <= 3) return "Minor";
-  if (score <= 6) return "Moderate";
-  if (score <= 9) return "Major";
-  return "Critical";
-}
-
-export function getControlsLabel(score: number): "Strong" | "Satisfactory" | "Needs Improvement" | "Unsatisfactory" {
-  if (score <= 3) return "Strong";
-  if (score <= 6) return "Satisfactory";
-  if (score <= 9) return "Needs Improvement";
-  return "Unsatisfactory";
-}
