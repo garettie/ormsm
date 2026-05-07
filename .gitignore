@@ -30,6 +30,6 @@ skills-lock.json
 # AI Context Files
 .agents/
 .claude/
-AGENTS.md
+# AGENTS.md (Tracked via git add -f)
 CLAUDE.md
 GEMINI.md
