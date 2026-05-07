@@ -19,6 +19,7 @@ export function useIncident() {
       setActiveIncident(data);
     } catch (error) {
       console.error("Error checking incident:", error);
+      setError(error instanceof Error ? error.message : "Failed to load active incident");
     } finally {
       setLoading(false);
     }

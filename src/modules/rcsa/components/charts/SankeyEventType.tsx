@@ -127,12 +127,19 @@ export default function SankeyEventType({ risks, onNodeClick }: SankeyEventTypeP
     paths.forEach((node) => {
       const path = node as SVGPathElement;
       const length = path.getTotalLength();
+      path.style.transition = 'none';
       path.style.strokeDasharray = `${length}`;
       path.style.strokeDashoffset = `${length}`;
-      // Trigger reflow to ensure animation starts from offset
-      path.getBoundingClientRect();
-      path.style.transition = 'stroke-dashoffset 1500ms cubic-bezier(0.215, 0.61, 0.355, 1)';
-      path.style.strokeDashoffset = '0';
+    });
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        paths.forEach((node) => {
+          const path = node as SVGPathElement;
+          path.style.transition = 'stroke-dashoffset 1500ms cubic-bezier(0.215, 0.61, 0.355, 1)';
+          path.style.strokeDashoffset = '0';
+        });
+      });
     });
   }, [risks]);
 

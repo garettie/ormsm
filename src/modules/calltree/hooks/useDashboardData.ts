@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../../../lib/supabase";
+import { STATUS_MAPPING } from "../lib/constants";
 import type {
   Contact,
   Response,
@@ -7,26 +8,6 @@ import type {
   ProcessedContact,
   Status,
 } from "../types";
-
-const STATUS_MAPPING: Record<string, Status> = {
-  "1": "Safe",
-  "1.0": "Safe",
-  safe: "Safe",
-  unaffected: "Safe",
-  ok: "Safe",
-  "2": "Slight",
-  "2.0": "Slight",
-  slight: "Slight",
-  minor: "Slight",
-  "3": "Moderate",
-  "3.0": "Moderate",
-  moderate: "Moderate",
-  "4": "Severe",
-  "4.0": "Severe",
-  severe: "Severe",
-  help: "Severe",
-  critical: "Severe",
-};
 
 const cleanNumber = (num: string | number): string => {
   if (!num) return "";
@@ -314,15 +295,24 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
     // Initial fetch
     fetchData();
 
-    const interval = setInterval(
-      () => fetchData({ background: true }),
-      60000,
-    ); // Auto-refresh every 60s
+    const interval = setInterval(() => {
+      if (!document.hidden) {
+        fetchData({ background: true });
+      }
+    }, 60000); // Auto-refresh every 60s when visible
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchData({ background: true });
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [fetchData]); // Recreate interval when fetchData changes (startDate/endDate)
+  }, [fetchData]);
 
   return { data, loading, error, refresh: fetchData };
 };

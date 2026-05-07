@@ -63,7 +63,6 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
         return;
       }
       try {
-        if (!supabase) throw new Error("Supabase not configured");
         const { data: risksData, error: risksError } = await supabase.from("risks").select("*");
         if (risksError) throw risksError;
         setRisks(risksData || []);

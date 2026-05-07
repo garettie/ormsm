@@ -55,8 +55,13 @@ export default function CallTreeDashboard() {
   const [showUpload, setShowUpload] = useState(false);
 
   const { data, loading, error, refresh } = useDashboardData(filterDate);
+  const initialMountRef = useRef(true);
 
   useEffect(() => {
+    if (initialMountRef.current) {
+      initialMountRef.current = false;
+      return;
+    }
     if (view === "live") {
       refresh();
     }

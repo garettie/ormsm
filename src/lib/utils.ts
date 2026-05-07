@@ -24,6 +24,8 @@ export function lazyWithRetry<T extends ComponentType<any>>(
       if (isChunkLoadFailed) {
         // Simple reload to get new manifest
         window.location.reload();
+        // Return a promise that never resolves to prevent React from crashing
+        return new Promise<{ default: T }>(() => {});
       }
       throw error;
     }),

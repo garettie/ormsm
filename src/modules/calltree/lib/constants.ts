@@ -1,5 +1,27 @@
+import type { Status } from "../types";
+
 // Backwards compatibility for CallTree module
 // Use src/lib/constants.ts for other modules
+
+export const STATUS_MAPPING: Record<string, Status> = {
+  "1": "Safe",
+  "1.0": "Safe",
+  safe: "Safe",
+  unaffected: "Safe",
+  ok: "Safe",
+  "2": "Slight",
+  "2.0": "Slight",
+  slight: "Slight",
+  minor: "Slight",
+  "3": "Moderate",
+  "3.0": "Moderate",
+  moderate: "Moderate",
+  "4": "Severe",
+  "4.0": "Severe",
+  severe: "Severe",
+  help: "Severe",
+  critical: "Severe",
+};
 
 export const COLORS = {
   Safe: "#34a853",
