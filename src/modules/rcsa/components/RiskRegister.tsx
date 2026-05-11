@@ -61,7 +61,7 @@ interface MiniBadgeProps {
 
 interface ScoreBadgeProps {
   label: string | number;
-  subLabel?: string;
+  subLabel?: string | number;
   color: string;
   bgColor?: string;
   width?: string;
