@@ -1,6 +1,6 @@
 import { useState, useMemo, Fragment } from 'react'
 import type { RiskRecord } from '../types'
-import { ArrowUpDown, ChevronDown, ChevronUp, Filter, X, Maximize2, Search, Download } from 'lucide-react'
+import { ArrowUpDown, ChevronDown, ChevronUp, Filter, X, Maximize2, Search, Download, Calendar, Clock, AlertCircle } from 'lucide-react'
 import { shortDept, getRiskLevel, getRiskLevelSmall, getControlsLabel, getControlsLabelSmall, getImplementationLabel, RISK_LEVELS, RISK_BG, RISK_TEXT, RISK_COLORS, CONTROLS_LABEL_COLORS, IMPLEMENTATION_COLORS, CONTROL_BG } from '../utils/riskLevels'
 import RiskBadge from './RiskBadge'
 
@@ -110,6 +110,56 @@ function MiniBadge({ label, color, bgColor, className = "" }: MiniBadgeProps) {
   )
 }
 
+function DeadlineBadge({ deadline }: { deadline: string | null }) {
+  if (!deadline) return <span className="text-gray-300">—</span>
+
+  const date = new Date(deadline)
+  const now = new Date()
+  const d1 = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const d2 = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const diffTime = d1.getTime() - d2.getTime()
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
+
+  let color = '#80868b' 
+  let Icon = Calendar
+  let relative = ''
+
+  if (diffDays < 0) {
+    color = '#d93025'
+    Icon = AlertCircle
+    relative = `${Math.abs(diffDays)}d overdue`
+  } else if (diffDays === 0) {
+    color = '#f9ab00'
+    Icon = Clock
+    relative = 'due today'
+  } else if (diffDays <= 30) {
+    color = '#f9ab00'
+    Icon = Clock
+    relative = `in ${diffDays}d`
+  } else {
+    relative = `in ${Math.floor(diffDays / 30)}mo`
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-0.5 min-w-[85px]">
+      <div 
+        className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border transition-all duration-200 hover:shadow-sm"
+        style={{ 
+          color, 
+          backgroundColor: `${color}08`, 
+          borderColor: `${color}25` 
+        }}
+      >
+        <Icon className="w-3 h-3 opacity-80" />
+        <span className="text-[10px] font-mono font-bold leading-none tracking-tight">{deadline}</span>
+      </div>
+      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider opacity-70">
+        {relative}
+      </span>
+    </div>
+  )
+}
+
 interface RiskRegisterProps {
   risks: RiskRecord[];
   title?: string;
@@ -164,6 +214,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
       if (colFilters.residual && getRiskLevel(r.residual_risk_score) !== colFilters.residual) return false
       if (colFilters.treatment && r.risk_treatment !== colFilters.treatment) return false
       if (colFilters.status && r.status !== colFilters.status) return false
+      if (colFilters.deadline && !r.action_plan_deadline?.includes(colFilters.deadline)) return false
       return true
     })
 
@@ -185,6 +236,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
         case 'controls': aVal = a.controls_rating; bVal = b.controls_rating; break
         case 'residual': aVal = a.residual_risk_score; bVal = b.residual_risk_score; break
         case 'status': aVal = a.status; bVal = b.status; break
+        case 'deadline': aVal = a.action_plan_deadline; bVal = b.action_plan_deadline; break
         default: return 0
       }
       if (aVal == null) return 1
@@ -210,6 +262,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
     { key: 'controls', label: 'Controls', align: 'center' },
     { key: 'residual', label: 'Residual', align: 'center' },
     { key: 'status', label: 'Status', align: 'center' },
+    { key: 'deadline', label: 'Deadline', align: 'center' },
     { key: 'expand', label: '' },
   ]
 
@@ -231,6 +284,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
       case 'residual': return <FilterSelect value={colFilters.residual || ''} onChange={(v: string) => setFilter('residual', v)} options={RISK_LEVELS} />
       case 'treatment': return <FilterSelect value={colFilters.treatment || ''} onChange={(v: string) => setFilter('treatment', v)} options={treatmentOptions} />
       case 'status': return <FilterSelect value={colFilters.status || ''} onChange={(v: string) => setFilter('status', v)} options={['Open', 'In Progress', 'Closed']} />
+      case 'deadline': return <FilterInput value={colFilters.deadline || ''} onChange={(v: string) => setFilter('deadline', v)} placeholder="Search..." />
       default: return null
     }
   }
@@ -438,17 +492,20 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                         />
                       </div>
                     </td>
-                    <td className="px-4 py-4 align-top text-center">
-                      <div className="inline-flex flex-col items-center">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${r.status === 'Closed'
-                            ? 'bg-green-50 text-green-700 border-green-200'
-                            : r.status === 'In Progress'
-                              ? 'bg-blue-50 text-blue-700 border-blue-200'
-                              : 'bg-amber-50 text-amber-700 border-amber-200'
-                          }`}>{r.status.toUpperCase()}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center">
+                     <td className="px-4 py-4 align-top text-center">
+                       <div className="inline-flex flex-col items-center">
+                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${r.status === 'Closed'
+                             ? 'bg-green-50 text-green-700 border-green-200'
+                             : r.status === 'In Progress'
+                               ? 'bg-blue-50 text-blue-700 border-blue-200'
+                               : 'bg-amber-50 text-amber-700 border-amber-200'
+                           }`}>{r.status.toUpperCase()}</span>
+                       </div>
+                     </td>
+                     <td className="px-4 py-4 align-top text-center">
+                       <DeadlineBadge deadline={r.action_plan_deadline} />
+                     </td>
+                     <td className="px-4 py-3 text-center">
                       <div className="inline-flex items-center justify-center w-6 h-6 rounded border border-gray-200 text-gray-400">
                         {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                       </div>
