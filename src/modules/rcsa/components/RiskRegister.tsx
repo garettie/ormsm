@@ -374,7 +374,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                             color={r.root_cause === 'People' ? '#3b82f6' : r.root_cause === 'Process' ? '#22c55e' : r.root_cause === 'Systems' ? '#f59e0b' : '#ef4444'} 
                           />
                           <span className="text-gray-200">|</span>
-                          <span className="text-[10px] text-gray-400 font-medium truncate max-w-[150px]">{r.event_type}</span>
+                          <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap">{r.event_type}</span>
                         </div>
                       </div>
                     </td>
