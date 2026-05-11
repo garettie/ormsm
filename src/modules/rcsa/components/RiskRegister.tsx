@@ -1,7 +1,7 @@
 import { useState, useMemo, Fragment } from 'react'
 import type { RiskRecord } from '../types'
 import { ArrowUpDown, ChevronDown, ChevronUp, Filter, X, Maximize2, Search, Download } from 'lucide-react'
-import { shortDept, getRiskLevel, getRiskLevelSmall, getControlsLabel, getControlsLabelSmall, getImplementationLabel, RISK_LEVELS, RISK_BG, RISK_TEXT, RISK_COLORS, CONTROLS_LABEL_COLORS, IMPLEMENTATION_COLORS } from '../utils/riskLevels'
+import { shortDept, getRiskLevel, getRiskLevelSmall, getControlsLabel, getControlsLabelSmall, getImplementationLabel, RISK_LEVELS, RISK_BG, RISK_TEXT, RISK_COLORS, CONTROLS_LABEL_COLORS, IMPLEMENTATION_COLORS, CONTROL_BG } from '../utils/riskLevels'
 import RiskBadge from './RiskBadge'
 
 const CONTROLS_LABELS = ['Strong', 'Satisfactory', 'Needs Improvement', 'Unsatisfactory']
@@ -20,14 +20,17 @@ interface FilterSelectProps {
 
 function FilterSelect({ value, onChange, options, placeholder }: FilterSelectProps) {
   return (
-    <select
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      className="w-full text-sm border border-gray-200 rounded px-2 py-1 focus:outline-none focus:border-accent-primary bg-white text-gray-700"
-    >
-      <option value="">{placeholder || 'All'}</option>
-      {options.map(o => <option key={o} value={o}>{o}</option>)}
-    </select>
+    <div className="relative group">
+      <select
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className="w-full text-[11px] border border-gray-200 rounded-md pl-2 pr-6 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent-primary/20 focus:border-accent-primary bg-white text-gray-700 appearance-none transition-all cursor-pointer hover:border-gray-300"
+      >
+        <option value="">{placeholder || 'All'}</option>
+        {options.map(o => <option key={o} value={o}>{o}</option>)}
+      </select>
+      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none transition-transform group-hover:text-gray-600" />
+    </div>
   )
 }
 
@@ -44,8 +47,66 @@ function FilterInput({ value, onChange, placeholder }: FilterInputProps) {
       value={value}
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder || 'Search...'}
-      className="w-full text-sm border border-gray-200 rounded px-2 py-1 focus:outline-none focus:border-accent-primary text-gray-700"
+      className="w-full text-[11px] border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent-primary/20 focus:border-accent-primary text-gray-700 transition-all placeholder:text-gray-300 hover:border-gray-300"
     />
+  )
+}
+
+interface MiniBadgeProps {
+  label: string | number;
+  color: string;
+  bgColor?: string;
+  className?: string;
+}
+
+interface ScoreBadgeProps {
+  label: string | number;
+  subLabel?: string;
+  color: string;
+  bgColor?: string;
+  width?: string;
+  tooltip?: string;
+}
+
+function ScoreBadge({ label, subLabel, color, bgColor, width = "", tooltip }: ScoreBadgeProps) {
+  return (
+    <div 
+      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-[10px] font-bold ${width} justify-center relative group/tip`}
+      style={{
+        backgroundColor: bgColor || `${color}15`,
+        color: color,
+        borderColor: `${color}30`,
+      }}
+    >
+      <span className="opacity-80">{label}</span>
+      {subLabel && (
+        <>
+          <span className="w-px h-2 bg-current opacity-25" />
+          <span className="truncate">{subLabel}</span>
+        </>
+      )}
+      {tooltip && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-[9px] font-medium rounded opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible transition-all whitespace-nowrap z-50 pointer-events-none shadow-lg">
+          {tooltip}
+          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900" />
+        </div>
+      )}
+    </div>
+  )
+}
+
+function MiniBadge({ label, color, bgColor, className = "" }: MiniBadgeProps) {
+  return (
+    <span
+      className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold border ${className}`}
+      style={{
+        backgroundColor: bgColor || `${color}15`,
+        color: color,
+        borderColor: `${color}30`,
+      }}
+    >
+      {label}
+    </span>
   )
 }
 
@@ -143,19 +204,12 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
 
 
   const columns = [
-    { key: 'department', label: 'Department' },
-    { key: 'process', label: 'Process' },
-    { key: 'description', label: 'Risk Description' },
-    { key: 'rootCause', label: 'Root Cause' },
-    { key: 'eventType', label: 'Event Type' },
-    { key: 'likelihood', label: 'Likelihood' },
-    { key: 'impact', label: 'Impact' },
-    { key: 'inherent', label: 'Inherent' },
-    { key: 'control_design', label: 'Design' },
-    { key: 'control_implementation', label: 'Implementation' },
-    { key: 'controls', label: 'Controls Rating' },
-    { key: 'residual', label: 'Residual' },
-    { key: 'status', label: 'Status' },
+    { key: 'department', label: 'Context' },
+    { key: 'description', label: 'Risk & Root Cause' },
+    { key: 'inherent', label: 'Inherent', align: 'center' },
+    { key: 'controls', label: 'Controls', align: 'center' },
+    { key: 'residual', label: 'Residual', align: 'center' },
+    { key: 'status', label: 'Status', align: 'center' },
     { key: 'expand', label: '' },
   ]
 
@@ -249,10 +303,10 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
 
       {/* Table */}
       <div className="overflow-x-auto overflow-y-auto max-h-[500px]">
-        <table className="w-full text-left text-sm whitespace-nowrap min-w-[900px]">
+        <table className="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-100 text-xs text-gray-500 uppercase tracking-wider">
-              {columns.map(col => {
+            <tr className="bg-gray-50 border-b border-gray-100 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+              {columns.map((col: any) => {
                 const isSortable = col.key !== 'expand'
                 const icon = !isSortable ? null : sortConfig.key !== col.key ? (
                   <ArrowUpDown className="w-4 h-4 text-gray-300" />
@@ -264,10 +318,10 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                 return (
                   <th
                     key={col.key}
-                    className={`px-4 py-3 font-medium ${isSortable ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''}`}
+                    className={`px-4 py-3 font-medium ${isSortable ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''} ${col.align === 'center' ? 'text-center' : ''}`}
                     onClick={() => isSortable && handleSort(col.key)}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className={`flex items-center gap-2 ${col.align === 'center' ? 'justify-center' : ''}`}>
                       {col.label}
                       {icon}
                     </div>
@@ -300,72 +354,99 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                 <Fragment key={rowId}>
                   <tr
                     onClick={() => setExpandedRow(isExpanded ? null : rowId)}
-                    className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+                    className="hover:bg-gray-50/50 transition-colors cursor-pointer group/row"
                   >
-                    <td className="px-4 py-3 text-gray-900 font-medium">{shortDept(r.department)}</td>
-                    <td className="px-4 py-3 text-gray-500">{r.process_name}</td>
-                    <td className="px-4 py-3 text-gray-700 max-w-[250px] overflow-hidden text-ellipsis" title={r.risk_description}>{r.risk_description}</td>
-                    <td className="px-4 py-3 text-gray-500">{r.root_cause}</td>
-                    <td className="px-4 py-3 text-gray-500 max-w-[180px] overflow-hidden text-ellipsis" title={r.event_type}>{r.event_type}</td>
-                    <td className="px-4 py-3 text-gray-500 font-medium text-center">
-                      <span
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-                        style={{
-                          backgroundColor: RISK_BG[getRiskLevelSmall(r.likelihood_score)],
-                          color: RISK_TEXT[getRiskLevelSmall(r.likelihood_score)],
-                          borderColor: `${RISK_COLORS[getRiskLevelSmall(r.likelihood_score)]}40`,
-                        }}
-                      >{r.likelihood_score ? `${r.likelihood_score} - ${getRiskLevelSmall(r.likelihood_score)}` : '—'}</span>
+                    <td className="px-4 py-4 align-top">
+                      <div className="flex flex-col gap-1">
+                        <div className="text-gray-900 font-bold text-[13px]">{shortDept(r.department)}</div>
+                        <div className="text-[10px] text-gray-400 font-medium uppercase tracking-tight line-clamp-1">{r.process_name}</div>
+                      </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-500 font-medium text-center">
-                      <span
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-                        style={{
-                          backgroundColor: RISK_BG[getRiskLevelSmall(r.impact_score)],
-                          color: RISK_TEXT[getRiskLevelSmall(r.impact_score)],
-                          borderColor: `${RISK_COLORS[getRiskLevelSmall(r.impact_score)]}40`,
-                        }}
-                      >{r.impact_score ? `${r.impact_score} - ${getRiskLevelSmall(r.impact_score)}` : '—'}</span>
+                    <td className="px-4 py-4 align-top w-full">
+                      <div className="flex flex-col gap-2 min-w-[300px] max-w-[600px]">
+                        <div className="text-gray-700 text-[13px] leading-relaxed whitespace-normal line-clamp-2 group-hover/row:text-gray-900 transition-colors" title={r.risk_description}>
+                          {r.risk_description}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Cause:</span>
+                          <MiniBadge 
+                            label={r.root_cause} 
+                            color={r.root_cause === 'People' ? '#3b82f6' : r.root_cause === 'Process' ? '#22c55e' : r.root_cause === 'Systems' ? '#f59e0b' : '#ef4444'} 
+                          />
+                          <span className="text-gray-200">|</span>
+                          <span className="text-[10px] text-gray-400 font-medium truncate max-w-[150px]">{r.event_type}</span>
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-4 py-3"><RiskBadge score={r.inherent_risk_score} /></td>
-                    <td className="px-4 py-3 text-gray-500 font-medium text-center">
-                      <span
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-                        style={{
-                          backgroundColor: r.control_design_score ? `${CONTROLS_LABEL_COLORS[getControlsLabelSmall(r.control_design_score)]}18` : 'transparent',
-                          color: r.control_design_score ? CONTROLS_LABEL_COLORS[getControlsLabelSmall(r.control_design_score)] : '#94a3b8',
-                          borderColor: r.control_design_score ? `${CONTROLS_LABEL_COLORS[getControlsLabelSmall(r.control_design_score)]}40` : '#e2e8f0',
-                        }}
-                      >{r.control_design_score ? `${r.control_design_score} - ${getControlsLabelSmall(r.control_design_score)}` : '—'}</span>
+                    <td className="px-4 py-4 align-top text-center">
+                      <div className="inline-flex flex-col gap-1.5">
+                        <ScoreBadge 
+                          label={getRiskLevel(r.inherent_risk_score).toUpperCase()} 
+                          subLabel={r.inherent_risk_score}
+                          color={RISK_TEXT[getRiskLevel(r.inherent_risk_score)]} 
+                          bgColor={RISK_BG[getRiskLevel(r.inherent_risk_score)]}
+                        />
+                        <div className="flex gap-1 justify-center">
+                          <ScoreBadge 
+                            label="L" 
+                            subLabel={r.likelihood_score} 
+                            color={RISK_TEXT[getRiskLevelSmall(r.likelihood_score)]} 
+                            bgColor={RISK_BG[getRiskLevelSmall(r.likelihood_score)]}
+                            tooltip="Likelihood"
+                          />
+                          <ScoreBadge 
+                            label="I" 
+                            subLabel={r.impact_score} 
+                            color={RISK_TEXT[getRiskLevelSmall(r.impact_score)]} 
+                            bgColor={RISK_BG[getRiskLevelSmall(r.impact_score)]}
+                            tooltip="Impact"
+                          />
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-500 font-medium text-center">
-                      <span
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-                        style={{
-                          backgroundColor: r.control_implementation_score ? `${IMPLEMENTATION_COLORS[getImplementationLabel(r.control_implementation_score)]}18` : 'transparent',
-                          color: r.control_implementation_score ? IMPLEMENTATION_COLORS[getImplementationLabel(r.control_implementation_score)] : '#94a3b8',
-                          borderColor: r.control_implementation_score ? `${IMPLEMENTATION_COLORS[getImplementationLabel(r.control_implementation_score)]}40` : '#e2e8f0',
-                        }}
-                      >{r.control_implementation_score ? `${r.control_implementation_score} - ${getImplementationLabel(r.control_implementation_score)}` : '—'}</span>
+                    <td className="px-4 py-4 align-top text-center">
+                      <div className="inline-flex flex-col gap-1.5">
+                        <ScoreBadge 
+                          label={getControlsLabel(r.controls_rating).toUpperCase()} 
+                          subLabel={r.controls_rating}
+                          color={CONTROLS_LABEL_COLORS[getControlsLabel(r.controls_rating)]} 
+                          bgColor={CONTROL_BG[getControlsLabel(r.controls_rating)]}
+                        />
+                        <div className="flex gap-1 justify-center">
+                          <ScoreBadge 
+                            label="D" 
+                            subLabel={r.control_design_score} 
+                            color={CONTROLS_LABEL_COLORS[getControlsLabelSmall(r.control_design_score)]} 
+                            tooltip="Control Design"
+                          />
+                          <ScoreBadge 
+                            label="M" 
+                            subLabel={r.control_implementation_score} 
+                            color={IMPLEMENTATION_COLORS[getImplementationLabel(r.control_implementation_score)]} 
+                            tooltip="Control Implementation"
+                          />
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-                        style={{
-                          backgroundColor: `${CONTROLS_LABEL_COLORS[getControlsLabel(r.controls_rating)]}18`,
-                          color: CONTROLS_LABEL_COLORS[getControlsLabel(r.controls_rating)],
-                          borderColor: `${CONTROLS_LABEL_COLORS[getControlsLabel(r.controls_rating)]}40`,
-                        }}
-                      >{r.controls_rating} - {getControlsLabel(r.controls_rating)}</span>
+                    <td className="px-4 py-4 align-top text-center">
+                      <div className="inline-flex flex-col items-center">
+                        <ScoreBadge 
+                          label={getRiskLevel(r.residual_risk_score).toUpperCase()} 
+                          subLabel={r.residual_risk_score}
+                          color={RISK_TEXT[getRiskLevel(r.residual_risk_score)]} 
+                          bgColor={RISK_BG[getRiskLevel(r.residual_risk_score)]}
+                        />
+                      </div>
                     </td>
-                    <td className="px-4 py-3"><RiskBadge score={r.residual_risk_score} /></td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${r.status === 'Closed'
-                          ? 'bg-green-50 text-green-700 border-green-200'
-                          : r.status === 'In Progress'
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                            : 'bg-amber-50 text-amber-700 border-amber-200'
-                        }`}>{r.status}</span>
+                    <td className="px-4 py-4 align-top text-center">
+                      <div className="inline-flex flex-col items-center">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${r.status === 'Closed'
+                            ? 'bg-green-50 text-green-700 border-green-200'
+                            : r.status === 'In Progress'
+                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              : 'bg-amber-50 text-amber-700 border-amber-200'
+                          }`}>{r.status.toUpperCase()}</span>
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <div className="inline-flex items-center justify-center w-6 h-6 rounded border border-gray-200 text-gray-400">
