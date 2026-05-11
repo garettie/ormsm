@@ -66,8 +66,8 @@ export const StatusDonut: FC<StatusDonutProps> = memo(({ data }) => {
         </ResponsiveContainer>
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-8">
             <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">{total}</div>
-                <div className="text-[10px] text-gray-400 font-medium uppercase">Total</div>
+                <div className="text-2xl font-bold text-gray-900 font-mono">{total}</div>
+                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Total</div>
             </div>
         </div>
       </div>

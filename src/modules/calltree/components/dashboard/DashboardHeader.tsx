@@ -51,8 +51,8 @@ export const DashboardHeader: FC<HeaderProps> = ({ lastUpdated, onRefresh, loadi
           {view === 'live' && (
             <>
               <div className="hidden md:flex flex-col items-end mr-0">
-                <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Last Updated</span>
-                <span className="text-sm font-mono font-medium text-gray-700 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-100">
+                <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-0.5">Last Updated</span>
+                <span className="text-xs font-mono font-medium text-gray-600 bg-gray-100/50 px-2 py-1 rounded-md border border-gray-200/50">
                     {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                 </span>
               </div>

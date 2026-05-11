@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --color-safe: #34a853;
   --color-slight: #f9ab00;
   --color-moderate: #ff6d00;

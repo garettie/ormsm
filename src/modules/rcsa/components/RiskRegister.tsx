@@ -71,7 +71,7 @@ interface ScoreBadgeProps {
 function ScoreBadge({ label, subLabel, color, bgColor, width = "", tooltip }: ScoreBadgeProps) {
   return (
     <div
-      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-[10px] font-bold ${width} justify-center relative group/tip`}
+      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-[10px] font-bold font-mono ${width} justify-center relative group/tip`}
       style={{
         backgroundColor: bgColor || `${color}15`,
         color: color,
@@ -151,7 +151,7 @@ function DeadlineBadge({ deadline }: { deadline: string | null }) {
         }}
       >
         <Icon className="w-3 h-3 opacity-80" />
-        <span className="text-[10px] font-bold leading-none tracking-tight">{deadline}</span>
+        <span className="text-[10px] font-bold font-mono leading-none tracking-tight">{deadline}</span>
       </div>
       <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider opacity-70">
         {relative}
@@ -359,7 +359,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
       <div className="overflow-x-auto overflow-y-auto max-h-[500px]">
         <table className="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-100 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+            <tr className="bg-gray-50 border-b border-gray-100 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
               {columns.map((col: any) => {
                 const isSortable = col.key !== 'expand'
                 const icon = !isSortable ? null : sortConfig.key !== col.key ? (
@@ -422,13 +422,13 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                           {r.risk_description}
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Cause:</span>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Cause:</span>
                           <MiniBadge
                             label={r.root_cause}
                             color={r.root_cause === 'People' ? '#3b82f6' : r.root_cause === 'Process' ? '#22c55e' : r.root_cause === 'Systems' ? '#f59e0b' : '#ef4444'}
                           />
                           <span className="text-gray-200">|</span>
-                          <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap">{r.event_type}</span>
+                          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{r.event_type}</span>
                         </div>
                       </div>
                     </td>
@@ -494,7 +494,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                     </td>
                      <td className="px-4 py-4 align-top text-center">
                        <div className="inline-flex flex-col items-center">
-                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${r.status === 'Closed'
+                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold border tracking-wider ${r.status === 'Closed'
                              ? 'bg-green-50 text-green-700 border-green-200'
                              : r.status === 'In Progress'
                                ? 'bg-blue-50 text-blue-700 border-blue-200'

@@ -66,7 +66,7 @@ export const ResponseDonut: FC<ResponseDonutProps> = memo(({ responded, total })
         </ResponsiveContainer>
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-8">
             <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">{percentage.toFixed(0)}%</div>
+                <div className="text-2xl font-bold text-gray-900 font-mono">{percentage.toFixed(0)}%</div>
             </div>
         </div>
       </div>

@@ -242,7 +242,7 @@ export default function IncidentHistory({
                         {incident.type}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                    <div className="flex items-center gap-3 text-xs text-gray-500 mt-1 font-mono">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         {formatDateShort(incident.start_time)}

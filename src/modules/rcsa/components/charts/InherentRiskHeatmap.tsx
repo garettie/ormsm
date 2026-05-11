@@ -158,10 +158,11 @@ export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFi
                                                 height: cellSize.h,
                                                 textAlign: "center",
                                                 background: count > 0 ? bg : "#f8fafc",
-                                                color: count > 0 ? text : "#cbd5e1",
-                                                fontSize: count > 0 ? cellSize.f : (isMobile ? 11 : 13),
-                                                fontWeight: 700,
-                                                border: selected
+                                                 color: count > 0 ? text : "#cbd5e1",
+                                                 fontSize: count > 0 ? cellSize.f : (isMobile ? 11 : 13),
+                                                 fontWeight: 700,
+                                                 fontFamily: "var(--font-mono), monospace",
+                                                 border: selected
                                                     ? `2px solid #0f172a`
                                                     : `1px solid ${count > 0 ? border : "#e2e8f0"}`,
                                                 borderRadius: isMobile ? 6 : 8,
@@ -210,10 +211,10 @@ export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFi
                                 }}
                             >
                                 <div style={{ color: "#94a3b8", fontSize: 11, marginBottom: 4 }}>
-                                    Inherent: {getRiskLevel(inherentScore)} ({inherentScore})
+                                    Inherent: {getRiskLevel(inherentScore)} (<span style={{ fontFamily: 'var(--font-mono)' }}>{inherentScore}</span>)
                                 </div>
                                 <div style={{ marginBottom: 4 }}>
-                                    <strong>{info.count}</strong> risk{info.count !== 1 ? "s" : ""}
+                                    <strong style={{ fontFamily: 'var(--font-mono)' }}>{info.count}</strong> risk{info.count !== 1 ? "s" : ""}
                                 </div>
                                 <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 2 }}>
                                     Residual breakdown:
@@ -222,7 +223,7 @@ export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFi
                                     <div key={lv} style={{ display: "flex", alignItems: "center", gap: 4 }}>
                                         <span style={{ color: RISK_COLORS[lv], fontWeight: 700 }}>{lv}</span>
                                         {': '}
-                                        <strong>{info.breakdown[lv]}</strong>
+                                        <strong style={{ fontFamily: 'var(--font-mono)' }}>{info.breakdown[lv]}</strong>
                                     </div>
                                 ))}
                             </div>

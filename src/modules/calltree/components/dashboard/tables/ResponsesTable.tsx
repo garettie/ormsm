@@ -28,8 +28,10 @@ interface ResponsesTableProps {
 
 // --- Shared class-name tokens ---
 
-const CELL = "px-6 py-3 text-gray-500";
-const CELL_PHONE = `${CELL} font-mono text-xs`;
+const CELL = "px-6 py-3 text-gray-600";
+const CELL_TECHNICAL = `${CELL} font-mono text-xs`;
+const CELL_PHONE = `${CELL_TECHNICAL}`;
+const CELL_TIME = `${CELL_TECHNICAL}`;
 
 // Column definitions rendered by SortableHeader
 const COLUMNS: { label: string; sortKey: SortKey }[] = [
@@ -249,7 +251,7 @@ export const ResponsesTable: FC<ResponsesTableProps> = ({ data }) => {
       <div className="overflow-x-auto overflow-y-auto max-h-150">
         <table className="w-full text-left text-sm whitespace-nowrap">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-100 text-xs text-gray-500 uppercase tracking-wider sticky top-0 z-10">
+            <tr className="bg-gray-50 border-b border-gray-100 text-[10px] text-gray-400 font-bold uppercase tracking-wider sticky top-0 z-10">
               {COLUMNS.map((col) => (
                 <SortableHeader
                   key={col.sortKey}
@@ -283,7 +285,7 @@ export const ResponsesTable: FC<ResponsesTableProps> = ({ data }) => {
                 <td className={CELL_PHONE}>
                   {formatPhoneNumber(row.cleanNumber)}
                 </td>
-                <td className={CELL}>{formatDateTime(row.responseTime)}</td>
+                <td className={CELL_TIME}>{formatDateTime(row.responseTime)}</td>
               </tr>
             ))}
           </tbody>

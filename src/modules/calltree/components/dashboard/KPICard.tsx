@@ -62,14 +62,14 @@ export const KPICard: FC<KPICardProps> = memo(({
       </div>
 
       <div>
-        <div className="text-3xl font-bold text-gray-900 tracking-tight mb-1">
+        <div className="text-3xl font-bold text-gray-900 tracking-tight mb-1 font-mono">
           {value}
         </div>
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
             {label}
           </h3>
-          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-gray-50 text-gray-500 border border-gray-100">
+          <span className="text-[10px] font-semibold font-mono px-1.5 py-0.5 rounded-full bg-gray-50 text-gray-500 border border-gray-100">
             {subtext}
           </span>
         </div>
