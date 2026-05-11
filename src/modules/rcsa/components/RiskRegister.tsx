@@ -70,7 +70,7 @@ interface ScoreBadgeProps {
 
 function ScoreBadge({ label, subLabel, color, bgColor, width = "", tooltip }: ScoreBadgeProps) {
   return (
-    <div 
+    <div
       className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-[10px] font-bold ${width} justify-center relative group/tip`}
       style={{
         backgroundColor: bgColor || `${color}15`,
@@ -120,7 +120,7 @@ function DeadlineBadge({ deadline }: { deadline: string | null }) {
   const diffTime = d1.getTime() - d2.getTime()
   const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
 
-  let color = '#80868b' 
+  let color = '#80868b'
   let Icon = Calendar
   let relative = ''
 
@@ -135,23 +135,23 @@ function DeadlineBadge({ deadline }: { deadline: string | null }) {
   } else if (diffDays <= 30) {
     color = '#f9ab00'
     Icon = Clock
-    relative = `in ${diffDays}d`
+    relative = `due in ${diffDays}d`
   } else {
-    relative = `in ${Math.floor(diffDays / 30)}mo`
+    relative = `due in ${Math.floor(diffDays / 30)}mo`
   }
 
   return (
     <div className="flex flex-col items-center gap-0.5 min-w-[85px]">
-      <div 
+      <div
         className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border transition-all duration-200 hover:shadow-sm"
-        style={{ 
-          color, 
-          backgroundColor: `${color}08`, 
-          borderColor: `${color}25` 
+        style={{
+          color,
+          backgroundColor: `${color}08`,
+          borderColor: `${color}25`
         }}
       >
         <Icon className="w-3 h-3 opacity-80" />
-        <span className="text-[10px] font-mono font-bold leading-none tracking-tight">{deadline}</span>
+        <span className="text-[10px] font-bold leading-none tracking-tight">{deadline}</span>
       </div>
       <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider opacity-70">
         {relative}
@@ -256,8 +256,8 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
 
 
   const columns = [
-    { key: 'department', label: 'Context' },
-    { key: 'description', label: 'Risk & Root Cause' },
+    { key: 'department', label: 'Department' },
+    { key: 'description', label: 'Risk Description' },
     { key: 'inherent', label: 'Inherent', align: 'center' },
     { key: 'controls', label: 'Controls', align: 'center' },
     { key: 'residual', label: 'Residual', align: 'center' },
@@ -423,9 +423,9 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Cause:</span>
-                          <MiniBadge 
-                            label={r.root_cause} 
-                            color={r.root_cause === 'People' ? '#3b82f6' : r.root_cause === 'Process' ? '#22c55e' : r.root_cause === 'Systems' ? '#f59e0b' : '#ef4444'} 
+                          <MiniBadge
+                            label={r.root_cause}
+                            color={r.root_cause === 'People' ? '#3b82f6' : r.root_cause === 'Process' ? '#22c55e' : r.root_cause === 'Systems' ? '#f59e0b' : '#ef4444'}
                           />
                           <span className="text-gray-200">|</span>
                           <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap">{r.event_type}</span>
@@ -434,24 +434,24 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                     </td>
                     <td className="px-4 py-4 align-top text-center">
                       <div className="inline-flex flex-col gap-1.5">
-                        <ScoreBadge 
-                          label={getRiskLevel(r.inherent_risk_score).toUpperCase()} 
+                        <ScoreBadge
+                          label={getRiskLevel(r.inherent_risk_score).toUpperCase()}
                           subLabel={r.inherent_risk_score}
-                          color={RISK_TEXT[getRiskLevel(r.inherent_risk_score)]} 
+                          color={RISK_TEXT[getRiskLevel(r.inherent_risk_score)]}
                           bgColor={RISK_BG[getRiskLevel(r.inherent_risk_score)]}
                         />
                         <div className="flex gap-1 justify-center">
-                          <ScoreBadge 
-                            label="L" 
-                            subLabel={r.likelihood_score} 
-                            color={RISK_TEXT[getRiskLevelSmall(r.likelihood_score)]} 
+                          <ScoreBadge
+                            label="L"
+                            subLabel={r.likelihood_score}
+                            color={RISK_TEXT[getRiskLevelSmall(r.likelihood_score)]}
                             bgColor={RISK_BG[getRiskLevelSmall(r.likelihood_score)]}
                             tooltip="Likelihood"
                           />
-                          <ScoreBadge 
-                            label="I" 
-                            subLabel={r.impact_score} 
-                            color={RISK_TEXT[getRiskLevelSmall(r.impact_score)]} 
+                          <ScoreBadge
+                            label="I"
+                            subLabel={r.impact_score}
+                            color={RISK_TEXT[getRiskLevelSmall(r.impact_score)]}
                             bgColor={RISK_BG[getRiskLevelSmall(r.impact_score)]}
                             tooltip="Impact"
                           />
@@ -460,23 +460,23 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                     </td>
                     <td className="px-4 py-4 align-top text-center">
                       <div className="inline-flex flex-col gap-1.5">
-                        <ScoreBadge 
-                          label={getControlsLabel(r.controls_rating).toUpperCase()} 
+                        <ScoreBadge
+                          label={getControlsLabel(r.controls_rating).toUpperCase()}
                           subLabel={r.controls_rating}
-                          color={CONTROLS_LABEL_COLORS[getControlsLabel(r.controls_rating)]} 
+                          color={CONTROLS_LABEL_COLORS[getControlsLabel(r.controls_rating)]}
                           bgColor={CONTROL_BG[getControlsLabel(r.controls_rating)]}
                         />
                         <div className="flex gap-1 justify-center">
-                          <ScoreBadge 
-                            label="D" 
-                            subLabel={r.control_design_score} 
-                            color={CONTROLS_LABEL_COLORS[getControlsLabelSmall(r.control_design_score)]} 
+                          <ScoreBadge
+                            label="D"
+                            subLabel={r.control_design_score}
+                            color={CONTROLS_LABEL_COLORS[getControlsLabelSmall(r.control_design_score)]}
                             tooltip="Control Design"
                           />
-                          <ScoreBadge 
-                            label="M" 
-                            subLabel={r.control_implementation_score} 
-                            color={IMPLEMENTATION_COLORS[getImplementationLabel(r.control_implementation_score)]} 
+                          <ScoreBadge
+                            label="M"
+                            subLabel={r.control_implementation_score}
+                            color={IMPLEMENTATION_COLORS[getImplementationLabel(r.control_implementation_score)]}
                             tooltip="Control Implementation"
                           />
                         </div>
@@ -484,10 +484,10 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
                     </td>
                     <td className="px-4 py-4 align-top text-center">
                       <div className="inline-flex flex-col items-center">
-                        <ScoreBadge 
-                          label={getRiskLevel(r.residual_risk_score).toUpperCase()} 
+                        <ScoreBadge
+                          label={getRiskLevel(r.residual_risk_score).toUpperCase()}
                           subLabel={r.residual_risk_score}
-                          color={RISK_TEXT[getRiskLevel(r.residual_risk_score)]} 
+                          color={RISK_TEXT[getRiskLevel(r.residual_risk_score)]}
                           bgColor={RISK_BG[getRiskLevel(r.residual_risk_score)]}
                         />
                       </div>
