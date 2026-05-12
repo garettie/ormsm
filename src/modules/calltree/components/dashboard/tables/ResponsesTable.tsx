@@ -26,23 +26,16 @@ interface ResponsesTableProps {
   data: ProcessedContact[];
 }
 
-// --- Shared class-name tokens ---
-
-const CELL = "px-6 py-3 text-gray-600";
-const CELL_TECHNICAL = `${CELL} font-mono text-xs`;
-const CELL_PHONE = `${CELL_TECHNICAL}`;
-const CELL_TIME = `${CELL_TECHNICAL}`;
-
 // Column definitions rendered by SortableHeader
-const COLUMNS: { label: string; sortKey: SortKey }[] = [
-  { label: "Name", sortKey: "name" },
-  { label: "Status", sortKey: "status" },
-  { label: "Position", sortKey: "position" },
-  { label: "Department", sortKey: "department" },
-  { label: "Location", sortKey: "location" },
-  { label: "Level", sortKey: "level" },
-  { label: "Phone", sortKey: "cleanNumber" },
-  { label: "Time", sortKey: "responseTime" },
+const COLUMNS: { label: string; sortKey: SortKey; align?: "left" | "right" }[] = [
+  { label: "Name", sortKey: "name", align: "left" },
+  { label: "Status", sortKey: "status", align: "left" },
+  { label: "Position", sortKey: "position", align: "left" },
+  { label: "Department", sortKey: "department", align: "left" },
+  { label: "Location", sortKey: "location", align: "left" },
+  { label: "Level", sortKey: "level", align: "left" },
+  { label: "Phone", sortKey: "cleanNumber", align: "right" },
+  { label: "Time", sortKey: "responseTime", align: "right" },
 ];
 
 // Searchable field keys
@@ -61,6 +54,7 @@ interface SortableHeaderProps {
   sortKey: SortKey;
   currentSort: SortConfig;
   onSort: (key: SortKey) => void;
+  align?: "left" | "right";
 }
 
 const SortableHeader: FC<SortableHeaderProps> = memo(({
@@ -68,23 +62,24 @@ const SortableHeader: FC<SortableHeaderProps> = memo(({
   sortKey,
   currentSort,
   onSort,
+  align = "left",
 }) => {
-  const icon =
-    currentSort.key !== sortKey ? (
-      <ArrowUpDown className="w-4 h-4 text-gray-300" />
-    ) : currentSort.direction === "asc" ? (
-      <ArrowUp className="w-4 h-4 text-accent-primary" />
-    ) : (
-      <ArrowDown className="w-4 h-4 text-accent-primary" />
-    );
+  const isActive = currentSort.key === sortKey;
+  const icon = !isActive ? (
+    <ArrowUpDown className="w-3.5 h-3.5 text-gray-300 transition-colors group-hover:text-gray-400" />
+  ) : currentSort.direction === "asc" ? (
+    <ArrowUp className="w-3.5 h-3.5 text-gray-700" />
+  ) : (
+    <ArrowDown className="w-3.5 h-3.5 text-gray-700" />
+  );
 
   return (
     <th
-      className="px-6 py-3 font-medium cursor-pointer hover:bg-gray-100 transition-colors select-none"
+      className={`px-4 py-2.5 font-semibold cursor-pointer group hover:bg-gray-100/50 transition-colors select-none first:pl-5 last:pr-5 ${align === "right" ? "text-right" : "text-left"}`}
       onClick={() => onSort(sortKey)}
     >
-      <div className="flex items-center gap-2">
-        {label}
+      <div className={`flex items-center gap-1.5 ${align === "right" ? "justify-end" : "justify-start"}`}>
+        <span className={isActive ? "text-gray-800" : "text-gray-500"}>{label}</span>
         {icon}
       </div>
     </th>
@@ -94,20 +89,30 @@ const SortableHeader: FC<SortableHeaderProps> = memo(({
 // --- StatusBadge ---
 
 const StatusBadge: FC<{ status: string }> = memo(({ status }) => {
-  // Determine background color
-  let backgroundColor = "white";
-  if (status === "Safe") backgroundColor = COLORS.SafeBg;
-  else if (status === "Slight") backgroundColor = COLORS.SlightBg;
-  else if (status === "Moderate") backgroundColor = COLORS.ModerateBg;
-  else if (status === "Severe") backgroundColor = COLORS.SevereBg;
+  const getStyles = () => {
+    switch (status) {
+      case "Safe":
+        return { bg: COLORS.SafeBg, border: COLORS.Safe, text: COLORS.Safe };
+      case "Slight":
+        return { bg: COLORS.SlightBg, border: COLORS.Slight, text: COLORS.Slight };
+      case "Moderate":
+        return { bg: COLORS.ModerateBg, border: COLORS.Moderate, text: COLORS.Moderate };
+      case "Severe":
+        return { bg: COLORS.SevereBg, border: COLORS.Severe, text: COLORS.Severe };
+      default:
+        return { bg: "#f3f4f6", border: "#d1d5db", text: "#4b5563" };
+    }
+  };
+
+  const styles = getStyles();
 
   return (
     <span
-      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+      className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold uppercase tracking-wide border shadow-sm"
       style={{
-        backgroundColor,
-        borderColor: COLORS[status as keyof typeof COLORS],
-        color: COLORS[status as keyof typeof COLORS],
+        backgroundColor: styles.bg,
+        borderColor: `${styles.border}40`, // 25% opacity border for softness
+        color: styles.text,
       }}
     >
       {status}
@@ -129,31 +134,31 @@ const MatchTypeIndicator: FC<{ type?: "phone" | "name" | "manual" | "alt-phone" 
     case "phone":
       Icon = Phone;
       title = "Matched by Phone Number";
-      colorClass = "text-blue-400";
+      colorClass = "text-blue-500";
       break;
     case "name":
       Icon = User;
       title = "Matched by Name";
-      colorClass = "text-purple-400";
+      colorClass = "text-purple-500";
       break;
     case "manual":
       Icon = Keyboard;
       title = "Manually Entered";
-      colorClass = "text-amber-400";
+      colorClass = "text-amber-500";
       break;
     case "alt-phone":
       Icon = PhoneForwarded;
       title = "Matched by Alternate Number";
-      colorClass = "text-teal-400";
+      colorClass = "text-teal-500";
       break;
   }
 
   return (
-    <div className="group relative ml-2 inline-flex">
+    <div className="group/tooltip relative ml-2 inline-flex items-center justify-center p-1 rounded hover:bg-gray-100 transition-colors cursor-help">
       <Icon className={`w-3.5 h-3.5 ${colorClass}`} />
-      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap z-50">
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/tooltip:block px-2.5 py-1.5 bg-gray-900 text-white text-[11px] font-medium rounded-md shadow-lg whitespace-nowrap z-50">
         {title}
-        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+        <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-gray-900" />
       </div>
     </div>
   );
@@ -218,40 +223,60 @@ export const ResponsesTable: FC<ResponsesTableProps> = ({ data }) => {
     downloadCSV(csvData, "responses.csv");
   };
 
-  if (data.length === 0) return null;
+  if (data.length === 0) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-200/75 shadow-sm flex flex-col overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-3 bg-gray-50/30">
+          <h3 className="text-sm font-bold text-gray-900 tracking-tight">Responses</h3>
+          <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-bold">0</span>
+        </div>
+        <div className="p-12 text-center flex flex-col items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+            <HelpCircle className="w-5 h-5 text-gray-400" />
+          </div>
+          <p className="text-gray-900 font-medium text-sm">No responses yet</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="glass-card flex flex-col overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-100 flex flex-col gap-4 bg-gray-50/50">
-        <div className="flex justify-between items-center">
-          <h3 className="font-semibold text-gray-900">
-            Responses ({sortedData.length})
+    <div className="bg-white rounded-xl border border-gray-200/75 shadow-sm flex flex-col overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50/30">
+        <div className="flex items-center gap-3">
+          <h3 className="text-sm font-bold text-gray-900 tracking-tight">
+            Responses
           </h3>
-          <button
-            onClick={handleDownload}
-            className="flex items-center gap-2 px-3 py-1.5 bg-accent-primary text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors"
-          >
-            <Download className="w-3.5 h-3.5" />
-            Download CSV
-          </button>
+          <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-bold">
+            {sortedData.length}
+          </span>
         </div>
 
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search for employee..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary/20 focus:border-accent-primary transition-all"
-          />
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search employee..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-1.5 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary/20 focus:border-accent-primary transition-all placeholder:text-gray-400 shadow-sm"
+            />
+          </div>
+          <button
+            onClick={handleDownload}
+            className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm shrink-0"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Export
+          </button>
         </div>
       </div>
 
-      <div className="overflow-x-auto overflow-y-auto max-h-150">
-        <table className="w-full text-left text-sm whitespace-nowrap">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-100 text-[10px] text-gray-400 font-bold uppercase tracking-wider sticky top-0 z-10">
+      <div className="overflow-x-auto overflow-y-auto max-h-[600px]">
+        <table className="w-full text-left whitespace-nowrap">
+          <thead className="bg-gray-50/90 backdrop-blur-sm sticky top-0 z-10 border-b border-gray-200/75">
+            <tr className="text-[11px] text-gray-500 uppercase tracking-wider">
               {COLUMNS.map((col) => (
                 <SortableHeader
                   key={col.sortKey}
@@ -259,41 +284,62 @@ export const ResponsesTable: FC<ResponsesTableProps> = ({ data }) => {
                   sortKey={col.sortKey}
                   currentSort={sortConfig}
                   onSort={requestSort}
+                  align={col.align}
                 />
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100/75">
             {sortedData.map((row) => (
               <tr
                 key={row.id || row.number}
-                className="hover:bg-gray-50/50 transition-colors"
+                className="hover:bg-gray-50/50 transition-colors group/row"
               >
-                <td className="px-6 py-3 text-gray-900 flex items-center">
-                  {row.name}
-                  {row.status !== "No Response" && (
-                    <MatchTypeIndicator type={row.matchType} />
-                  )}
+                <td className="px-4 py-2.5 align-middle first:pl-5">
+                  <div className="flex items-center">
+                    <span className="font-semibold text-gray-900 text-[13px]">{row.name}</span>
+                    {row.status !== "No Response" && (
+                      <MatchTypeIndicator type={row.matchType} />
+                    )}
+                  </div>
                 </td>
-                <td className="px-6 py-3">
+                <td className="px-4 py-2.5 align-middle">
                   <StatusBadge status={row.status} />
                 </td>
-                <td className={CELL}>{row.position || "-"}</td>
-                <td className={CELL}>{row.department}</td>
-                <td className={CELL}>{row.location}</td>
-                <td className={`${CELL} capitalize`}>{row.level || "-"}</td>
-                <td className={CELL_PHONE}>
-                  {formatPhoneNumber(row.cleanNumber)}
+                <td className="px-4 py-2.5 align-middle">
+                  <span className="text-[13px] text-gray-700">{row.position || "-"}</span>
                 </td>
-                <td className={CELL_TIME}>{formatDateTime(row.responseTime)}</td>
+                <td className="px-4 py-2.5 align-middle">
+                  <span className="text-[13px] font-medium text-gray-800">{row.department}</span>
+                </td>
+                <td className="px-4 py-2.5 align-middle">
+                  <span className="text-[13px] text-gray-700">{row.location}</span>
+                </td>
+                <td className="px-4 py-2.5 align-middle">
+                  <span className="text-[13px] text-gray-700 capitalize">{row.level || "-"}</span>
+                </td>
+                <td className="px-4 py-2.5 align-middle text-right">
+                  <div className="font-mono text-[13px] font-medium text-gray-600 tracking-tight flex justify-end">
+                    {formatPhoneNumber(row.cleanNumber)}
+                  </div>
+                </td>
+                <td className="px-4 py-2.5 align-middle text-right last:pr-5">
+                  <div className="font-mono text-[13px] text-gray-500 tracking-tight flex justify-end">
+                    {formatDateTime(row.responseTime) || "-"}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
 
         {sortedData.length === 0 && (
-          <div className="p-8 text-center text-gray-500 text-sm">
-            No matching records found.
+          <div className="p-12 text-center flex flex-col items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+              <Search className="w-5 h-5 text-gray-400" />
+            </div>
+            <p className="text-gray-900 font-medium text-sm">No records found</p>
+            <p className="text-gray-500 text-sm mt-1">Try adjusting your search terms.</p>
           </div>
         )}
       </div>

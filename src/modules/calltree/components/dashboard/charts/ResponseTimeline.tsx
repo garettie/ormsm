@@ -8,6 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { BarChart3 } from "lucide-react";
 import type { ProcessedContact } from "../../../types";
 import { COLORS } from "../../../lib/constants";
 
@@ -40,7 +41,16 @@ export const ResponseTimeline: FC<ResponseTimelineProps> = memo(({ data }) => {
     }));
   }, [data]);
 
-  if (chartData.length === 0) return null;
+  if (chartData.length === 0) {
+    return (
+      <div className="glass-card p-4 h-75 flex flex-col items-center justify-center text-center">
+        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+          <BarChart3 className="w-5 h-5 text-gray-400" />
+        </div>
+        <p className="text-gray-900 font-medium text-sm">No responses yet</p>
+      </div>
+    );
+  }
 
   return (
     <div className="glass-card p-4 h-75 flex flex-col">

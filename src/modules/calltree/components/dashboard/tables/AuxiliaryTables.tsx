@@ -12,24 +12,29 @@ import { COLORS } from "../../../lib/constants";
 
 // --- Shared class-name tokens ---
 
-const CELL = "px-4 py-2 text-gray-500";
-const CELL_PHONE = `${CELL} font-mono text-xs`;
-const TH = "px-4 py-2 font-medium";
-const THEAD_ROW = "bg-gray-50 text-xs text-gray-500 uppercase";
-const BANNER = "px-4 py-2 text-xs flex items-center gap-2 border-b";
+const THEAD_ROW = "bg-gray-50/90 backdrop-blur-sm sticky top-0 z-10 border-b border-gray-200/75 text-[11px] text-gray-500 uppercase tracking-wider";
+const BANNER = "px-5 py-2.5 text-xs font-medium flex items-center gap-2 border-b";
 
 // --- TableCard (shared wrapper) ---
 
 interface TableCardProps {
   title: string;
+  badgeCount?: number;
   action: React.ReactNode;
   children: React.ReactNode;
 }
 
-const TableCard: FC<TableCardProps> = ({ title, action, children }) => (
-  <div className="glass-card flex flex-col overflow-hidden h-full max-h-100">
-    <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-      <h3 className="font-semibold text-gray-900 text-sm">{title}</h3>
+const TableCard: FC<TableCardProps> = ({ title, badgeCount, action, children }) => (
+  <div className="bg-white rounded-xl border border-gray-200/75 shadow-sm flex flex-col overflow-hidden h-full max-h-[600px]">
+    <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/30">
+      <div className="flex items-center gap-3">
+        <h3 className="text-sm font-bold text-gray-900 tracking-tight">{title}</h3>
+        {badgeCount !== undefined && (
+          <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-bold">
+            {badgeCount}
+          </span>
+        )}
+      </div>
       {action}
     </div>
     <div className="overflow-x-auto overflow-y-auto flex-1">{children}</div>
@@ -41,9 +46,10 @@ const TableCard: FC<TableCardProps> = ({ title, action, children }) => (
 const DownloadButton: FC<{ onClick: () => void }> = ({ onClick }) => (
   <button
     onClick={onClick}
-    className="text-gray-500 hover:text-accent-primary transition-colors"
+    className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm shrink-0"
   >
-    <Download className="w-4 h-4" />
+    <Download className="w-3.5 h-3.5" />
+    Export
   </button>
 );
 
@@ -167,7 +173,24 @@ const LinkContactModal: FC<LinkContactModalProps> = ({ response, contacts, onClo
 export const UnknownTable: FC<{ data: Response[]; contacts: ProcessedContact[]; onLinked: () => void }> = ({ data, contacts, onLinked }) => {
   const [linking, setLinking] = useState<Response | null>(null);
 
-  if (data.length === 0) return null;
+  if (data.length === 0) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-200/75 shadow-sm flex flex-col overflow-hidden h-full max-h-[600px]">
+        <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/30">
+          <div className="flex items-center gap-3">
+            <h3 className="text-sm font-bold text-gray-900 tracking-tight">Unknown Responses</h3>
+            <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-bold">0</span>
+          </div>
+        </div>
+        <div className="flex-1 p-12 text-center flex flex-col items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+            <AlertTriangle className="w-5 h-5 text-gray-400" />
+          </div>
+          <p className="text-gray-900 font-medium text-sm">No responses yet</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleDownload = () => {
     const csv = data.map((r) => ({
@@ -181,43 +204,52 @@ export const UnknownTable: FC<{ data: Response[]; contacts: ProcessedContact[]; 
   return (
     <>
     <TableCard
-      title={`Unknown Responses (${data.length})`}
+      title="Unknown Responses"
+      badgeCount={data.length}
       action={<DownloadButton onClick={handleDownload} />}
     >
       <div
-        className={`${BANNER} bg-orange-50 text-orange-700 border-orange-100`}
+        className={`${BANNER} bg-amber-50/80 text-amber-800 border-amber-200/50`}
       >
-        <AlertTriangle className="w-3 h-3" />
-        Check these responses manually.
+        <AlertTriangle className="w-4 h-4 text-amber-500" />
+        Check these responses manually and link them to employees.
       </div>
-      <table className="w-full text-left text-sm">
-        <thead>
-          <tr className={THEAD_ROW}>
-            <th className={TH}>Phone</th>
-            <th className={TH}>Message</th>
-            <th className={TH}>Time</th>
-            <th className={TH}></th>
+      <table className="w-full text-left whitespace-nowrap">
+        <thead className={THEAD_ROW}>
+          <tr>
+            <th className="px-4 py-2.5 font-semibold text-left first:pl-5">Contact</th>
+            <th className="px-4 py-2.5 font-semibold text-left w-full">Message</th>
+            <th className="px-4 py-2.5 font-semibold text-right">Time</th>
+            <th className="px-4 py-2.5 font-semibold text-right last:pr-5">Action</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-gray-100/75">
           {data.map((row, i) => (
             <tr
               key={`${row.contact}-${row.datetime}-${i}`}
-              className="hover:bg-gray-50/50 group"
+              className="hover:bg-gray-50/50 group/row transition-colors"
             >
-              <td className={CELL_PHONE}>{formatPhoneNumber(row.contact)}</td>
-              <td className={`${CELL} max-w-50 truncate`} title={row.contents}>
-                {row.contents}
+              <td className="px-4 py-2.5 align-middle first:pl-5">
+                <div className="font-mono text-[13px] font-medium text-gray-600 tracking-tight">
+                  {formatPhoneNumber(row.contact)}
+                </div>
               </td>
-              <td className={`${CELL} text-xs whitespace-nowrap`}>
-                {formatDateTime(row.datetime)}
+              <td className="px-4 py-2.5 align-middle max-w-[200px] sm:max-w-[400px]">
+                <div className="text-[13px] text-gray-700 truncate" title={row.contents}>
+                  {row.contents}
+                </div>
               </td>
-              <td className="px-4 py-2">
+              <td className="px-4 py-2.5 align-middle text-right">
+                <div className="font-mono text-[13px] text-gray-500 tracking-tight flex justify-end">
+                  {formatDateTime(row.datetime)}
+                </div>
+              </td>
+              <td className="px-4 py-2.5 align-middle text-right last:pr-5">
                 <button
                   onClick={() => setLinking(row)}
-                  className="text-xs text-accent-primary hover:text-green-700 font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
+                  className="text-xs px-2.5 py-1.5 rounded-md bg-accent-primary/10 text-accent-primary hover:bg-accent-primary hover:text-white font-semibold opacity-0 group-hover/row:opacity-100 transition-all flex items-center justify-end gap-1.5 ml-auto"
                 >
-                  <Link className="w-3 h-3" /> Link
+                  <Link className="w-3.5 h-3.5" /> Link
                 </button>
               </td>
             </tr>
@@ -446,7 +478,24 @@ export const PendingTable: FC<{
     );
   }, [data, deferredSearch]);
 
-  if (data.length === 0) return null;
+  if (data.length === 0) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-200/75 shadow-sm flex flex-col overflow-hidden h-full max-h-[600px]">
+        <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-3 bg-gray-50/30">
+          <h3 className="text-sm font-bold text-gray-900 tracking-tight">
+            Pending Responses
+          </h3>
+          <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-bold">0</span>
+        </div>
+        <div className="flex-1 p-12 text-center flex flex-col items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+            <Clock className="w-5 h-5 text-gray-400" />
+          </div>
+          <p className="text-gray-900 font-medium text-sm">No responses yet</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleDownload = () => {
     const csv = filteredData.map((c) => ({
@@ -460,65 +509,74 @@ export const PendingTable: FC<{
 
   return (
     <>
-      <div className="glass-card flex flex-col overflow-hidden h-full max-h-100">
+      <div className="bg-white rounded-xl border border-gray-200/75 shadow-sm flex flex-col overflow-hidden h-full max-h-[600px]">
         {/* Header + Search */}
-        <div className="px-4 py-3 border-b border-gray-100 flex flex-col gap-3 bg-gray-50/50">
-          <div className="flex justify-between items-center">
-            <h3 className="font-semibold text-gray-900 text-sm">
-              Pending Responses ({filteredData.length})
+        <div className="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50/30">
+          <div className="flex items-center gap-3">
+            <h3 className="text-sm font-bold text-gray-900 tracking-tight">
+              Pending Responses
             </h3>
-            <DownloadButton onClick={handleDownload} />
+            <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-bold">
+              {filteredData.length}
+            </span>
           </div>
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search pending..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary/20 focus:border-accent-primary transition-all"
-            />
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search pending..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-4 py-1.5 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary/20 focus:border-accent-primary transition-all placeholder:text-gray-400 shadow-sm"
+              />
+            </div>
+            <DownloadButton onClick={handleDownload} />
           </div>
         </div>
 
         {/* Accent Banner */}
-        <div className={`${BANNER} bg-blue-50 text-blue-700 border-blue-100`}>
-          <Clock className="w-3 h-3" />
+        <div className={`${BANNER} bg-blue-50/80 text-blue-800 border-blue-200/50`}>
+          <Clock className="w-4 h-4 text-blue-500" />
           Awaiting response from these contacts.
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto overflow-y-auto flex-1">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className={`${THEAD_ROW} sticky top-0 z-10`}>
-                <th className={TH}>Name</th>
-                <th className={TH}>Position</th>
-                <th className={TH}>Department</th>
-                <th className={TH}>Action</th>
+        <div className="overflow-y-auto flex-1">
+          <table className="w-full text-left">
+            <thead className={THEAD_ROW}>
+              <tr>
+                <th className="px-4 py-2.5 font-semibold text-left first:pl-5 w-2/5">Employee</th>
+                <th className="px-4 py-2.5 font-semibold text-left w-1/3">Position</th>
+                <th className="px-4 py-2.5 font-semibold text-left w-1/4">Department</th>
+                <th className="px-4 py-2.5 font-semibold text-right last:pr-5 w-24">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100/75">
               {filteredData.map((row) => (
                 <tr
                   key={row.id || row.number}
-                  className="hover:bg-gray-50/50 group"
+                  className="hover:bg-gray-50/50 group/row transition-colors"
                 >
-                  <td className="px-4 py-2 text-gray-900 items-center gap-2">
-                    {row.name}
-                    <div className="text-[10px] text-gray-400 font-mono">
+                  <td className="px-4 py-2.5 align-middle first:pl-5">
+                    <div className="font-semibold text-gray-900 text-[13px] truncate">{row.name}</div>
+                    <div className="font-mono text-[11px] font-medium text-gray-500 mt-0.5 tracking-tight">
                       {formatPhoneNumber(row.number)}
                     </div>
                   </td>
-                  <td className={CELL}>{row.position || "-"}</td>
-                  <td className={CELL}>{row.department}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2.5 align-middle">
+                    <span className="text-[13px] text-gray-700 break-words">{row.position || "-"}</span>
+                  </td>
+                  <td className="px-4 py-2.5 align-middle">
+                    <span className="text-[13px] font-medium text-gray-800">{row.department}</span>
+                  </td>
+                  <td className="px-4 py-2.5 align-middle text-right last:pr-5">
                     <button
                       onClick={() => setSelectedContact(row)}
-                      className="text-xs text-accent-primary hover:text-green-700 font-medium opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="text-xs px-2.5 py-1.5 rounded-md bg-accent-primary/10 text-accent-primary hover:bg-accent-primary hover:text-white font-semibold opacity-0 group-hover/row:opacity-100 transition-all flex items-center justify-center gap-1.5 ml-auto"
                     >
-                      + Add Response
+                      + Add
                     </button>
                   </td>
                 </tr>
@@ -527,8 +585,12 @@ export const PendingTable: FC<{
           </table>
 
           {filteredData.length === 0 && (
-            <div className="p-6 text-center text-gray-500 text-xs">
-              No pending contacts match your search.
+            <div className="p-12 text-center flex flex-col items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                <Search className="w-5 h-5 text-gray-400" />
+              </div>
+              <p className="text-gray-900 font-medium text-sm">No pending contacts found</p>
+              <p className="text-gray-500 text-sm mt-1">Try adjusting your search terms.</p>
             </div>
           )}
         </div>
