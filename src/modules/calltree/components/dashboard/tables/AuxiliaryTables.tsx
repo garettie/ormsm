@@ -135,9 +135,8 @@ const LinkContactModal: FC<LinkContactModalProps> = ({ response, contacts, onClo
               <button
                 key={c.id ?? c.number}
                 onClick={() => setSelected(c)}
-                className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-                  selected?.id === c.id ? "bg-accent-primary/10 text-accent-primary" : "hover:bg-gray-50"
-                }`}
+                className={`w-full text-left px-3 py-2 text-sm transition-colors ${selected?.id === c.id ? "bg-accent-primary/10 text-accent-primary" : "hover:bg-gray-50"
+                  }`}
               >
                 <div className="font-medium text-gray-900">{c.name}</div>
                 <div className="text-xs text-gray-400">{c.department} · {formatPhoneNumber(c.number)}</div>
@@ -203,72 +202,72 @@ export const UnknownTable: FC<{ data: Response[]; contacts: ProcessedContact[]; 
 
   return (
     <>
-    <TableCard
-      title="Unknown Responses"
-      badgeCount={data.length}
-      action={<DownloadButton onClick={handleDownload} />}
-    >
-      <div
-        className={`${BANNER} bg-amber-50/80 text-amber-800 border-amber-200/50`}
+      <TableCard
+        title="Unknown Responses"
+        badgeCount={data.length}
+        action={<DownloadButton onClick={handleDownload} />}
       >
-        <AlertTriangle className="w-4 h-4 text-amber-500" />
-        Check these responses manually and link them to employees.
-      </div>
-      <table className="w-full text-left whitespace-nowrap">
-        <thead className={THEAD_ROW}>
-          <tr>
-            <th className="px-4 py-2.5 font-semibold text-left first:pl-5">Contact</th>
-            <th className="px-4 py-2.5 font-semibold text-left w-full">Message</th>
-            <th className="px-4 py-2.5 font-semibold text-right">Time</th>
-            <th className="px-4 py-2.5 font-semibold text-right last:pr-5">Action</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100/75">
-          {data.map((row, i) => (
-            <tr
-              key={`${row.contact}-${row.datetime}-${i}`}
-              className="hover:bg-gray-50/50 group/row transition-colors"
-            >
-              <td className="px-4 py-2.5 align-middle first:pl-5">
-                <div className="font-mono text-[13px] font-medium text-gray-600 tracking-tight">
-                  {formatPhoneNumber(row.contact)}
-                </div>
-              </td>
-              <td className="px-4 py-2.5 align-middle max-w-[200px] sm:max-w-[400px]">
-                <div className="text-[13px] text-gray-700 truncate" title={row.contents}>
-                  {row.contents}
-                </div>
-              </td>
-              <td className="px-4 py-2.5 align-middle text-right">
-                <div className="font-mono text-[13px] text-gray-500 tracking-tight flex justify-end">
-                  {formatDateTime(row.datetime)}
-                </div>
-              </td>
-              <td className="px-4 py-2.5 align-middle text-right last:pr-5">
-                <button
-                  onClick={() => setLinking(row)}
-                  className="text-xs px-2.5 py-1.5 rounded-md bg-accent-primary/10 text-accent-primary hover:bg-accent-primary hover:text-white font-semibold opacity-0 group-hover/row:opacity-100 transition-all flex items-center justify-end gap-1.5 ml-auto"
-                >
-                  <Link className="w-3.5 h-3.5" /> Link
-                </button>
-              </td>
+        <div
+          className={`${BANNER} bg-amber-50/80 text-amber-800 border-amber-200/50`}
+        >
+          <AlertTriangle className="w-4 h-4 text-amber-500" />
+          Check these responses manually and link them to employees.
+        </div>
+        <table className="w-full text-left whitespace-nowrap">
+          <thead className={THEAD_ROW}>
+            <tr>
+              <th className="px-4 py-2.5 font-semibold text-left first:pl-5">Contact</th>
+              <th className="px-4 py-2.5 font-semibold text-left w-full">Message</th>
+              <th className="px-4 py-2.5 font-semibold text-right">Time</th>
+              <th className="px-4 py-2.5 font-semibold text-right last:pr-5">Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </TableCard>
+          </thead>
+          <tbody className="divide-y divide-gray-100/75">
+            {data.map((row, i) => (
+              <tr
+                key={`${row.contact}-${row.datetime}-${i}`}
+                className="hover:bg-gray-50/50 group/row transition-colors"
+              >
+                <td className="px-4 py-2.5 align-middle first:pl-5">
+                  <div className="font-mono text-[13px] font-medium text-gray-600 tracking-tight">
+                    {formatPhoneNumber(row.contact)}
+                  </div>
+                </td>
+                <td className="px-4 py-2.5 align-middle max-w-[200px] sm:max-w-[400px]">
+                  <div className="text-[13px] text-gray-700 truncate" title={row.contents}>
+                    {row.contents}
+                  </div>
+                </td>
+                <td className="px-4 py-2.5 align-middle text-right">
+                  <div className="font-mono text-[13px] text-gray-500 tracking-tight flex justify-end">
+                    {formatDateTime(row.datetime)}
+                  </div>
+                </td>
+                <td className="px-4 py-2.5 align-middle text-right last:pr-5">
+                  <button
+                    onClick={() => setLinking(row)}
+                    className="text-xs px-2.5 py-1.5 rounded-md bg-accent-primary/10 text-accent-primary hover:bg-accent-primary hover:text-white font-semibold opacity-0 group-hover/row:opacity-100 transition-all flex items-center justify-end gap-1.5 ml-auto"
+                  >
+                    <Link className="w-3.5 h-3.5" /> Link
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </TableCard>
 
-    {linking && (
-      <LinkContactModal
-        response={linking}
-        contacts={contacts}
-        onClose={() => setLinking(null)}
-        onSuccess={() => {
-          setLinking(null);
-          onLinked();
-        }}
-      />
-    )}
+      {linking && (
+        <LinkContactModal
+          response={linking}
+          contacts={contacts}
+          onClose={() => setLinking(null)}
+          onSuccess={() => {
+            setLinking(null);
+            onLinked();
+          }}
+        />
+      )}
     </>
   );
 };
@@ -390,11 +389,10 @@ const ManualResponseModal: FC<ManualResponseModalProps> = ({
                   key={s}
                   type="button"
                   onClick={() => setStatus(s)}
-                  className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all ${
-                    status === s
+                  className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all ${status === s
                       ? "ring-2 ring-offset-1"
                       : "hover:bg-gray-50 border-gray-200 text-gray-600"
-                  }`}
+                    }`}
                   style={{
                     backgroundColor:
                       status === s
@@ -547,10 +545,10 @@ export const PendingTable: FC<{
           <table className="w-full text-left">
             <thead className={THEAD_ROW}>
               <tr>
-                <th className="px-4 py-2.5 font-semibold text-left first:pl-5 w-2/5">Employee</th>
-                <th className="px-4 py-2.5 font-semibold text-left w-1/3">Position</th>
-                <th className="px-4 py-2.5 font-semibold text-left w-1/4">Department</th>
-                <th className="px-4 py-2.5 font-semibold text-right last:pr-5 w-24">Action</th>
+                <th className="px-4 py-2.5 font-semibold text-left first:pl-5">Employee</th>
+                <th className="px-4 py-2.5 font-semibold text-left">Position</th>
+                <th className="px-4 py-2.5 font-semibold text-left">Department</th>
+                <th className="px-4 py-2.5 font-semibold text-right last:pr-5">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100/75">
@@ -574,7 +572,7 @@ export const PendingTable: FC<{
                   <td className="px-4 py-2.5 align-middle text-right last:pr-5">
                     <button
                       onClick={() => setSelectedContact(row)}
-                      className="text-xs px-2.5 py-1.5 rounded-md bg-accent-primary/10 text-accent-primary hover:bg-accent-primary hover:text-white font-semibold opacity-0 group-hover/row:opacity-100 transition-all flex items-center justify-center gap-1.5 ml-auto"
+                      className="text-xs px-2.5 py-1.5 rounded-md bg-accent-primary/10 text-accent-primary hover:bg-accent-primary hover:text-white font-semibold opacity-0 group-hover/row:opacity-100 transition-all flex items-center justify-center gap-1.5 ml-auto whitespace-nowrap"
                     >
                       + Add
                     </button>
