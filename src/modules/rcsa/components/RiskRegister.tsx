@@ -1,14 +1,14 @@
 import { useState, useMemo, Fragment } from 'react'
 import type { RiskRecord } from '../types'
 import { ArrowUpDown, ChevronDown, ChevronUp, Filter, X, Maximize2, Search, Download, Calendar, Clock, AlertCircle } from 'lucide-react'
-import { shortDept, getRiskLevel, getRiskLevelSmall, getControlsLabel, getControlsLabelSmall, getImplementationLabel, RISK_LEVELS, RISK_BG, RISK_TEXT, RISK_COLORS, CONTROLS_LABEL_COLORS, IMPLEMENTATION_COLORS, CONTROL_BG } from '../utils/riskLevels'
-import RiskBadge from './RiskBadge'
+import { shortDept, getRiskLevel, getRiskLevelSmall, getControlsLabel, getControlsLabelSmall, getImplementationLabel, RISK_LEVELS, RISK_BG, RISK_TEXT, CONTROLS_LABEL_COLORS, IMPLEMENTATION_COLORS, CONTROL_BG } from '../utils/riskLevels'
 
 const CONTROLS_LABELS = ['Strong', 'Satisfactory', 'Needs Improvement', 'Unsatisfactory']
 
 interface Column {
   key: string;
   label: string;
+  align?: 'left' | 'center' | 'right';
 }
 
 interface FilterSelectProps {
@@ -255,7 +255,7 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
 
 
 
-  const columns = [
+  const columns: Column[] = [
     { key: 'department', label: 'Department' },
     { key: 'description', label: 'Risk Description' },
     { key: 'inherent', label: 'Inherent', align: 'center' },
@@ -290,92 +290,93 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
   }
 
   return (
-    <div className="glass-card flex flex-col overflow-hidden">
+    <div className="bg-white rounded-xl border border-gray-200/75 shadow-sm flex flex-col overflow-hidden h-full">
       {/* Header — matches Call Tree ResponsesTable */}
-      <div className="px-6 py-4 border-b border-gray-100 flex flex-col gap-4 bg-gray-50/50">
-        <div className="flex justify-between items-center">
-          <h3 className="font-semibold text-gray-900">
-            {title || 'Risk Register'} ({filteredRisks.length})
+      <div className="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50/30">
+        <div className="flex items-center gap-3">
+          <h3 className="text-sm font-bold text-gray-900 tracking-tight">
+            {title || 'Risk Register'}
           </h3>
-          <div className="flex items-center gap-2">
-            {hasActiveFilters && (
-              <button
-                onClick={clearAllFilters}
-                className="flex items-center gap-1 px-2.5 py-1.5 bg-red-50 text-red-700 text-xs font-semibold rounded-lg border border-red-200 hover:bg-red-100 transition-colors"
-              >
-                <X className="w-3 h-3" /> Clear
-              </button>
-            )}
-            <button
-              onClick={() => downloadCSV(filteredRisks)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-accent-primary text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors"
-            >
-              <Download className="w-3.5 h-3.5" /> Download CSV
-            </button>
-            <button
-              onClick={() => setShowFilters(f => !f)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${showFilters
-                  ? 'bg-accent-light text-accent-primary border border-accent-hover'
-                  : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300'
-                }`}
-            >
-              <Filter className="w-3.5 h-3.5" /> Filters
-            </button>
-            {onOpenModal && (
-              <button
-                onClick={onOpenModal}
-                title="View full table"
-                className="flex items-center px-2 py-1.5 bg-white text-gray-500 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
-              >
-                <Maximize2 className="w-3.5 h-3.5" />
-              </button>
-            )}
-            {onClose && (
-              <button
-                onClick={onClose}
-                title="Close"
-                className="flex items-center justify-center p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
+          <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-bold">
+            {filteredRisks.length}
+          </span>
         </div>
-
-        {/* Search bar — matches Call Tree */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search risks..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary/20 focus:border-accent-primary transition-all"
-          />
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search risks..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-1.5 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary/20 focus:border-accent-primary transition-all placeholder:text-gray-400 shadow-sm"
+            />
+          </div>
+          {hasActiveFilters && (
+            <button
+              onClick={clearAllFilters}
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-red-50 text-red-700 text-xs font-semibold rounded-lg border border-red-200 hover:bg-red-100 transition-colors shrink-0"
+            >
+              <X className="w-3.5 h-3.5" /> Clear
+            </button>
+          )}
+          <button
+            onClick={() => downloadCSV(filteredRisks)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm shrink-0"
+          >
+            <Download className="w-3.5 h-3.5" /> Export
+          </button>
+          <button
+            onClick={() => setShowFilters(f => !f)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all shadow-sm shrink-0 ${showFilters
+                ? 'bg-accent-light text-accent-primary border border-accent-hover'
+                : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+              }`}
+          >
+            <Filter className="w-3.5 h-3.5" /> Filters
+          </button>
+          {onOpenModal && (
+            <button
+              onClick={onOpenModal}
+              title="View full table"
+              className="flex items-center px-2 py-1.5 bg-white text-gray-500 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm shrink-0"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              title="Close"
+              className="flex items-center justify-center p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto overflow-y-auto max-h-[500px]">
-        <table className="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-100 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-              {columns.map((col: any) => {
+        <table className="w-full text-left whitespace-nowrap min-w-[1000px]">
+          <thead className="bg-gray-50/90 backdrop-blur-sm sticky top-0 z-10 border-b border-gray-200/75">
+            <tr className="text-[11px] text-gray-500 uppercase tracking-wider">
+              {columns.map((col: Column) => {
                 const isSortable = col.key !== 'expand'
                 const icon = !isSortable ? null : sortConfig.key !== col.key ? (
-                  <ArrowUpDown className="w-4 h-4 text-gray-300" />
+                  <ArrowUpDown className="w-3.5 h-3.5 text-gray-300 transition-colors group-hover:text-gray-400" />
                 ) : sortConfig.direction === 'asc' ? (
-                  <ChevronUp className="w-4 h-4 text-accent-primary" />
+                  <ChevronUp className="w-3.5 h-3.5 text-accent-primary" />
                 ) : (
-                  <ChevronDown className="w-4 h-4 text-accent-primary" />
+                  <ChevronDown className="w-3.5 h-3.5 text-accent-primary" />
                 )
                 return (
                   <th
                     key={col.key}
-                    className={`px-4 py-3 font-medium ${isSortable ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''} ${col.align === 'center' ? 'text-center' : ''}`}
+                    className={`px-4 py-2.5 font-semibold ${isSortable ? 'cursor-pointer group hover:bg-gray-100/50 transition-colors' : ''} ${col.align === 'center' ? 'text-center' : 'text-left'} first:pl-5 last:pr-5`}
                     onClick={() => isSortable && handleSort(col.key)}
                   >
-                    <div className={`flex items-center gap-2 ${col.align === 'center' ? 'justify-center' : ''}`}>
+                    <div className={`flex items-center gap-1.5 ${col.align === 'center' ? 'justify-center' : ''}`}>
                       {col.label}
                       {icon}
                     </div>
