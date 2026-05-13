@@ -75,10 +75,10 @@ const SortableHeader: FC<SortableHeaderProps> = memo(({
 
   return (
     <th
-      className={`px-4 py-2.5 font-semibold cursor-pointer group hover:bg-gray-100/50 transition-colors select-none first:pl-5 last:pr-5 ${align === "right" ? "text-right" : "text-left"}`}
+      className={`px-2.5 py-2.5 font-semibold cursor-pointer group hover:bg-gray-100/50 transition-colors select-none first:pl-4 last:pr-4 ${align === "right" ? "text-right" : "text-left"}`}
       onClick={() => onSort(sortKey)}
     >
-      <div className={`flex items-center gap-1.5 ${align === "right" ? "justify-end" : "justify-start"}`}>
+      <div className={`flex items-center gap-1 ${align === "right" ? "justify-end" : "justify-start"}`}>
         <span className={isActive ? "text-gray-800" : "text-gray-500"}>{label}</span>
         {icon}
       </div>
@@ -295,7 +295,7 @@ export const ResponsesTable: FC<ResponsesTableProps> = ({ data }) => {
                 key={row.id || row.number}
                 className="hover:bg-gray-50/50 transition-colors group/row"
               >
-                <td className="px-4 py-2.5 align-middle first:pl-5">
+                <td className="px-2.5 py-2.5 align-middle first:pl-4">
                   <div className="flex items-center">
                     <span className="font-semibold text-gray-900 text-[13px]">{row.name}</span>
                     {row.status !== "No Response" && (
@@ -303,27 +303,27 @@ export const ResponsesTable: FC<ResponsesTableProps> = ({ data }) => {
                     )}
                   </div>
                 </td>
-                <td className="px-4 py-2.5 align-middle">
+                <td className="px-2.5 py-2.5 align-middle">
                   <StatusBadge status={row.status} />
                 </td>
-                <td className="px-4 py-2.5 align-middle">
+                <td className="px-2.5 py-2.5 align-middle">
                   <span className="text-[13px] text-gray-700">{row.position || "-"}</span>
                 </td>
-                <td className="px-4 py-2.5 align-middle">
+                <td className="px-2.5 py-2.5 align-middle">
                   <span className="text-[13px] font-medium text-gray-800">{row.department}</span>
                 </td>
-                <td className="px-4 py-2.5 align-middle">
+                <td className="px-2.5 py-2.5 align-middle">
                   <span className="text-[13px] text-gray-700">{row.location}</span>
                 </td>
-                <td className="px-4 py-2.5 align-middle">
+                <td className="px-2.5 py-2.5 align-middle">
                   <span className="text-[13px] text-gray-700 capitalize">{row.level || "-"}</span>
                 </td>
-                <td className="px-4 py-2.5 align-middle text-right">
+                <td className="px-2.5 py-2.5 align-middle text-right">
                   <div className="font-mono text-[13px] font-medium text-gray-600 tracking-tight flex justify-end">
                     {formatPhoneNumber(row.cleanNumber)}
                   </div>
                 </td>
-                <td className="px-4 py-2.5 align-middle text-right last:pr-5">
+                <td className="px-2.5 py-2.5 align-middle text-right last:pr-4">
                   <div className="font-mono text-[13px] text-gray-500 tracking-tight flex justify-end">
                     {formatDateTime(row.responseTime) || "-"}
                   </div>
