@@ -1,6 +1,6 @@
 import { useMemo, memo, type FC } from "react";
 import { X } from "lucide-react";
-import { MultiSelect } from "../ui/MultiSelect";
+import { MultiSelect } from "../../../../components/MultiSelect";
 import type { ProcessedContact } from "../../types";
 
 interface FiltersProps {

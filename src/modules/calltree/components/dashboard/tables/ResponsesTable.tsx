@@ -12,7 +12,7 @@ import {
   PhoneForwarded,
 } from "lucide-react";
 import type { ProcessedContact } from "../../../types";
-import { COLORS } from "../../../lib/constants";
+import { Badge, STATUS_COLORS } from "../../../../../components/Badge";
 import { downloadCSV } from "../../../lib/csv";
 import { formatDateTime, formatPhoneNumber } from "../../../../../lib/utils";
 
@@ -89,35 +89,8 @@ const SortableHeader: FC<SortableHeaderProps> = memo(({
 // --- StatusBadge ---
 
 const StatusBadge: FC<{ status: string }> = memo(({ status }) => {
-  const getStyles = () => {
-    switch (status) {
-      case "Safe":
-        return { bg: COLORS.SafeBg, border: COLORS.Safe, text: COLORS.Safe };
-      case "Slight":
-        return { bg: COLORS.SlightBg, border: COLORS.Slight, text: COLORS.Slight };
-      case "Moderate":
-        return { bg: COLORS.ModerateBg, border: COLORS.Moderate, text: COLORS.Moderate };
-      case "Severe":
-        return { bg: COLORS.SevereBg, border: COLORS.Severe, text: COLORS.Severe };
-      default:
-        return { bg: "#f3f4f6", border: "#d1d5db", text: "#4b5563" };
-    }
-  };
-
-  const styles = getStyles();
-
-  return (
-    <span
-      className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold uppercase tracking-wide border shadow-sm"
-      style={{
-        backgroundColor: styles.bg,
-        borderColor: `${styles.border}40`, // 25% opacity border for softness
-        color: styles.text,
-      }}
-    >
-      {status}
-    </span>
-  );
+  const colors = STATUS_COLORS[status as keyof typeof STATUS_COLORS];
+  return <Badge label={status} variant="compact" colors={colors} />;
 });
 
 // --- MatchTypeIndicator ---

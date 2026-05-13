@@ -5,7 +5,7 @@ import {
   CONTROLS_LABEL_COLORS, 
   shortDept,
 } from "../utils/riskLevels";
-import MultiFilter from "./MultiFilter";
+import { MultiSelect } from "../../../components/MultiSelect";
 import type { FilterState } from "../types";
 
 interface DashboardHeaderProps {
@@ -33,38 +33,38 @@ export default function DashboardHeader({
     <div className="mb-6">
       {/* Primary row: Filter dropdowns — grid layout matching Call Tree */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
-        <MultiFilter
+        <MultiSelect
           label="All Departments"
           options={DEPARTMENTS}
           selected={filters.deptFilter}
           onChange={(val) => onFilterChange("deptFilter", val)}
           formatLabel={shortDept}
         />
-        <MultiFilter
+        <MultiSelect
           label="All Periods"
           options={periods}
           selected={filters.periodFilter}
           onChange={(val) => onFilterChange("periodFilter", val)}
         />
-        <MultiFilter
+        <MultiSelect
           label="All Statuses"
           options={["Open", "In Progress", "Closed"]}
           selected={filters.statusFilter}
           onChange={(val) => onFilterChange("statusFilter", val)}
         />
-        <MultiFilter
+        <MultiSelect
           label="Inherent Risk"
           options={RISK_LEVELS}
           selected={filters.inherentRiskFilter}
           onChange={(val) => onFilterChange("inherentRiskFilter", val)}
         />
-        <MultiFilter
+        <MultiSelect
           label="Control Rating"
           options={Object.keys(CONTROLS_LABEL_COLORS)}
           selected={filters.controlRatingFilter}
           onChange={(val) => onFilterChange("controlRatingFilter", val)}
         />
-        <MultiFilter
+        <MultiSelect
           label="Residual Risk"
           options={RISK_LEVELS}
           selected={filters.riskLevelFilter}
