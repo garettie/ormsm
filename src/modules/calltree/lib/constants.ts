@@ -33,6 +33,7 @@ export const COLORS = {
   Severe: "#d93025",
   SevereBg: "#fce8e6",
   "No Response": "#80868b",
+  Responded: "#0284c7",
   Primary: "#1e8e3e",
   Light: "#e6f4ea",
   Pending: "#e8eaed",

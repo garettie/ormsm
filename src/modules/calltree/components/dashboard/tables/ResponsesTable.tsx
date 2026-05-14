@@ -30,6 +30,7 @@ interface ResponsesTableProps {
 const COLUMNS: { label: string; sortKey: SortKey; align?: "left" | "right" }[] = [
   { label: "Name", sortKey: "name", align: "left" },
   { label: "Status", sortKey: "status", align: "left" },
+  { label: "Message", sortKey: "rawResponse", align: "left" },
   { label: "Position", sortKey: "position", align: "left" },
   { label: "Department", sortKey: "department", align: "left" },
   { label: "Location", sortKey: "location", align: "left" },
@@ -42,6 +43,7 @@ const COLUMNS: { label: string; sortKey: SortKey; align?: "left" | "right" }[] =
 const SEARCH_FIELDS: (keyof ProcessedContact)[] = [
   "name",
   "status",
+  "rawResponse",
   "department",
   "position",
   "cleanNumber",
@@ -278,6 +280,11 @@ export const ResponsesTable: FC<ResponsesTableProps> = ({ data }) => {
                 </td>
                 <td className="px-2.5 py-2.5 align-middle">
                   <StatusBadge status={row.status} />
+                </td>
+                <td className="px-2.5 py-2.5 align-middle max-w-[200px]">
+                  <span className="text-[13px] text-gray-600 truncate block" title={row.rawResponse || ""}>
+                    {row.rawResponse || "-"}
+                  </span>
                 </td>
                 <td className="px-2.5 py-2.5 align-middle">
                   <span className="text-[13px] text-gray-700">{row.position || "-"}</span>

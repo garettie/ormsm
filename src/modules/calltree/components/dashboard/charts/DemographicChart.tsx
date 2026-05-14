@@ -15,6 +15,7 @@ interface DemographicChartProps {
   data: ProcessedContact[];
   category: "department" | "location";
   title: string;
+  notificationCategory?: "emergency" | "broadcast";
 }
 
 const TOOLTIP_CONTENT_STYLE = { borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' } as const;
@@ -25,7 +26,13 @@ export const DemographicChart: FC<DemographicChartProps> = memo(({
   data,
   category,
   title,
+  notificationCategory,
 }) => {
+  const statusOrder = useMemo(() => {
+    if (notificationCategory === "broadcast") return ["Responded", "No Response"];
+    return [...STATUS_ORDER];
+  }, [notificationCategory]);
+
   const chartData = useMemo(() => {
     const counts: Record<string, Record<string, number>> = {};
     const totals: Record<string, number> = {};
@@ -93,7 +100,7 @@ export const DemographicChart: FC<DemographicChartProps> = memo(({
                 height={36}
                 content={() => (
                   <div className="flex flex-wrap justify-center gap-3 pt-2">
-                    {STATUS_ORDER.map((status) => (
+                    {statusOrder.map((status) => (
                       <span
                         key={status}
                         className="text-[11px] font-semibold"
@@ -105,7 +112,7 @@ export const DemographicChart: FC<DemographicChartProps> = memo(({
                   </div>
                 )}
               />
-              {STATUS_ORDER.map((status) => (
+              {statusOrder.map((status) => (
                 <Bar
                   key={status}
                   dataKey={status}

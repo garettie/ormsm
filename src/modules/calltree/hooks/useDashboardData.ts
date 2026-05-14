@@ -14,8 +14,8 @@ const cleanNumber = (num: string | number): string => {
   return String(num).replace(/[\s\-+()]/g, "");
 };
 
-// Helper to extract status and potential name from response
-const parseResponse = (content: string): { status: Status; name: string } => {
+// Emergency mode: extract severity and potential name from response
+const parseSeverityResponse = (content: string): { status: Status; name: string } => {
   if (!content) return { status: "No Response", name: "" };
 
   const tokens = content.trim().split(/[\s,-]+/);
@@ -41,6 +41,49 @@ const parseResponse = (content: string): { status: Status; name: string } => {
   }
 
   return { status: "No Response", name: content.trim() };
+};
+
+// Broadcast mode: any reply means "Responded", look for name in reply
+const parseBroadcastResponse = (content: string): { status: Status; name: string } => {
+  if (!content) return { status: "No Response", name: "" };
+  return { status: "Responded", name: content.trim() };
+};
+
+// Check if every name token appears somewhere in the reply (broadcast mode name extraction)
+const findNameInReply = (
+  reply: string,
+  contacts: ProcessedContact[],
+): ProcessedContact | null => {
+  if (!reply || reply.length < 2) return null;
+
+  const replyTokens = reply
+    .toLowerCase()
+    .split(/[\s,-]+/)
+    .map((t) => t.replace(/[^a-z0-9]/g, ""))
+    .filter((t) => t.length > 0);
+  if (replyTokens.length === 0) return null;
+
+  const matches = contacts.filter((contact) => {
+    const nameTokens = contact.name
+      .toLowerCase()
+      .split(/[\s,-]+/)
+      .map((t) => t.replace(/[^a-z0-9]/g, ""))
+      .filter((t) => t.length > 0);
+
+    return nameTokens.every((nameToken) => {
+      if (nameToken.length === 1) return true;
+      return replyTokens.some((replyToken) => replyToken.startsWith(nameToken));
+    });
+  });
+
+  if (matches.length > 1) {
+    console.warn(
+      `Ambiguous name match for reply "${reply}". Found ${matches.length} contacts.`,
+    );
+    return null;
+  }
+
+  return matches.length === 1 ? matches[0] : null;
 };
 
 const findContactByName = (
@@ -141,6 +184,8 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
         ]);
 
         const incident = activeIncidentData.data || pastIncidentData.data;
+        const notificationCategory: "emergency" | "broadcast" =
+          (incident?.notification_category as "emergency" | "broadcast") || "emergency";
         let contacts: Contact[] = [];
 
         if (incident?.is_targeted) {
@@ -156,6 +201,11 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
         }
 
         const responses = (responsesData || []) as unknown as Response[];
+
+        const parseResponse =
+          notificationCategory === "broadcast"
+            ? parseBroadcastResponse
+            : parseSeverityResponse;
 
         // Process Data
         const processedContacts: ProcessedContact[] = contacts.map((c) => ({
@@ -191,7 +241,9 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
 
           // 1. Try name match FIRST (handles co-worker replies with typed name)
           if (name && status !== "No Response") {
-            const matchedContact = findContactByName(name, processedContacts);
+            const matchedContact = notificationCategory === "broadcast"
+              ? findNameInReply(name, processedContacts)
+              : findContactByName(name, processedContacts);
             if (matchedContact) {
               matchedContactCleanNumber = matchedContact.cleanNumber;
               matchType = "name";
@@ -255,13 +307,11 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
             | (Response & { matchType?: "phone" | "name" | "manual" | "alt-phone" })
             | undefined;
           if (resp) {
-            // We re-parse here to ensure we get the status correctly even if it has a name after it
             const { status } = parseResponse(resp.contents);
             c.status = status;
             c.responseContent = resp.contents;
+            c.rawResponse = resp.contents;
             c.responseTime = resp.datetime;
-
-            // Allow matchType to flow through (phone or name)
             c.matchType = resp.matchType;
           }
         });
@@ -278,6 +328,7 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
           unknownResponses,
           lastUpdated: new Date(),
           isTargeted: !!incident?.is_targeted,
+          notificationCategory,
         });
       } catch (err: unknown) {
         console.error("Error fetching dashboard data:", err);

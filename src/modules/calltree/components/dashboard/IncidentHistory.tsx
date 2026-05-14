@@ -9,6 +9,7 @@ import {
   Plus,
   Pencil,
   Trash2,
+  X,
 } from "lucide-react";
 import { supabase } from "../../../../lib/supabase";
 import {
@@ -29,7 +30,7 @@ export default function IncidentHistory({
   rightSlot,
 }: {
   defaultIncident?: Incident;
-  onStartNew?: (name: string, type: "test" | "actual", targetedContacts?: Partial<Contact>[], startTime?: string) => void;
+  onStartNew?: (name: string, type: "test" | "actual", targetedContacts?: Partial<Contact>[], startTime?: string, notificationCategory?: "emergency" | "broadcast") => void;
   rightSlot?: ReactNode;
 }) {
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -39,6 +40,7 @@ export default function IncidentHistory({
   );
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [editingIncident, setEditingIncident] = useState<Incident | null>(null);
+  const [deletingIncident, setDeletingIncident] = useState<Incident | null>(null);
   const [showUpload, setShowUpload] = useState(false);
 
   useEffect(() => {
@@ -94,14 +96,10 @@ export default function IncidentHistory({
     setEditingIncident(null);
   };
 
-  const handleDelete = async (incident: Incident) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete "${incident.name}"? This cannot be undone.`,
-      )
-    ) {
-      return;
-    }
+  const handleDeleteConfirm = async () => {
+    if (!deletingIncident) return;
+    const incident = deletingIncident;
+    setDeletingIncident(null);
 
     const previousIncidents = [...incidents];
     setIncidents(incidents.filter((i) => i.id !== incident.id));
@@ -280,7 +278,7 @@ export default function IncidentHistory({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(incident);
+                      setDeletingIncident(incident);
                     }}
                     className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-red-600 transition-colors"
                   >
@@ -293,6 +291,38 @@ export default function IncidentHistory({
           })}
         </div>
       )}
+      {deletingIncident && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <h3 className="font-semibold text-gray-900">Delete Event</h3>
+              <button onClick={() => setDeletingIncident(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <p className="text-sm text-gray-700">
+                Are you sure you want to delete <strong>{deletingIncident.name}</strong>? This cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeletingIncident(null)}
+                  className="flex-1 px-4 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showUpload && (
         <Suspense fallback={null}>
           <DataUploadModal onClose={() => setShowUpload(false)} />

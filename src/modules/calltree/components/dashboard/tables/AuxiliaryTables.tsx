@@ -278,12 +278,14 @@ interface ManualResponseModalProps {
   contact: ProcessedContact;
   onClose: () => void;
   onSuccess: () => void;
+  notificationCategory?: "emergency" | "broadcast";
 }
 
 const ManualResponseModal: FC<ManualResponseModalProps> = ({
   contact,
   onClose,
   onSuccess,
+  notificationCategory,
 }) => {
   const [status, setStatus] = useState("Safe");
   const [message, setMessage] = useState("");
@@ -304,15 +306,15 @@ const ManualResponseModal: FC<ManualResponseModalProps> = ({
     setErrorMsg(null);
 
     try {
-      // 1. Convert Status Word to Number Info
-      const statusCode = STATUS_CODES[status] || "1";
-      const contents = `${statusCode} - ${message || "Manual Entry"}`;
+      const contents = notificationCategory === "broadcast"
+        ? `Responded - ${message || "Manual Entry"}`
+        : `${STATUS_CODES[status] || "1"} - ${message || "Manual Entry"}`;
 
       // Basic validation
       if (!contact.number) throw new Error("Contact number is missing.");
 
-      // 2. Format Phone Number with +63 prefix
-      let formattedContact = contact.number.replace(/[^0-9]/g, ""); // Strip non-digits
+      // 2. Format Phone Number to 63 prefix (no +)
+      let formattedContact = contact.number.replace(/[^0-9]/g, "");
       if (formattedContact.startsWith("09")) {
         formattedContact = "63" + formattedContact.slice(1);
       } else if (
@@ -320,10 +322,6 @@ const ManualResponseModal: FC<ManualResponseModalProps> = ({
         formattedContact.length === 10
       ) {
         formattedContact = "63" + formattedContact;
-      }
-      // Ensure it starts with + if it's a PH number (which starts with 63 after normalization)
-      if (formattedContact.startsWith("63")) {
-        formattedContact = "+" + formattedContact;
       }
 
       // [CHANGE] Generate a unique ID for manual entries to avoid collision with SMS UIDs (which are integers)
@@ -379,35 +377,36 @@ const ManualResponseModal: FC<ManualResponseModalProps> = ({
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">
-              Status
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {["Safe", "Slight", "Moderate", "Severe"].map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setStatus(s)}
-                  className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all ${status === s
-                      ? "ring-2 ring-offset-1"
-                      : "hover:bg-gray-50 border-gray-200 text-gray-600"
-                    }`}
-                  style={{
-                    backgroundColor:
-                      status === s
-                        ? COLORS[s as keyof typeof COLORS]
-                        : undefined,
-                    color: status === s ? "#fff" : undefined,
-                    borderColor: status === s ? "transparent" : undefined,
-                    // Specific fix for "Safe" text color since generic white might not contrast well with lighter colors,
-                  }}
-                >
-                  {s}
-                </button>
-              ))}
+          {notificationCategory !== "broadcast" && (
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                Status
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {["Safe", "Slight", "Moderate", "Severe"].map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setStatus(s)}
+                    className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all ${status === s
+                        ? "ring-2 ring-offset-1"
+                        : "hover:bg-gray-50 border-gray-200 text-gray-600"
+                      }`}
+                    style={{
+                      backgroundColor:
+                        status === s
+                          ? COLORS[s as keyof typeof COLORS]
+                          : undefined,
+                      color: status === s ? "#fff" : undefined,
+                      borderColor: status === s ? "transparent" : undefined,
+                    }}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">
@@ -416,7 +415,7 @@ const ManualResponseModal: FC<ManualResponseModalProps> = ({
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="e.g. Replied via Viber"
+              placeholder={notificationCategory === "broadcast" ? "e.g. Acknowledged via Viber" : "e.g. Replied via Viber"}
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary/20 focus:border-accent-primary transition-all resize-none h-20"
             />
           </div>
@@ -459,8 +458,9 @@ const PENDING_SEARCH_FIELDS: (keyof ProcessedContact)[] = [
 
 export const PendingTable: FC<{
   data: ProcessedContact[];
-  onResponseAdded?: () => void; // Callback to trigger refresh
-}> = ({ data, onResponseAdded }) => {
+  onResponseAdded?: () => void;
+  notificationCategory?: "emergency" | "broadcast";
+}> = ({ data, onResponseAdded, notificationCategory }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const deferredSearch = useDeferredValue(searchTerm);
   const [selectedContact, setSelectedContact] =
@@ -602,6 +602,7 @@ export const PendingTable: FC<{
             setSelectedContact(null);
             onResponseAdded?.();
           }}
+          notificationCategory={notificationCategory}
         />
       )}
     </>

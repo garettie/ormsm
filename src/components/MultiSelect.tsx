@@ -110,28 +110,28 @@ export function MultiSelect({
               </div>
             ) : (
               filteredOptions.map((option) => (
-                <div
-                  key={option}
-                  className={cn(
-                    "px-3 py-2 text-sm cursor-pointer flex items-center hover:bg-gray-50",
-                    selected.includes(option) &&
-                      "bg-accent-light/50 text-accent-primary font-medium",
-                  )}
-                  onClick={() => toggle(option)}
-                >
                   <div
+                    key={option}
                     className={cn(
-                      "w-4 h-4 border rounded mr-2 flex items-center justify-center transition-colors shrink-0",
+                      "px-3 py-2 text-sm cursor-pointer flex items-center hover:bg-gray-50",
                       selected.includes(option) &&
-                        "bg-accent-primary border-accent-primary",
-                      !selected.includes(option) && "border-gray-300",
+                        "bg-accent-light/50 text-accent-primary font-medium",
                     )}
+                    onClick={() => toggle(option)}
                   >
-                    {selected.includes(option) && (
-                      <Check className="w-3 h-3 text-white" />
-                    )}
-                  </div>
-                  {option}
+                    <div
+                      className={cn(
+                        "w-4 h-4 border rounded mr-2 flex items-center justify-center transition-colors shrink-0",
+                        selected.includes(option) &&
+                          "bg-accent-primary border-accent-primary",
+                        !selected.includes(option) && "border-gray-300",
+                      )}
+                    >
+                      {selected.includes(option) && (
+                        <Check className="w-3 h-3 text-white" />
+                      )}
+                    </div>
+                    {formatLabel(option)}
                 </div>
               ))
             )}

@@ -12,7 +12,7 @@ import { cn } from "../../../../lib/utils";
 
 interface IncidentControlsProps {
   activeIncident: Incident | null;
-  onStart: (name: string, type: "test" | "actual", targetedContacts?: Partial<Contact>[], startTime?: string) => void;
+  onStart: (name: string, type: "test" | "actual", targetedContacts?: Partial<Contact>[], startTime?: string, notificationCategory?: "emergency" | "broadcast") => void;
   onEnd: () => void;
   rightSlot?: React.ReactNode;
 }
@@ -152,8 +152,8 @@ export default function IncidentControls({
       ) : (
         <div>
           <StartIncidentForm
-            onStart={(name, type, targetedContacts, startTime) => {
-              onStart(name, type, targetedContacts, startTime);
+            onStart={(name, type, targetedContacts, startTime, notificationCategory) => {
+              onStart(name, type, targetedContacts, startTime, notificationCategory);
               setShowModal(false);
             }}
             onCancel={() => setShowModal(false)}

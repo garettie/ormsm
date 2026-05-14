@@ -41,13 +41,11 @@ export const Filters: FC<FiltersProps> = memo(({
       ).sort(),
     [data],
   );
-  const uniqueStatuses = [
-    "Severe",
-    "Moderate",
-    "Slight",
-    "Safe",
-    "No Response",
-  ];
+  const uniqueStatuses = useMemo(
+    () =>
+      Array.from(new Set(data.map((c) => c.status).filter(Boolean))).sort(),
+    [data],
+  );
 
   const hasActiveFilters = 
     filters.departments.length > 0 || 
@@ -57,9 +55,8 @@ export const Filters: FC<FiltersProps> = memo(({
 
   return (
     <div className="space-y-4 mb-6">
-      <div className="flex items-center justify-between">
-        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Filters</div>
-        {hasActiveFilters && (
+      {hasActiveFilters && (
+        <div className="flex justify-end">
           <button
             onClick={onClear}
             className="flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-red-600 transition-colors bg-gray-50 hover:bg-red-50 px-2 py-1 rounded-md border border-gray-100 hover:border-red-100"
@@ -67,8 +64,8 @@ export const Filters: FC<FiltersProps> = memo(({
             <X className="w-3.5 h-3.5" />
             Clear All
           </button>
-        )}
-      </div>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MultiSelect
           label="Department"
@@ -85,11 +82,12 @@ export const Filters: FC<FiltersProps> = memo(({
           placeholder="Select Location"
         />
         <MultiSelect
-          label="Level/Position"
+          label="Employee Level"
           options={uniqueLevels}
           selected={filters.levels}
           onChange={(val) => onFilterChange("levels", val)}
           placeholder="Select Level"
+          formatLabel={(s) => s.replace(/\b\w/g, (c) => c.toUpperCase())}
         />
         <MultiSelect
           label="Status"

@@ -54,28 +54,34 @@ export function DashboardContent({
     };
   });
 
-  // Smart logic: identify departments to show in filter
-  const smartDepartments = useMemo(() => {
-    const depts = new Set<string>();
-    data.contacts.forEach((c) => {
-      // If targeted, show ALL departments from the blast
-      // If normal, only show departments that have at least one response
-      if (data.isTargeted) {
-        if (c.department) depts.add(c.department);
-      } else {
-        if (c.status !== "No Response" && c.department) {
-          depts.add(c.department);
-        }
-      }
-    });
-    return Array.from(depts);
-  }, [data.contacts, data.isTargeted]);
+  const uniqueDepartments = useMemo(
+    () =>
+      Array.from(new Set(data.contacts.map((c) => c.department).filter(Boolean))).sort(),
+    [data.contacts],
+  );
+  const uniqueLocations = useMemo(
+    () =>
+      Array.from(new Set(data.contacts.map((c) => c.location).filter(Boolean))).sort(),
+    [data.contacts],
+  );
+  const uniqueLevels = useMemo(
+    () =>
+      Array.from(new Set(data.contacts.map((c) => c.level || c.position).filter(Boolean))).sort(),
+    [data.contacts],
+  );
 
-  // If manual department filters are empty, use smart departments
   const effectiveFilters = useMemo(() => ({
-    ...filters,
-    departments: filters.departments.length > 0 ? filters.departments : smartDepartments
-  }), [filters, smartDepartments]);
+    departments: data.isTargeted && filters.departments.length === 0
+      ? uniqueDepartments
+      : filters.departments,
+    locations: data.isTargeted && filters.locations.length === 0
+      ? uniqueLocations
+      : filters.locations,
+    levels: data.isTargeted && filters.levels.length === 0
+      ? uniqueLevels
+      : filters.levels,
+    statuses: filters.statuses,
+  }), [filters, data.isTargeted, uniqueDepartments, uniqueLocations, uniqueLevels]);
 
   const handleFilterChange = useCallback(
     (type: keyof typeof filters, value: string[]) => {
@@ -175,109 +181,143 @@ export function DashboardContent({
       />
 
       {/* KPI Grid */}
-      {(() => {
-        const respondedStatuses = ["Safe", "Slight", "Moderate", "Severe"];
-        const affectedStatuses = ["Slight", "Moderate", "Severe"];
+      {data.notificationCategory === "broadcast" ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <KPICard
+            label="Total Contacts"
+            value={stats.total.toLocaleString()}
+            subtext={`${data.contacts.length} in DB`}
+            color={COLORS["No Response"]}
+            icon={Users}
+          />
+          <KPICard
+            label="Responded"
+            value={stats.responded.toLocaleString()}
+            subtext={
+              stats.total > 0
+                ? `${Math.round((stats.responded / stats.total) * 100)}% response rate`
+                : "0%"
+            }
+            color={COLORS.Responded || COLORS.Primary}
+            icon={CheckCircle}
+          />
+          <KPICard
+            label="Pending"
+            value={stats.pending.toLocaleString()}
+            subtext={
+              stats.total > 0
+                ? `${Math.round((stats.pending / stats.total) * 100)}% awaiting`
+                : "0%"
+            }
+            color={COLORS.Moderate}
+            icon={Clock}
+          />
+        </div>
+      ) : (
+        (() => {
+          const respondedStatuses = ["Safe", "Slight", "Moderate", "Severe"];
+          const affectedStatuses = ["Slight", "Moderate", "Severe"];
 
-        const isRespondedActive =
-          effectiveFilters.statuses.length === respondedStatuses.length &&
-          respondedStatuses.every((s) => effectiveFilters.statuses.includes(s));
-        const isSafeActive =
-          effectiveFilters.statuses.length === 1 && effectiveFilters.statuses.includes("Safe");
-        const isAffectedActive =
-          effectiveFilters.statuses.length === affectedStatuses.length &&
-          affectedStatuses.every((s) => effectiveFilters.statuses.includes(s));
-        const isPendingActive =
-          effectiveFilters.statuses.length === 1 &&
-          effectiveFilters.statuses.includes("No Response");
+          const isRespondedActive =
+            effectiveFilters.statuses.length === respondedStatuses.length &&
+            respondedStatuses.every((s) => effectiveFilters.statuses.includes(s));
+          const isSafeActive =
+            effectiveFilters.statuses.length === 1 && effectiveFilters.statuses.includes("Safe");
+          const isAffectedActive =
+            effectiveFilters.statuses.length === affectedStatuses.length &&
+            affectedStatuses.every((s) => effectiveFilters.statuses.includes(s));
+          const isPendingActive =
+            effectiveFilters.statuses.length === 1 &&
+            effectiveFilters.statuses.includes("No Response");
 
-        return (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-            <KPICard
-              label="Total Contacts"
-              value={stats.total.toLocaleString()}
-              subtext={`${data.contacts.length} in DB`}
-              color={COLORS["No Response"]}
-              onClick={() => handleFilterChange("statuses", [])}
-              isActive={effectiveFilters.statuses.length === 0}
-              icon={Users}
-            />
-            <KPICard
-              label="Responded"
-              value={stats.responded.toLocaleString()}
-              subtext={
-                stats.total > 0
-                  ? `${Math.round((stats.responded / stats.total) * 100)}% response rate`
-                  : "0%"
-              }
-              color={COLORS.Primary}
-              onClick={() =>
-                handleFilterChange(
-                  "statuses",
-                  isRespondedActive ? [] : respondedStatuses,
-                )
-              }
-              isActive={isRespondedActive}
-              icon={CheckCircle}
-            />
-            <KPICard
-              label="Safe"
-              value={stats.safe.toLocaleString()}
-              subtext={
-                stats.responded > 0
-                  ? `${Math.round((stats.safe / stats.responded) * 100)}% of responders`
-                  : "0%"
-              }
-              color={COLORS.Safe}
-              onClick={() =>
-                handleFilterChange("statuses", isSafeActive ? [] : ["Safe"])
-              }
-              isActive={isSafeActive}
-              icon={ShieldCheck}
-            />
-            <KPICard
-              label="Affected"
-              value={stats.affected.toLocaleString()}
-              subtext={
-                stats.responded > 0
-                  ? `${Math.round((stats.severe / stats.responded) * 100)}% Severe`
-                  : "0%"
-              }
-              color={COLORS.Slight}
-              onClick={() =>
-                handleFilterChange(
-                  "statuses",
-                  isAffectedActive ? [] : affectedStatuses,
-                )
-              }
-              isActive={isAffectedActive}
-              icon={AlertCircle}
-            />
-            <KPICard
-              label="Pending"
-              value={stats.pending.toLocaleString()}
-              subtext={
-                stats.total > 0
-                  ? `${Math.round((stats.pending / stats.total) * 100)}% awaiting`
-                  : "0%"
-              }
-              color={COLORS.Moderate}
-              onClick={() =>
-                handleFilterChange(
-                  "statuses",
-                  isPendingActive ? [] : ["No Response"],
-                )
-              }
-              isActive={isPendingActive}
-              icon={Clock}
-            />
-          </div>
-        );
-      })()}
+          return (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+              <KPICard
+                label="Total Contacts"
+                value={stats.total.toLocaleString()}
+                subtext={`${data.contacts.length} in DB`}
+                color={COLORS["No Response"]}
+                onClick={() => handleFilterChange("statuses", [])}
+                isActive={effectiveFilters.statuses.length === 0}
+                icon={Users}
+              />
+              <KPICard
+                label="Responded"
+                value={stats.responded.toLocaleString()}
+                subtext={
+                  stats.total > 0
+                    ? `${Math.round((stats.responded / stats.total) * 100)}% response rate`
+                    : "0%"
+                }
+                color={COLORS.Primary}
+                onClick={() =>
+                  handleFilterChange(
+                    "statuses",
+                    isRespondedActive ? [] : respondedStatuses,
+                  )
+                }
+                isActive={isRespondedActive}
+                icon={CheckCircle}
+              />
+              <KPICard
+                label="Safe"
+                value={stats.safe.toLocaleString()}
+                subtext={
+                  stats.responded > 0
+                    ? `${Math.round((stats.safe / stats.responded) * 100)}% of responders`
+                    : "0%"
+                }
+                color={COLORS.Safe}
+                onClick={() =>
+                  handleFilterChange("statuses", isSafeActive ? [] : ["Safe"])
+                }
+                isActive={isSafeActive}
+                icon={ShieldCheck}
+              />
+              <KPICard
+                label="Affected"
+                value={stats.affected.toLocaleString()}
+                subtext={
+                  stats.responded > 0
+                    ? `${Math.round((stats.severe / stats.responded) * 100)}% Severe`
+                    : "0%"
+                }
+                color={COLORS.Slight}
+                onClick={() =>
+                  handleFilterChange(
+                    "statuses",
+                    isAffectedActive ? [] : affectedStatuses,
+                  )
+                }
+                isActive={isAffectedActive}
+                icon={AlertCircle}
+              />
+              <KPICard
+                label="Pending"
+                value={stats.pending.toLocaleString()}
+                subtext={
+                  stats.total > 0
+                    ? `${Math.round((stats.pending / stats.total) * 100)}% awaiting`
+                    : "0%"
+                }
+                color={COLORS.Moderate}
+                onClick={() =>
+                  handleFilterChange(
+                    "statuses",
+                    isPendingActive ? [] : ["No Response"],
+                  )
+                }
+                isActive={isPendingActive}
+                icon={Clock}
+              />
+            </div>
+          );
+        })()
+      )}
 
       {/* Charts Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <StatusDonut data={filteredData} />
+      <div className={`grid grid-cols-1 gap-6 mb-6 ${data.notificationCategory === "broadcast" ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}>
+        {data.notificationCategory !== "broadcast" && <StatusDonut data={filteredData} />}
         <ResponseDonut responded={stats.responded} total={stats.total} />
         <ResponseTimeline data={filteredData} />
       </div>
@@ -288,11 +328,13 @@ export function DashboardContent({
           data={filteredData}
           category="department"
           title="Department"
+          notificationCategory={data.notificationCategory}
         />
         <DemographicChart
           data={filteredData}
           category="location"
           title="Location"
+          notificationCategory={data.notificationCategory}
         />
       </div>
 
@@ -309,6 +351,7 @@ export function DashboardContent({
         <PendingTable
           data={pendingData}
           onResponseAdded={handleResponseAdded}
+          notificationCategory={data.notificationCategory}
         />
       </div>
     </div>

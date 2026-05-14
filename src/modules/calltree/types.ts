@@ -17,12 +17,13 @@ export interface Response {
   datetime: string;
 }
 
-export type Status = "Safe" | "Slight" | "Moderate" | "Severe" | "No Response";
+export type Status = string;
 
 export interface ProcessedContact extends Contact {
   status: Status;
   responseContent?: string;
   responseTime?: string;
+  rawResponse?: string;
   matchType?: "phone" | "name" | "manual" | "alt-phone";
   cleanNumber: string;
 }
@@ -32,6 +33,7 @@ export interface DashboardData {
   unknownResponses: Response[];
   lastUpdated: Date;
   isTargeted?: boolean;
+  notificationCategory?: "emergency" | "broadcast";
 }
 
 export interface Incident {
@@ -41,6 +43,7 @@ export interface Incident {
   start_time: string;
   end_time: string | null;
   is_targeted?: boolean;
+  notification_category?: "emergency" | "broadcast";
 }
 
 export interface EventContact extends Contact {

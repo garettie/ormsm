@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { CheckCircle2, AlertTriangle, Plus, X, Pencil, FileSpreadsheet, Loader } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Plus, X, Pencil, FileSpreadsheet, Loader, MessageCircle } from "lucide-react";
 import { parseSmsBlastFile } from "../../lib/xlsx";
 import { supabase } from "../../../../lib/supabase";
 import type { Incident, Contact } from "../../types";
@@ -30,6 +30,7 @@ export default function RegisterIncidentForm({
   const [formData, setFormData] = useState(() => ({
     name: editingIncident?.name ?? "",
     type: (editingIncident?.type ?? "test") as "test" | "actual",
+    notificationCategory: (editingIncident?.notification_category ?? "emergency") as "emergency" | "broadcast",
     startDate: editingIncident ? formatDateInput(new Date(editingIncident.start_time.replace("Z", "").split("+")[0])) : "",
     startTime: editingIncident ? formatTimeInput(new Date(editingIncident.start_time.replace("Z", "").split("+")[0])) : "",
     endDate: editingIncident ? formatDateInput(new Date((editingIncident.end_time || new Date().toISOString()).replace("Z", "").split("+")[0])) : "",
@@ -95,6 +96,7 @@ export default function RegisterIncidentForm({
     const payload = {
       name: formData.name,
       type: formData.type,
+      notification_category: formData.notificationCategory,
       start_time: startISO,
       end_time: endISO,
       is_targeted: isTargeted,
@@ -149,7 +151,8 @@ export default function RegisterIncidentForm({
   };
 
   return (
-    <div className="glass-card p-6 mb-6 animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white p-6 rounded-xl shadow-2xl border border-gray-200 max-w-xl w-full max-h-[90vh] overflow-y-auto">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-bold text-lg text-gray-900 flex items-center gap-2">
           {editingIncident ? (
@@ -171,13 +174,8 @@ export default function RegisterIncidentForm({
           <X className="w-5 h-5" />
         </button>
       </div>
-      <p className="text-sm text-gray-500 mb-4">
-        {editingIncident
-          ? "Update the details of this past event."
-          : "Retroactively register an event that happened before the incident system was in place. Responses within the time window will be scoped to this event."}
-      </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-4">
         <div>
           <label className="block text-xs font-semibold uppercase text-gray-500 mb-1">
             Event Name
@@ -196,36 +194,62 @@ export default function RegisterIncidentForm({
           <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
             Type
           </label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => updateField("type", "test")}
-              className={`p-2 rounded border text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+              className={`p-3 rounded border text-sm font-medium transition-all flex flex-col items-center gap-2 ${
                 formData.type === "test"
                   ? "bg-blue-50 border-blue-500 text-blue-700 ring-1 ring-blue-500"
                   : "border-gray-200 hover:bg-gray-50 text-gray-600"
               }`}
             >
-              <CheckCircle2 className="w-4 h-4" />
+              <CheckCircle2 className="w-5 h-5" />
               TEST
             </button>
             <button
               onClick={() => updateField("type", "actual")}
-              className={`p-2 rounded border text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+              className={`p-3 rounded border text-sm font-medium transition-all flex flex-col items-center gap-2 ${
                 formData.type === "actual"
                   ? "bg-red-50 border-red-500 text-red-700 ring-1 ring-red-500"
                   : "border-gray-200 hover:bg-gray-50 text-gray-600"
               }`}
             >
-              <AlertTriangle className="w-4 h-4" />
+              <AlertTriangle className="w-5 h-5" />
               ACTUAL
             </button>
           </div>
         </div>
 
-        <div className="md:col-span-2 pt-2 border-t border-gray-100">
-          <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
-            SMS Blast Report (Optional)
-          </label>
+        <div>
+          <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">Category</label>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => updateField("notificationCategory", "emergency")}
+              className={`p-3 rounded border text-sm font-medium transition-all flex flex-col items-center gap-2 ${
+                formData.notificationCategory === "emergency"
+                  ? "bg-red-50 border-red-500 text-red-700 ring-1 ring-red-500"
+                  : "border-gray-200 hover:bg-gray-50 text-gray-600"
+              }`}
+            >
+              <AlertTriangle className="w-5 h-5" />
+              EMERGENCY
+            </button>
+            <button
+              onClick={() => updateField("notificationCategory", "broadcast")}
+              className={`p-3 rounded border text-sm font-medium transition-all flex flex-col items-center gap-2 ${
+                formData.notificationCategory === "broadcast"
+                  ? "bg-blue-50 border-blue-500 text-blue-700 ring-1 ring-blue-500"
+                  : "border-gray-200 hover:bg-gray-50 text-gray-600"
+              }`}
+            >
+              <MessageCircle className="w-5 h-5" />
+              BROADCAST
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">SMS Blast Report (Optional)</label>
           {!file ? (
             <div 
               onClick={() => fileInputRef.current?.click()}
@@ -276,43 +300,45 @@ export default function RegisterIncidentForm({
           )}
         </div>
 
-        <div>
-          <label className="block text-xs font-semibold uppercase text-gray-500 mb-1">
-            Start Date & Time
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="date"
-              className="flex-1 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-              value={formData.startDate}
-              onChange={(e) => updateField("startDate", e.target.value)}
-            />
-            <input
-              type="time"
-              className="w-28 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-              value={formData.startTime}
-              onChange={(e) => updateField("startTime", e.target.value)}
-            />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold uppercase text-gray-500 mb-1">
+              Start Date & Time
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="date"
+                className="flex-1 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                value={formData.startDate}
+                onChange={(e) => updateField("startDate", e.target.value)}
+              />
+              <input
+                type="time"
+                className="w-28 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                value={formData.startTime}
+                onChange={(e) => updateField("startTime", e.target.value)}
+              />
+            </div>
           </div>
-        </div>
 
-        <div>
-          <label className="block text-xs font-semibold uppercase text-gray-500 mb-1">
-            End Date & Time
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="date"
-              className="flex-1 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-              value={formData.endDate}
-              onChange={(e) => updateField("endDate", e.target.value)}
-            />
-            <input
-              type="time"
-              className="w-28 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-              value={formData.endTime}
-              onChange={(e) => updateField("endTime", e.target.value)}
-            />
+          <div>
+            <label className="block text-xs font-semibold uppercase text-gray-500 mb-1">
+              End Date & Time
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="date"
+                className="flex-1 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                value={formData.endDate}
+                onChange={(e) => updateField("endDate", e.target.value)}
+              />
+              <input
+                type="time"
+                className="w-28 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                value={formData.endTime}
+                onChange={(e) => updateField("endTime", e.target.value)}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -339,6 +365,7 @@ export default function RegisterIncidentForm({
           Cancel
         </button>
       </div>
+    </div>
     </div>
   );
 }

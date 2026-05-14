@@ -49,13 +49,14 @@ export function useIncident() {
     type: "test" | "actual",
     targetedContacts?: Partial<Contact>[],
     startTime?: string,
+    notificationCategory?: "emergency" | "broadcast",
   ) => {
     const isTargeted = !!targetedContacts && targetedContacts.length > 0;
     const start_time = startTime || localNowAsUTC();
 
     const { data: incident, error } = await supabase
       .from("incidents")
-      .insert({ name, type, start_time, is_targeted: isTargeted })
+      .insert({ name, type, start_time, is_targeted: isTargeted, notification_category: notificationCategory || "emergency" })
       .select()
       .single();
 

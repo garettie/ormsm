@@ -41,6 +41,7 @@ CREATE TABLE public.incidents (
   end_time timestamp with time zone,
   created_at timestamp with time zone DEFAULT now(),
   is_targeted boolean DEFAULT false,
+  notification_category text NOT NULL DEFAULT 'emergency' CHECK (notification_category = ANY (ARRAY['emergency'::text, 'broadcast'::text])),
   CONSTRAINT incidents_pkey PRIMARY KEY (id)
 );
 

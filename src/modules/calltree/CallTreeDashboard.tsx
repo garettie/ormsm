@@ -135,8 +135,8 @@ export default function CallTreeDashboard() {
       {showHistory ? (
         <IncidentHistory
           defaultIncident={defaultIncident}
-          onStartNew={async (name, type, targetedContacts, startTime) => {
-            await startIncident(name, type, targetedContacts, startTime);
+          onStartNew={async (name, type, targetedContacts, startTime, notificationCategory) => {
+            await startIncident(name, type, targetedContacts, startTime, notificationCategory);
             setView("live");
             setDefaultIncident(undefined);
           }}
