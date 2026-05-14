@@ -20,21 +20,19 @@ Risk Control Self-Assessment dashboard for identifying, measuring, and monitorin
 - **KPI Tracking** — key risk indicators with threshold-based monitoring and trend visualization
 - **Multi-dimensional Filtering** — filter by business unit, risk category, control status, and more
 - **Demo Mode** — synthetic data for demonstration and onboarding purposes
-- **Sankey Diagrams** — risk flow visualization powered by D3
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| UI Framework | React 19 |
-| Bundler | Vite 7 |
+| UI Framework | React |
+| Bundler | Vite |
 | Language | TypeScript |
-| Backend / Database | Supabase (PostgreSQL) |
-| Styling | Tailwind CSS 4 |
+| Backend / Database | Supabase |
+| Styling | Tailwind CSS |
 | Icons | Lucide React |
 | Charts | Recharts |
-| Sankey Diagrams | D3 (d3-sankey, d3-shape) |
-| Data Import | PapaParse, JSZip, SheetJS (xlsx) |
+| Data Import | PapaParse, JSZip, SheetJS |
 
 ## Getting Started
 
@@ -63,24 +61,11 @@ npm install
 npm run dev
 ```
 
-**RCSA module:**
-```bash
-npm run dev:rcsa
-```
-
-**With network exposure (for mobile testing):**
-```bash
-npm run dev:host
-```
 
 ### Building
 
 ```bash
-# Call Tree build
 npm run build
-
-# RCSA build
-npm run build:rcsa
 ```
 
 Output is generated in the `dist/` directory.
@@ -90,13 +75,6 @@ Output is generated in the `dist/` directory.
 ```bash
 npm run lint
 ```
-
-## Documentation
-
-Detailed documentation is available in the `docs/` folder:
-
-- [ORMSM User Guide](docs/ORMSM-USER-GUIDE.md) — For employees using the Call Tree or RCSA modules. Covers all features, workflows, and compliance context in plain language.
-- [ORMSM Technical Documentation](docs/ORMSM-TECHNICAL.md) — For developers and IT staff. Covers architecture, database schema, environment configuration, and deployment.
 
 ## License
 
