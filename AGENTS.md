@@ -22,6 +22,7 @@ These rules override everything else in this file when in conflict:
 3. **Never fabricate.** Not file paths, not commit hashes, not API names, not test results, not library functions. If you don't know, read the file, run the command, or say "I don't know, let me check."
 4. **Stop when confused.** If the task has two plausible interpretations, ask. Do not pick silently and proceed.
 5. **Touch only what you must.** Every changed line must trace directly to the user's request. No drive-by refactors, reformatting, or "while I was in there" cleanups.
+6. **No AI reflex.** If this code looks like a default LLM answer for the problem description, rewrite it. The first training-data shape is almost always over-abstracted or under-constrained.
 
 ---
 
@@ -179,9 +180,9 @@ Boris Cherny (creator of Claude Code) keeps his team's file around 100 lines. Un
 
 ## 11. Project Learnings
 
-**Accumulated corrections. This section is for the agent to maintain, not just the human.**
+**Only when the next agent would repeat an AI-reflex, a hack, or a project antipattern.**
 
-When the user corrects your approach, append a one-line rule here before ending the session. Write it concretely ("Always use X for Y"), never abstractly ("be careful with Y"). If an existing line already covers the correction, tighten it instead of adding a new one. Remove lines when the underlying issue goes away (model upgrades, refactors, process changes).
+If `tsc --noEmit` or `npm run lint` would catch it, it doesn't go here. If reading the repo would make it obvious, it doesn't go here. One entry per session max; zero is fine.
 
 - (empty)
 
