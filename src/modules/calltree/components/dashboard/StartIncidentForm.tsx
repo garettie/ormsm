@@ -1,23 +1,51 @@
-import { useState, useRef } from "react";
-import { Plus, CheckCircle2, AlertTriangle, Play, FileSpreadsheet, X, Loader, Clock, MessageCircle } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { Plus, CheckCircle2, AlertTriangle, Play, FileSpreadsheet, X, Loader, Clock, MessageCircle, BarChart3 } from "lucide-react";
 import { parseSmsBlastFile } from "../../lib/xlsx";
-import type { Contact } from "../../types";
+import type { Contact, PollOption } from "../../types";
 
 interface StartIncidentFormProps {
-  onStart: (name: string, type: "test" | "actual", targetedContacts?: Partial<Contact>[], startTime?: string, notificationCategory?: "emergency" | "broadcast") => void;
+  onStart: (name: string, type: "test" | "actual", targetedContacts?: Partial<Contact>[], startTime?: string, notificationCategory?: "emergency" | "broadcast" | "poll", pollOptions?: PollOption[]) => void;
   onCancel: () => void;
 }
 
 export function StartIncidentForm({ onStart, onCancel }: StartIncidentFormProps) {
   const [name, setName] = useState("");
   const [type, setType] = useState<"test" | "actual">("test");
-  const [notificationCategory, setNotificationCategory] = useState<"emergency" | "broadcast">("emergency");
+  const [notificationCategory, setNotificationCategory] = useState<"emergency" | "broadcast" | "poll">("emergency");
+  const [pollOptions, setPollOptions] = useState<PollOption[]>([{ code: "1", label: "" }, { code: "2", label: "" }]);
   const [file, setFile] = useState<File | null>(null);
   const [parsing, setParsing] = useState(false);
   const [parseError, setParseError] = useState<string | null>(null);
   const [contacts, setContacts] = useState<Partial<Contact>[] | null>(null);
   const [autoStartTime, setAutoStartTime] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const addPollOption = useCallback(() => {
+    setPollOptions((prev) => [
+      ...prev,
+      { code: String(prev.length + 1), label: "" },
+    ]);
+  }, []);
+
+  const removePollOption = useCallback((index: number) => {
+    setPollOptions((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      return next.map((opt, i) => ({ ...opt, code: String(i + 1) }));
+    });
+  }, []);
+
+  const updatePollLabel = useCallback((index: number, label: string) => {
+    setPollOptions((prev) =>
+      prev.map((opt, i) => (i === index ? { ...opt, label } : opt)),
+    );
+  }, []);
+
+  const handleCategoryChange = useCallback((cat: "emergency" | "broadcast" | "poll") => {
+    setNotificationCategory(cat);
+    if (cat !== "poll") {
+      setPollOptions([{ code: "1", label: "" }, { code: "2", label: "" }]);
+    }
+  }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -95,21 +123,65 @@ export function StartIncidentForm({ onStart, onCancel }: StartIncidentFormProps)
 
         <div>
           <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">Category</label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <button
-              onClick={() => setNotificationCategory("emergency")}
+              onClick={() => handleCategoryChange("emergency")}
               className={`p-3 rounded border text-sm font-medium transition-all flex flex-col items-center gap-2 ${notificationCategory === "emergency" ? "bg-red-50 border-red-500 text-red-700 ring-1 ring-red-500" : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
             >
               <AlertTriangle className="w-5 h-5" /> EMERGENCY
             </button>
             <button
-              onClick={() => setNotificationCategory("broadcast")}
+              onClick={() => handleCategoryChange("broadcast")}
               className={`p-3 rounded border text-sm font-medium transition-all flex flex-col items-center gap-2 ${notificationCategory === "broadcast" ? "bg-blue-50 border-blue-500 text-blue-700 ring-1 ring-blue-500" : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
             >
               <MessageCircle className="w-5 h-5" /> BROADCAST
             </button>
+            <button
+              onClick={() => handleCategoryChange("poll")}
+              className={`p-3 rounded border text-sm font-medium transition-all flex flex-col items-center gap-2 ${notificationCategory === "poll" ? "bg-purple-50 border-purple-500 text-purple-700 ring-1 ring-purple-500" : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
+            >
+              <BarChart3 className="w-5 h-5" /> POLL
+            </button>
           </div>
         </div>
+
+        {notificationCategory === "poll" && (
+          <div>
+            <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">Poll Options</label>
+            <div className="space-y-2">
+              {pollOptions.map((opt, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-700 text-xs font-bold flex items-center justify-center shrink-0">
+                    {opt.code}
+                  </span>
+                  <input
+                    type="text"
+                    placeholder={`Option ${opt.code}`}
+                    value={opt.label}
+                    onChange={(e) => updatePollLabel(i, e.target.value)}
+                    className="flex-1 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-purple-500 focus:outline-none text-sm"
+                  />
+                  {pollOptions.length > 2 && (
+                    <button
+                      onClick={() => removePollOption(i)}
+                      className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            {pollOptions.length < 10 && (
+              <button
+                onClick={addPollOption}
+                className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-purple-600 hover:text-purple-700 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Option
+              </button>
+            )}
+          </div>
+        )}
 
         <div className="pt-2 border-t border-gray-100">
           <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">SMS Blast Report (Optional)</label>
@@ -149,9 +221,12 @@ export function StartIncidentForm({ onStart, onCancel }: StartIncidentFormProps)
                 const [datePart, timePart] = autoStartTime.split("T");
                 isoStart = `${datePart}T${timePart}:00.000Z`;
               }
-              onStart(name, type, contacts || undefined, isoStart, notificationCategory);
+              const validPollOptions = notificationCategory === "poll"
+                ? pollOptions.filter((o) => o.label.trim().length > 0)
+                : undefined;
+              onStart(name, type, contacts || undefined, isoStart, notificationCategory, validPollOptions);
             }}
-            disabled={!name.trim() || parsing}
+            disabled={!name.trim() || parsing || (notificationCategory === "poll" && pollOptions.filter((o) => o.label.trim().length > 0).length < 2)}
             className="flex-1 bg-slate-900 text-white px-4 py-2 rounded hover:bg-slate-800 font-medium flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Play className="w-4 h-4" /> Start

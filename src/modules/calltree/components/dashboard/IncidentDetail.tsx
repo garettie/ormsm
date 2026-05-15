@@ -17,7 +17,7 @@ import {
   formatDuration,
   formatTimeShort,
 } from "../../../../lib/utils";
-import type { Incident, Contact } from "../../types";
+import type { Incident, Contact, PollOption } from "../../types";
 import { DataUploadButton } from "./DataUploadButton";
 
 const DataUploadModal = lazy(() => import("./DataUpload").then(module => ({ default: module.DataUploadModal })));
@@ -30,7 +30,7 @@ export default function IncidentDetail({
 }: {
   incident: Incident;
   onBack: () => void;
-  onStartNew?: (name: string, type: "test" | "actual", targetedContacts?: Partial<Contact>[], startTime?: string, notificationCategory?: "emergency" | "broadcast") => void;
+  onStartNew?: (name: string, type: "test" | "actual", targetedContacts?: Partial<Contact>[], startTime?: string, notificationCategory?: "emergency" | "broadcast" | "poll", pollOptions?: PollOption[]) => void;
   rightSlot?: React.ReactNode;
 }) {
   const [showStartForm, setShowStartForm] = useState(false);

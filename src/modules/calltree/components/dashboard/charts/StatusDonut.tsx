@@ -2,22 +2,40 @@ import { memo, useMemo, type FC } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import type { ProcessedContact } from '../../../types';
 import { COLORS, STATUS_ORDER } from '../../../lib/constants';
+import { getStatusColor } from '../../../../../lib/utils';
 
 interface StatusDonutProps {
   data: ProcessedContact[];
+  statusOrder?: string[];
+  statusColors?: Record<string, { bg: string; text: string; border: string }>;
 }
 
 const TOOLTIP_CONTENT_STYLE = { borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' } as const;
 const TOOLTIP_ITEM_STYLE = { fontSize: '12px', fontWeight: 500 } as const;
 
-export const StatusDonut: FC<StatusDonutProps> = memo(({ data }) => {
+export const StatusDonut: FC<StatusDonutProps> = memo(({ data, statusOrder, statusColors }) => {
+  const order = useMemo(() => statusOrder ?? [...STATUS_ORDER], [statusOrder]);
 
-  const chartData = useMemo(() => STATUS_ORDER.map(status => {
+  const chartData = useMemo(() => order.map(status => {
     const count = data.filter(c => c.status === status).length;
     return { name: status, value: count };
-  }).filter(d => d.value > 0), [data]);
+  }).filter(d => d.value > 0), [data, order]);
 
   const total = data.length;
+
+  const getFillColor = (name: string, index: number): string => {
+    if (statusColors?.[name]) return statusColors[name].border;
+    const fixed = COLORS[name as keyof typeof COLORS];
+    if (fixed) return fixed;
+    return getStatusColor(name, index, order.length).border;
+  };
+
+  const getLegendColor = (name: string, index: number): string => {
+    if (statusColors?.[name]) return statusColors[name].text;
+    const fixed = COLORS[name as keyof typeof COLORS];
+    if (fixed) return fixed;
+    return getStatusColor(name, index, order.length).text;
+  };
 
   return (
     <div className="glass-card p-4 h-[300px] flex flex-col">
@@ -38,7 +56,7 @@ export const StatusDonut: FC<StatusDonutProps> = memo(({ data }) => {
               stroke="none"
             >
               {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS]} />
+                <Cell key={`cell-${index}`} fill={getFillColor(entry.name, index)} />
               ))}
             </Pie>
             <Tooltip 
@@ -50,15 +68,18 @@ export const StatusDonut: FC<StatusDonutProps> = memo(({ data }) => {
                 height={36} 
                 content={() => (
                   <div className="flex flex-wrap justify-center gap-3 pt-2">
-                    {chartData.map((entry) => (
-                      <span
-                        key={entry.name}
-                        className="text-[11px] font-semibold"
-                        style={{ color: COLORS[entry.name as keyof typeof COLORS] }}
-                      >
-                        {entry.name}
-                      </span>
-                    ))}
+                    {chartData.map((entry) => {
+                      const idx = order.indexOf(entry.name);
+                      return (
+                        <span
+                          key={entry.name}
+                          className="text-[11px] font-semibold"
+                          style={{ color: getLegendColor(entry.name, idx >= 0 ? idx : 0) }}
+                        >
+                          {entry.name}
+                        </span>
+                      );
+                    })}
                   </div>
                 )}
             />

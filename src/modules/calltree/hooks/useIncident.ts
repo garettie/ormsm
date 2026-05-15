@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
 import { localNowAsUTC } from "../../../lib/utils";
-import type { Incident, Contact } from "../types";
+import type { Incident, Contact, PollOption } from "../types";
 
 export function useIncident() {
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
@@ -49,14 +49,15 @@ export function useIncident() {
     type: "test" | "actual",
     targetedContacts?: Partial<Contact>[],
     startTime?: string,
-    notificationCategory?: "emergency" | "broadcast",
+    notificationCategory?: "emergency" | "broadcast" | "poll",
+    pollOptions?: PollOption[],
   ) => {
     const isTargeted = !!targetedContacts && targetedContacts.length > 0;
     const start_time = startTime || localNowAsUTC();
 
     const { data: incident, error } = await supabase
       .from("incidents")
-      .insert({ name, type, start_time, is_targeted: isTargeted, notification_category: notificationCategory || "emergency" })
+      .insert({ name, type, start_time, is_targeted: isTargeted, notification_category: notificationCategory || "emergency", poll_options: pollOptions || null })
       .select()
       .single();
 

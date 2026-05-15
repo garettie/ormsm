@@ -7,6 +7,7 @@ import type {
   DashboardData,
   ProcessedContact,
   Status,
+  PollOption,
 } from "../types";
 
 const cleanNumber = (num: string | number): string => {
@@ -47,6 +48,29 @@ const parseSeverityResponse = (content: string): { status: Status; name: string 
 const parseBroadcastResponse = (content: string): { status: Status; name: string } => {
   if (!content) return { status: "No Response", name: "" };
   return { status: "Responded", name: content.trim() };
+};
+
+// Poll mode: match reply against configured option codes
+const parsePollResponse = (
+  content: string,
+  pollOptions: PollOption[],
+): { status: Status; name: string } => {
+  if (!content) return { status: "No Response", name: "" };
+
+  const tokens = content.trim().split(/[\s,-]+/);
+
+  for (const token of tokens) {
+    const clean = token.replace(/[^\w\s]/g, "").toLowerCase();
+    const match = pollOptions.find(
+      (o) => o.code.toLowerCase() === clean,
+    );
+    if (match) {
+      const name = content.trim().replace(token, "").replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, "");
+      return { status: match.label, name };
+    }
+  }
+
+  return { status: "Invalid", name: content.trim() };
 };
 
 // Check if every name token appears somewhere in the reply (broadcast mode name extraction)
@@ -184,8 +208,9 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
         ]);
 
         const incident = activeIncidentData.data || pastIncidentData.data;
-        const notificationCategory: "emergency" | "broadcast" =
-          (incident?.notification_category as "emergency" | "broadcast") || "emergency";
+        const notificationCategory: "emergency" | "broadcast" | "poll" =
+          (incident?.notification_category as "emergency" | "broadcast" | "poll") || "emergency";
+        const pollOptions: PollOption[] | undefined = incident?.poll_options as PollOption[] | undefined;
         let contacts: Contact[] = [];
 
         if (incident?.is_targeted) {
@@ -205,6 +230,8 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
         const parseResponse =
           notificationCategory === "broadcast"
             ? parseBroadcastResponse
+            : notificationCategory === "poll"
+            ? (content: string) => parsePollResponse(content, pollOptions || [])
             : parseSeverityResponse;
 
         // Process Data
@@ -329,6 +356,7 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
           lastUpdated: new Date(),
           isTargeted: !!incident?.is_targeted,
           notificationCategory,
+          pollOptions,
         });
       } catch (err: unknown) {
         console.error("Error fetching dashboard data:", err);

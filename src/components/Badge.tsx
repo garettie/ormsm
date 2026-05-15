@@ -15,6 +15,7 @@ export const STATUS_COLORS = {
   Severe: { bg: "#fce8e6", text: "#d93025", border: "#d93025" },
   "No Response": { bg: "#f1f5f9", text: "#64748b", border: "#cbd5e1" },
   Responded: { bg: "#e8f4f8", text: "#0284c7", border: "#0284c7" },
+  Invalid: { bg: "#fff7ed", text: "#f97316", border: "#f97316" },
 } as const;
 
 export const CONTROL_COLORS = {

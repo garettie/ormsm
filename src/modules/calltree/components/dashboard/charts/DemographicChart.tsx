@@ -10,12 +10,15 @@ import {
 } from "recharts";
 import type { ProcessedContact } from "../../../types";
 import { COLORS, STATUS_ORDER } from "../../../lib/constants";
+import { getStatusColor } from "../../../../../lib/utils";
 
 interface DemographicChartProps {
   data: ProcessedContact[];
   category: "department" | "location";
   title: string;
-  notificationCategory?: "emergency" | "broadcast";
+  notificationCategory?: "emergency" | "broadcast" | "poll";
+  statusOrder?: string[];
+  statusColors?: Record<string, { bg: string; text: string; border: string }>;
 }
 
 const TOOLTIP_CONTENT_STYLE = { borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' } as const;
@@ -27,11 +30,28 @@ export const DemographicChart: FC<DemographicChartProps> = memo(({
   category,
   title,
   notificationCategory,
+  statusOrder: externalStatusOrder,
+  statusColors,
 }) => {
   const statusOrder = useMemo(() => {
+    if (externalStatusOrder) return externalStatusOrder;
     if (notificationCategory === "broadcast") return ["Responded", "No Response"];
     return [...STATUS_ORDER];
-  }, [notificationCategory]);
+  }, [notificationCategory, externalStatusOrder]);
+
+  const getFill = (status: string, index: number): string => {
+    if (statusColors?.[status]) return statusColors[status].border;
+    const fixed = COLORS[status as keyof typeof COLORS];
+    if (fixed) return fixed;
+    return getStatusColor(status, index, statusOrder.length).border;
+  };
+
+  const getLegendColor = (status: string, index: number): string => {
+    if (statusColors?.[status]) return statusColors[status].text;
+    const fixed = COLORS[status as keyof typeof COLORS];
+    if (fixed) return fixed;
+    return getStatusColor(status, index, statusOrder.length).text;
+  };
 
   const chartData = useMemo(() => {
     const counts: Record<string, Record<string, number>> = {};
@@ -100,11 +120,11 @@ export const DemographicChart: FC<DemographicChartProps> = memo(({
                 height={36}
                 content={() => (
                   <div className="flex flex-wrap justify-center gap-3 pt-2">
-                    {statusOrder.map((status) => (
+                    {statusOrder.map((status, i) => (
                       <span
                         key={status}
                         className="text-[11px] font-semibold"
-                        style={{ color: COLORS[status as keyof typeof COLORS] }}
+                        style={{ color: getLegendColor(status, i) }}
                       >
                         {status}
                       </span>
@@ -112,12 +132,12 @@ export const DemographicChart: FC<DemographicChartProps> = memo(({
                   </div>
                 )}
               />
-              {statusOrder.map((status) => (
+              {statusOrder.map((status, i) => (
                 <Bar
                   key={status}
                   dataKey={status}
                   stackId="a"
-                  fill={COLORS[status as keyof typeof COLORS]}
+                  fill={getFill(status, i)}
                   radius={[0, 0, 0, 0]}
                 />
               ))}

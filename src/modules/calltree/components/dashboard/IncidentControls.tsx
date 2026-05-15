@@ -6,13 +6,13 @@ import {
   Square,
   History,
 } from "lucide-react";
-import type { Incident, Contact } from "../../types";
+import type { Incident, Contact, PollOption } from "../../types";
 import { StartIncidentForm } from "./StartIncidentForm";
 import { cn } from "../../../../lib/utils";
 
 interface IncidentControlsProps {
   activeIncident: Incident | null;
-  onStart: (name: string, type: "test" | "actual", targetedContacts?: Partial<Contact>[], startTime?: string, notificationCategory?: "emergency" | "broadcast") => void;
+  onStart: (name: string, type: "test" | "actual", targetedContacts?: Partial<Contact>[], startTime?: string, notificationCategory?: "emergency" | "broadcast" | "poll", pollOptions?: PollOption[]) => void;
   onEnd: () => void;
   rightSlot?: React.ReactNode;
 }

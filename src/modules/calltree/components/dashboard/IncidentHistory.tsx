@@ -17,7 +17,7 @@ import {
   formatDuration,
   formatTimeShort,
 } from "../../../../lib/utils";
-import type { Incident, Contact } from "../../types";
+import type { Incident, Contact, PollOption } from "../../types";
 import IncidentDetail from "./IncidentDetail";
 import RegisterIncidentForm from "./RegisterIncidentForm";
 import { DataUploadButton } from "./DataUploadButton";
@@ -30,7 +30,7 @@ export default function IncidentHistory({
   rightSlot,
 }: {
   defaultIncident?: Incident;
-  onStartNew?: (name: string, type: "test" | "actual", targetedContacts?: Partial<Contact>[], startTime?: string, notificationCategory?: "emergency" | "broadcast") => void;
+  onStartNew?: (name: string, type: "test" | "actual", targetedContacts?: Partial<Contact>[], startTime?: string, notificationCategory?: "emergency" | "broadcast" | "poll", pollOptions?: PollOption[]) => void;
   rightSlot?: ReactNode;
 }) {
   const [incidents, setIncidents] = useState<Incident[]>([]);

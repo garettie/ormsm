@@ -8,6 +8,7 @@ import { DemographicChart } from "./charts/DemographicChart";
 import { ResponsesTable } from "./tables/ResponsesTable";
 import { UnknownTable, PendingTable } from "./tables/AuxiliaryTables";
 import { COLORS } from "../../lib/constants";
+import { getStatusColor } from "../../../../lib/utils";
 import type { DashboardData } from "../../types";
 import {
   Users,
@@ -171,6 +172,22 @@ export function DashboardContent({
     }
   }, [onRefresh]);
 
+  const isPoll = data.notificationCategory === "poll";
+
+  const pollStatusOrder = useMemo(() => {
+    if (!isPoll || !data.pollOptions) return undefined;
+    return [...data.pollOptions.map((o) => o.label), "Invalid", "No Response"];
+  }, [isPoll, data.pollOptions]);
+
+  const pollStatusColors = useMemo(() => {
+    if (!isPoll || !data.pollOptions) return undefined;
+    const colors: Record<string, { bg: string; text: string; border: string }> = {};
+    data.pollOptions.forEach((opt, i) => {
+      colors[opt.label] = getStatusColor(opt.label, i, data.pollOptions!.length);
+    });
+    return colors;
+  }, [isPoll, data.pollOptions]);
+
   return (
     <div className="animate-in fade-in duration-500">
       <Filters
@@ -181,7 +198,7 @@ export function DashboardContent({
       />
 
       {/* KPI Grid */}
-      {data.notificationCategory === "broadcast" ? (
+      {data.notificationCategory === "broadcast" || isPoll ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <KPICard
             label="Total Contacts"
@@ -317,7 +334,7 @@ export function DashboardContent({
 
       {/* Charts Row 1 */}
       <div className={`grid grid-cols-1 gap-6 mb-6 ${data.notificationCategory === "broadcast" ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}>
-        {data.notificationCategory !== "broadcast" && <StatusDonut data={filteredData} />}
+        {data.notificationCategory !== "broadcast" && <StatusDonut data={filteredData} statusOrder={pollStatusOrder} statusColors={pollStatusColors} />}
         <ResponseDonut responded={stats.responded} total={stats.total} />
         <ResponseTimeline data={filteredData} />
       </div>
@@ -329,12 +346,16 @@ export function DashboardContent({
           category="department"
           title="Department"
           notificationCategory={data.notificationCategory}
+          statusOrder={pollStatusOrder}
+          statusColors={pollStatusColors}
         />
         <DemographicChart
           data={filteredData}
           category="location"
           title="Location"
           notificationCategory={data.notificationCategory}
+          statusOrder={pollStatusOrder}
+          statusColors={pollStatusColors}
         />
       </div>
 
@@ -342,6 +363,7 @@ export function DashboardContent({
       <div className="mb-8">
         <ResponsesTable
           data={respondedData}
+          statusColors={pollStatusColors}
         />
       </div>
 
@@ -352,6 +374,7 @@ export function DashboardContent({
           data={pendingData}
           onResponseAdded={handleResponseAdded}
           notificationCategory={data.notificationCategory}
+          pollOptions={data.pollOptions}
         />
       </div>
     </div>

@@ -9,6 +9,11 @@ export interface Contact {
   date?: Date;
 }
 
+export interface PollOption {
+  code: string;
+  label: string;
+}
+
 export interface Response {
   id?: string;
   uid?: string;
@@ -33,7 +38,8 @@ export interface DashboardData {
   unknownResponses: Response[];
   lastUpdated: Date;
   isTargeted?: boolean;
-  notificationCategory?: "emergency" | "broadcast";
+  notificationCategory?: "emergency" | "broadcast" | "poll";
+  pollOptions?: PollOption[];
 }
 
 export interface Incident {
@@ -43,7 +49,8 @@ export interface Incident {
   start_time: string;
   end_time: string | null;
   is_targeted?: boolean;
-  notification_category?: "emergency" | "broadcast";
+  notification_category?: "emergency" | "broadcast" | "poll";
+  poll_options?: PollOption[];
 }
 
 export interface EventContact extends Contact {

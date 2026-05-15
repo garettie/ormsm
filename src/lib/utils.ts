@@ -100,3 +100,12 @@ export function formatTimeShort(iso: string): string {
     hour12: true,
   });
 }
+
+export function getStatusColor(label: string, index: number, total: number): { bg: string; text: string; border: string } {
+  const hue = (index * (360 / total)) % 360;
+  return {
+    bg: `hsl(${hue}, 70%, 92%)`,
+    text: `hsl(${hue}, 65%, 35%)`,
+    border: `hsl(${hue}, 60%, 50%)`,
+  };
+}

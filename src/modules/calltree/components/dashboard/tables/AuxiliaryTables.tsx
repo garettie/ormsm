@@ -1,6 +1,6 @@
 import { useState, useMemo, useDeferredValue, type FC } from "react";
 import { Download, AlertTriangle, Search, Clock, X, Save, Link } from "lucide-react";
-import type { ProcessedContact, Response } from "../../../types";
+import type { ProcessedContact, Response, PollOption } from "../../../types";
 import { downloadCSV } from "../../../lib/csv";
 import {
   formatDateTime,
@@ -278,7 +278,8 @@ interface ManualResponseModalProps {
   contact: ProcessedContact;
   onClose: () => void;
   onSuccess: () => void;
-  notificationCategory?: "emergency" | "broadcast";
+  notificationCategory?: "emergency" | "broadcast" | "poll";
+  pollOptions?: PollOption[];
 }
 
 const ManualResponseModal: FC<ManualResponseModalProps> = ({
@@ -286,8 +287,13 @@ const ManualResponseModal: FC<ManualResponseModalProps> = ({
   onClose,
   onSuccess,
   notificationCategory,
+  pollOptions,
 }) => {
-  const [status, setStatus] = useState("Safe");
+  const [status, setStatus] = useState(
+    notificationCategory === "poll" && pollOptions && pollOptions.length > 0
+      ? pollOptions[0].label
+      : "Safe",
+  );
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -306,9 +312,17 @@ const ManualResponseModal: FC<ManualResponseModalProps> = ({
     setErrorMsg(null);
 
     try {
-      const contents = notificationCategory === "broadcast"
-        ? `Responded - ${message || "Manual Entry"}`
-        : `${STATUS_CODES[status] || "1"} - ${message || "Manual Entry"}`;
+      let contents: string;
+      if (notificationCategory === "poll" && pollOptions) {
+        const matched = pollOptions.find((o) => o.label === status);
+        contents = matched
+          ? `${matched.code} - ${message || "Manual Entry"}`
+          : `${status} - ${message || "Manual Entry"}`;
+      } else if (notificationCategory === "broadcast") {
+        contents = `Responded - ${message || "Manual Entry"}`;
+      } else {
+        contents = `${STATUS_CODES[status] || "1"} - ${message || "Manual Entry"}`;
+      }
 
       // Basic validation
       if (!contact.number) throw new Error("Contact number is missing.");
@@ -377,7 +391,29 @@ const ManualResponseModal: FC<ManualResponseModalProps> = ({
             </div>
           </div>
 
-          {notificationCategory !== "broadcast" && (
+          {notificationCategory === "poll" && pollOptions ? (
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                Poll Option
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {pollOptions.map((opt) => (
+                  <button
+                    key={opt.code}
+                    type="button"
+                    onClick={() => setStatus(opt.label)}
+                    className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all ${
+                      status === opt.label
+                        ? "ring-2 ring-offset-1 bg-purple-500 text-white border-transparent"
+                        : "hover:bg-gray-50 border-gray-200 text-gray-600"
+                    }`}
+                  >
+                    {opt.code}. {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : notificationCategory !== "broadcast" && (
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">
                 Status
@@ -459,8 +495,9 @@ const PENDING_SEARCH_FIELDS: (keyof ProcessedContact)[] = [
 export const PendingTable: FC<{
   data: ProcessedContact[];
   onResponseAdded?: () => void;
-  notificationCategory?: "emergency" | "broadcast";
-}> = ({ data, onResponseAdded, notificationCategory }) => {
+  notificationCategory?: "emergency" | "broadcast" | "poll";
+  pollOptions?: PollOption[];
+}> = ({ data, onResponseAdded, notificationCategory, pollOptions }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const deferredSearch = useDeferredValue(searchTerm);
   const [selectedContact, setSelectedContact] =
@@ -603,6 +640,7 @@ export const PendingTable: FC<{
             onResponseAdded?.();
           }}
           notificationCategory={notificationCategory}
+          pollOptions={pollOptions}
         />
       )}
     </>

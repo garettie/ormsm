@@ -1,8 +1,8 @@
-import { useState, useRef } from "react";
-import { CheckCircle2, AlertTriangle, Plus, X, Pencil, FileSpreadsheet, Loader, MessageCircle } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { CheckCircle2, AlertTriangle, Plus, X, Pencil, FileSpreadsheet, Loader, MessageCircle, BarChart3 } from "lucide-react";
 import { parseSmsBlastFile } from "../../lib/xlsx";
 import { supabase } from "../../../../lib/supabase";
-import type { Incident, Contact } from "../../types";
+import type { Incident, Contact, PollOption } from "../../types";
 
 /** Format a Date to YYYY-MM-DD for date inputs (Wall Clock) */
 function formatDateInput(d: Date): string {
@@ -30,19 +30,51 @@ export default function RegisterIncidentForm({
   const [formData, setFormData] = useState(() => ({
     name: editingIncident?.name ?? "",
     type: (editingIncident?.type ?? "test") as "test" | "actual",
-    notificationCategory: (editingIncident?.notification_category ?? "emergency") as "emergency" | "broadcast",
+    notificationCategory: (editingIncident?.notification_category ?? "emergency") as "emergency" | "broadcast" | "poll",
     startDate: editingIncident ? formatDateInput(new Date(editingIncident.start_time.replace("Z", "").split("+")[0])) : "",
     startTime: editingIncident ? formatTimeInput(new Date(editingIncident.start_time.replace("Z", "").split("+")[0])) : "",
     endDate: editingIncident ? formatDateInput(new Date((editingIncident.end_time || new Date().toISOString()).replace("Z", "").split("+")[0])) : "",
     endTime: editingIncident ? formatTimeInput(new Date((editingIncident.end_time || new Date().toISOString()).replace("Z", "").split("+")[0])) : "",
   }));
   const [submitting, setSubmitting] = useState(false);
+  const [pollOptions, setPollOptions] = useState<PollOption[]>(() =>
+    editingIncident?.poll_options && editingIncident.poll_options.length > 0
+      ? editingIncident.poll_options
+      : [{ code: "1", label: "" }, { code: "2", label: "" }],
+  );
   
   const [file, setFile] = useState<File | null>(null);
   const [parsing, setParsing] = useState(false);
   const [parseError, setParseError] = useState<string | null>(null);
   const [targetedContacts, setTargetedContacts] = useState<Partial<Contact>[] | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const addPollOption = useCallback(() => {
+    setPollOptions((prev) => [
+      ...prev,
+      { code: String(prev.length + 1), label: "" },
+    ]);
+  }, []);
+
+  const removePollOption = useCallback((index: number) => {
+    setPollOptions((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      return next.map((opt, i) => ({ ...opt, code: String(i + 1) }));
+    });
+  }, []);
+
+  const updatePollLabel = useCallback((index: number, label: string) => {
+    setPollOptions((prev) =>
+      prev.map((opt, i) => (i === index ? { ...opt, label } : opt)),
+    );
+  }, []);
+
+  const handleCategoryChange = useCallback((cat: "emergency" | "broadcast" | "poll") => {
+    setFormData((prev) => ({ ...prev, notificationCategory: cat }));
+    if (cat !== "poll") {
+      setPollOptions([{ code: "1", label: "" }, { code: "2", label: "" }]);
+    }
+  }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -82,7 +114,8 @@ export default function RegisterIncidentForm({
     !!formData.startDate &&
     !!formData.startTime &&
     !!formData.endDate &&
-    !!formData.endTime;
+    !!formData.endTime &&
+    (formData.notificationCategory !== "poll" || pollOptions.filter((o) => o.label.trim().length > 0).length >= 2);
 
   const handleSave = async () => {
     if (!canSubmit) return;
@@ -93,7 +126,7 @@ export default function RegisterIncidentForm({
 
     const isTargeted = !!targetedContacts && targetedContacts.length > 0;
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       name: formData.name,
       type: formData.type,
       notification_category: formData.notificationCategory,
@@ -101,6 +134,13 @@ export default function RegisterIncidentForm({
       end_time: endISO,
       is_targeted: isTargeted,
     };
+
+    if (formData.notificationCategory === "poll") {
+      const valid = pollOptions.filter((o) => o.label.trim().length > 0);
+      payload.poll_options = valid.length > 0 ? valid : null;
+    } else {
+      payload.poll_options = null;
+    }
 
     let error;
     let incident;
@@ -222,9 +262,9 @@ export default function RegisterIncidentForm({
 
         <div>
           <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">Category</label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <button
-              onClick={() => updateField("notificationCategory", "emergency")}
+              onClick={() => handleCategoryChange("emergency")}
               className={`p-3 rounded border text-sm font-medium transition-all flex flex-col items-center gap-2 ${
                 formData.notificationCategory === "emergency"
                   ? "bg-red-50 border-red-500 text-red-700 ring-1 ring-red-500"
@@ -235,7 +275,7 @@ export default function RegisterIncidentForm({
               EMERGENCY
             </button>
             <button
-              onClick={() => updateField("notificationCategory", "broadcast")}
+              onClick={() => handleCategoryChange("broadcast")}
               className={`p-3 rounded border text-sm font-medium transition-all flex flex-col items-center gap-2 ${
                 formData.notificationCategory === "broadcast"
                   ? "bg-blue-50 border-blue-500 text-blue-700 ring-1 ring-blue-500"
@@ -245,8 +285,57 @@ export default function RegisterIncidentForm({
               <MessageCircle className="w-5 h-5" />
               BROADCAST
             </button>
+            <button
+              onClick={() => handleCategoryChange("poll")}
+              className={`p-3 rounded border text-sm font-medium transition-all flex flex-col items-center gap-2 ${
+                formData.notificationCategory === "poll"
+                  ? "bg-purple-50 border-purple-500 text-purple-700 ring-1 ring-purple-500"
+                  : "border-gray-200 hover:bg-gray-50 text-gray-600"
+              }`}
+            >
+              <BarChart3 className="w-5 h-5" />
+              POLL
+            </button>
           </div>
         </div>
+
+        {formData.notificationCategory === "poll" && (
+          <div>
+            <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">Poll Options</label>
+            <div className="space-y-2">
+              {pollOptions.map((opt, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-700 text-xs font-bold flex items-center justify-center shrink-0">
+                    {opt.code}
+                  </span>
+                  <input
+                    type="text"
+                    placeholder={`Option ${opt.code}`}
+                    value={opt.label}
+                    onChange={(e) => updatePollLabel(i, e.target.value)}
+                    className="flex-1 border border-gray-300 p-2 rounded focus:ring-2 focus:ring-purple-500 focus:outline-none text-sm"
+                  />
+                  {pollOptions.length > 2 && (
+                    <button
+                      onClick={() => removePollOption(i)}
+                      className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            {pollOptions.length < 10 && (
+              <button
+                onClick={addPollOption}
+                className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-purple-600 hover:text-purple-700 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Option
+              </button>
+            )}
+          </div>
+        )}
 
         <div>
           <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">SMS Blast Report (Optional)</label>

@@ -24,6 +24,7 @@ type SortConfig = { key: SortKey | null; direction: SortDirection };
 
 interface ResponsesTableProps {
   data: ProcessedContact[];
+  statusColors?: Record<string, { bg: string; text: string; border: string }>;
 }
 
 // Column definitions rendered by SortableHeader
@@ -90,9 +91,13 @@ const SortableHeader: FC<SortableHeaderProps> = memo(({
 
 // --- StatusBadge ---
 
-const StatusBadge: FC<{ status: string }> = memo(({ status }) => {
+const StatusBadge: FC<{ status: string; statusColors?: Record<string, { bg: string; text: string; border: string }> }> = memo(({ status, statusColors }) => {
+  if (statusColors?.[status]) {
+    return <Badge label={status} variant="compact" colors={statusColors[status]} />;
+  }
   const colors = STATUS_COLORS[status as keyof typeof STATUS_COLORS];
-  return <Badge label={status} variant="compact" colors={colors} />;
+  if (colors) return <Badge label={status} variant="compact" colors={colors} />;
+  return <Badge label={status} variant="compact" />;
 });
 
 // --- MatchTypeIndicator ---
@@ -141,7 +146,7 @@ const MatchTypeIndicator: FC<{ type?: "phone" | "name" | "manual" | "alt-phone" 
 
 // --- Main Component ---
 
-export const ResponsesTable: FC<ResponsesTableProps> = ({ data }) => {
+export const ResponsesTable: FC<ResponsesTableProps> = ({ data, statusColors }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const deferredSearch = useDeferredValue(searchTerm);
   const [sortConfig, setSortConfig] = useState<SortConfig>({
@@ -279,7 +284,7 @@ export const ResponsesTable: FC<ResponsesTableProps> = ({ data }) => {
                   </div>
                 </td>
                 <td className="px-2.5 py-2.5 align-middle">
-                  <StatusBadge status={row.status} />
+                  <StatusBadge status={row.status} statusColors={statusColors} />
                 </td>
                 <td className="px-2.5 py-2.5 align-middle max-w-[200px]">
                   <span className="text-[13px] text-gray-600 truncate block" title={row.rawResponse || ""}>
