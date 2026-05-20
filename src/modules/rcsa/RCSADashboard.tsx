@@ -3,7 +3,6 @@ import { ShieldAlert, Loader, BarChart3, GitMerge } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { useDashboardData } from "./hooks/useDashboardData";
 import { getRiskLevel } from "./utils/riskLevels";
-import { RISKS } from "./utils/mockData";
 import type { RiskRecord, FilterState } from "./types";
 
 import DashboardHeader from "./components/DashboardHeader";
@@ -56,10 +55,10 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
       setLoading(true);
       setError(null);
       if (demoMode) {
-        setTimeout(() => {
+        import("./utils/mockData").then(({ RISKS }) => {
           setRisks(RISKS);
           setLoading(false);
-        }, 400);
+        });
         return;
       }
       try {
@@ -156,7 +155,9 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
           <button
             onClick={() => {
               setError(null);
-              setRisks(RISKS);
+              import("./utils/mockData").then(({ RISKS }) => {
+                setRisks(RISKS);
+              });
             }}
             className="mt-5 px-6 py-2 bg-slate-50 text-slate-600 border border-slate-200 rounded-lg text-[13px] font-semibold hover:bg-slate-100 transition-colors cursor-pointer"
           >

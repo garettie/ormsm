@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import { RISK_LEVELS, RISK_COLORS } from '../../utils/riskLevels'
 import LegendRow from '../LegendRow'
 import type { RiskRecord, RiskLevel } from '../../types'
@@ -13,7 +13,7 @@ interface InherentRiskHeatmapProps {
 export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFilter, getRiskLevel }: InherentRiskHeatmapProps) {
     const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 640 : false)
 
-    useMemo(() => {
+    useEffect(() => {
         if (typeof window === 'undefined') return;
         const handleResize = () => setIsMobile(window.innerWidth < 640);
         window.addEventListener('resize', handleResize);

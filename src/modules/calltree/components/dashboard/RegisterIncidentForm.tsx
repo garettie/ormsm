@@ -43,6 +43,7 @@ export default function RegisterIncidentForm({
       : [{ code: "1", label: "" }, { code: "2", label: "" }],
   );
   
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [parsing, setParsing] = useState(false);
   const [parseError, setParseError] = useState<string | null>(null);
@@ -120,6 +121,7 @@ export default function RegisterIncidentForm({
   const handleSave = async () => {
     if (!canSubmit) return;
     setSubmitting(true);
+    setSaveError(null);
 
     const startISO = `${formData.startDate}T${formData.startTime}:00Z`;
     const endISO = `${formData.endDate}T${formData.endTime}:00Z`;
@@ -166,8 +168,8 @@ export default function RegisterIncidentForm({
 
     if (error) {
       console.error("Error saving event:", error);
+      setSaveError("Failed to save event. Please try again.");
     } else if (isTargeted && incident) {
-      // Bulk insert event contacts
       const eventContacts = targetedContacts.map((c) => ({
         incident_id: incident.id,
         name: c.name || "Unknown",
@@ -182,8 +184,12 @@ export default function RegisterIncidentForm({
         .from("event_contacts")
         .insert(eventContacts);
 
-      if (contactError) console.error("Error inserting event contacts:", contactError);
-      onSaved();
+      if (contactError) {
+        console.error("Error inserting event contacts:", contactError);
+        setSaveError("Event saved, but failed to add targeted contacts. Please edit the event to retry.");
+      } else {
+        onSaved();
+      }
     } else {
       onSaved();
     }
@@ -431,6 +437,12 @@ export default function RegisterIncidentForm({
           </div>
         </div>
       </div>
+
+      {saveError && (
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+          {saveError}
+        </div>
+      )}
 
       <div className="flex gap-3 mt-6 pt-4 border-t border-gray-100">
         <button

@@ -93,10 +93,15 @@ export function useIncident() {
 
   const endIncident = async () => {
     if (!activeIncident) return;
-    await supabase
+    const { error } = await supabase
       .from("incidents")
       .update({ end_time: localNowAsUTC() })
       .eq("id", activeIncident.id);
+    if (error) {
+      console.error("Error ending incident:", error);
+      setError("Failed to end incident. Please try again.");
+      return;
+    }
     setActiveIncident(null);
   };
 
