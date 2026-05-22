@@ -298,7 +298,6 @@ const ManualResponseModal: FC<ManualResponseModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Map status words to numeric codes for DB insertion
   const STATUS_CODES: Record<string, string> = {
     Safe: "1",
     Slight: "2",
@@ -324,10 +323,8 @@ const ManualResponseModal: FC<ManualResponseModalProps> = ({
         contents = `${STATUS_CODES[status] || "1"} - ${message || "Manual Entry"}`;
       }
 
-      // Basic validation
       if (!contact.number) throw new Error("Contact number is missing.");
 
-      // 2. Format Phone Number to 63 prefix (no +)
       let formattedContact = contact.number.replace(/[^0-9]/g, "");
       if (formattedContact.startsWith("09")) {
         formattedContact = "63" + formattedContact.slice(1);
@@ -338,8 +335,7 @@ const ManualResponseModal: FC<ManualResponseModalProps> = ({
         formattedContact = "63" + formattedContact;
       }
 
-      // [CHANGE] Generate a unique ID for manual entries to avoid collision with SMS UIDs (which are integers)
-      // Format: "m-<timestamp>-<random>"
+      // "m-<ts>-<rand>" avoids collision with integer SMS UIDs
       const manuallyGeneratedUid = `m-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
       const { error } = await supabase.from("Responses").insert({

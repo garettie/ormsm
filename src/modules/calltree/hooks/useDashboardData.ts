@@ -15,7 +15,6 @@ const cleanNumber = (num: string | number): string => {
   return String(num).replace(/[\s\-+()]/g, "");
 };
 
-// Emergency mode: extract severity and potential name from response
 const parseSeverityResponse = (content: string): { status: Status; name: string } => {
   if (!content) return { status: "No Response", name: "" };
 
@@ -44,13 +43,11 @@ const parseSeverityResponse = (content: string): { status: Status; name: string 
   return { status: "No Response", name: content.trim() };
 };
 
-// Broadcast mode: any reply means "Responded", look for name in reply
 const parseBroadcastResponse = (content: string): { status: Status; name: string } => {
   if (!content) return { status: "No Response", name: "" };
   return { status: "Responded", name: content.trim() };
 };
 
-// Poll mode: match reply against configured option codes
 const parsePollResponse = (
   content: string,
   pollOptions: PollOption[],
@@ -73,7 +70,6 @@ const parsePollResponse = (
   return { status: "Invalid", name: content.trim() };
 };
 
-// Check if every name token appears somewhere in the reply (broadcast mode name extraction)
 const findNameInReply = (
   reply: string,
   contacts: ProcessedContact[],
@@ -198,7 +194,6 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
           return allData;
         };
 
-        // 1. Fetch Incident Context, Contacts, Responses, and Alt Numbers in parallel
         const [activeIncidentData, pastIncidentData, contactsData, responsesData, altNumbersData] = await Promise.all([
           supabase.from("incidents").select("*").is("end_time", null).maybeSingle(),
           startDate ? supabase.from("incidents").select("*").eq("start_time", startDate).maybeSingle() : Promise.resolve({ data: null }),
@@ -234,18 +229,16 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
             ? (content: string) => parsePollResponse(content, pollOptions || [])
             : parseSeverityResponse;
 
-        // Process Data
         const processedContacts: ProcessedContact[] = contacts.map((c) => ({
           ...c,
           cleanNumber: cleanNumber(c.number),
-          status: "No Response", // Default status
+          status: "No Response",
         }));
 
         const knownNumbers = new Set(
           processedContacts.map((c) => c.cleanNumber),
         );
 
-        // Build alt number lookup: altCleanNumber → contact's primary cleanNumber
         const altNumberMap = new Map<string, string>();
         const altNumbers = (altNumbersData.data || []) as { contact_id: string; number: string }[];
         for (const alt of altNumbers) {
@@ -256,10 +249,9 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
         }
 
         const unknownResponses: Response[] = [];
-        const responseMap = new Map<string, Response>(); // To store ONLY the latest response
+        const responseMap = new Map<string, Response>();
         const altNumbersToSave: { contact_id: string; contact_name: string; number: string; source_response_id: string | null }[] = [];
 
-        // Filter responses to find latest per contact and separate unknowns
         responses.forEach((r) => {
           const cleanParams = cleanNumber(r.contact);
           const { status, name } = parseResponse(r.contents);
@@ -328,7 +320,6 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
             });
         }
 
-        // Merge response data into contacts
         processedContacts.forEach((c) => {
           const resp = responseMap.get(c.cleanNumber) as
             | (Response & { matchType?: "phone" | "name" | "manual" | "alt-phone" })
@@ -343,7 +334,6 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
           }
         });
 
-        // Sort unknown responses: prioritize those with extracted name
         unknownResponses.sort((a, b) => {
           const aHasName = parseResponse(a.contents).name ? 1 : 0;
           const bHasName = parseResponse(b.contents).name ? 1 : 0;
@@ -371,7 +361,6 @@ export const useDashboardData = (startDate?: string, endDate?: string) => {
   );
 
   useEffect(() => {
-    // Initial fetch
     fetchData();
 
     const interval = setInterval(() => {

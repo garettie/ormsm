@@ -20,8 +20,6 @@ export default function MiniRiskBar({ risks, onLevelClick, activeLevel }: MiniRi
         <div className="relative flex items-end h-10 gap-1 pb-0.5 ml-2">
             {RISK_LEVELS.map(l => {
                 const count = counts[l];
-                // Provide a visually distinct scale: 
-                // A height percentage that highlights larger values but keeps small ones visible
                 const heightPct = count > 0 ? Math.max((count / maxCount) * 100, 15) : 8;
                 return (
                     <div

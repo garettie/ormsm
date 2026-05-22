@@ -107,7 +107,6 @@ export function DataUploadModal({ onClose, onSuccess }: { onClose: () => void; o
       const phone = String(row["From Presentation"] || "");
       const dtValue = row["Client Submit Time"];
       const datetime = dtValue != null && dtValue !== "" ? String(dtValue) : null;
-      // Normalize to 63 format (no + prefix) to match MasterContacts
       const normalizedPhone = phone.startsWith("+") ? phone.slice(1) : phone;
       const contact = normalizedPhone.startsWith("63") ? normalizedPhone : "63" + normalizedPhone.slice(1);
       return {
@@ -190,7 +189,6 @@ export function DataUploadModal({ onClose, onSuccess }: { onClose: () => void; o
         const status = String(row["status"] ?? "").toLowerCase();
         if (status === "resigned" || status === "terminated") return null;
         
-        // Clean phone number: remove all non-digits first, then normalize
         let number = String(row["number"] ?? "")
           .replace(/[^0-9]/g, "")            // Strip ALL non-digits (dots, commas, dashes, etc)
           .replace(/^63/, "")             // Remove existing 63 prefix if present
