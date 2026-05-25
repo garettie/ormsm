@@ -47,3 +47,11 @@ export const STATUS_ORDER = [
   "Severe",
   "No Response",
 ] as const;
+
+export const CATEGORY_CONFIG = {
+  emergency: { label: "Emergency", color: "red" },
+  broadcast: { label: "Broadcast", color: "blue" },
+  poll: { label: "Poll", color: "purple" },
+} as const;
+
+export type NotificationCategory = keyof typeof CATEGORY_CONFIG;

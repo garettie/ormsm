@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { CheckCircle2, AlertTriangle, Plus, X, Pencil, FileSpreadsheet, Loader, MessageCircle, BarChart3 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Activity, Plus, X, Pencil, FileSpreadsheet, Loader, MessageCircle, BarChart3 } from "lucide-react";
 import { parseSmsBlastFile } from "../../lib/xlsx";
 import { supabase } from "../../../../lib/supabase";
 import type { Incident, Contact, PollOption } from "../../types";
@@ -260,7 +260,7 @@ export default function RegisterIncidentForm({
                   : "border-gray-200 hover:bg-gray-50 text-gray-600"
               }`}
             >
-              <AlertTriangle className="w-5 h-5" />
+              <Activity className="w-5 h-5" />
               ACTUAL
             </button>
           </div>

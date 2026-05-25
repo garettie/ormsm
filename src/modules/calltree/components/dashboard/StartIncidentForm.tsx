@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { Plus, CheckCircle2, AlertTriangle, Play, FileSpreadsheet, X, Loader, Clock, MessageCircle, BarChart3 } from "lucide-react";
+import { Plus, CheckCircle2, AlertTriangle, Activity, Play, FileSpreadsheet, X, Loader, Clock, MessageCircle, BarChart3 } from "lucide-react";
 import { parseSmsBlastFile } from "../../lib/xlsx";
 import type { Contact, PollOption } from "../../types";
 
@@ -116,7 +116,7 @@ export function StartIncidentForm({ onStart, onCancel }: StartIncidentFormProps)
               onClick={() => setType("actual")}
               className={`p-3 rounded border text-sm font-medium transition-all flex flex-col items-center gap-2 ${type === "actual" ? "bg-red-50 border-red-500 text-red-700 ring-1 ring-red-500" : "border-gray-200 hover:bg-gray-50 text-gray-600"}`}
             >
-              <AlertTriangle className="w-5 h-5" /> ACTUAL
+              <Activity className="w-5 h-5" /> ACTUAL
             </button>
           </div>
         </div>

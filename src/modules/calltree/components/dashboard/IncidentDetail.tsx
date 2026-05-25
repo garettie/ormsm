@@ -3,8 +3,9 @@ import {
   ArrowLeft,
   Calendar,
   Clock,
-  CheckCircle2,
   AlertTriangle,
+  MessageCircle,
+  BarChart3,
   Play,
   Loader,
   RefreshCw,
@@ -41,6 +42,7 @@ export default function IncidentDetail({
   );
 
   const isTest = incident.type === "test";
+  const category = incident.notification_category ?? "emergency";
 
   if (error) {
     return <div className="p-8 text-center text-red-600">Error: {error}</div>;
@@ -51,7 +53,11 @@ export default function IncidentDetail({
       {/* Combined: Back + Event Info + Start New — single row */}
       <div
         className={`mb-6 p-4 rounded-lg flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-sm border-l-4 ${
-          isTest ? "bg-blue-50 border-blue-500" : "bg-red-50 border-red-500"
+          category === "emergency"
+            ? "bg-red-50 border-red-500"
+            : category === "broadcast"
+              ? "bg-blue-50 border-blue-500"
+              : "bg-purple-50 border-purple-500"
         }`}
       >
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -67,17 +73,31 @@ export default function IncidentDetail({
 
           <div className="flex items-center gap-3">
             <div
-              className={`p-1.5 rounded-full shrink-0 ${isTest ? "bg-blue-100 text-blue-600" : "bg-red-100 text-red-600"}`}
+              className={`p-1.5 rounded-full shrink-0 ${
+                category === "emergency"
+                  ? "bg-red-100 text-red-600"
+                  : category === "broadcast"
+                    ? "bg-blue-100 text-blue-600"
+                    : "bg-purple-100 text-purple-600"
+              }`}
             >
-              {isTest ? (
-                <CheckCircle2 className="w-5 h-5" />
-              ) : (
+              {category === "emergency" ? (
                 <AlertTriangle className="w-5 h-5" />
+              ) : category === "broadcast" ? (
+                <MessageCircle className="w-5 h-5" />
+              ) : (
+                <BarChart3 className="w-5 h-5" />
               )}
             </div>
             <div>
               <h2
-                className={`text-base font-bold leading-tight ${isTest ? "text-blue-900" : "text-red-900"}`}
+                className={`text-base font-bold leading-tight ${
+                  category === "emergency"
+                    ? "text-red-900"
+                    : category === "broadcast"
+                      ? "text-blue-900"
+                      : "text-purple-900"
+                }`}
               >
                 {incident.name}
               </h2>
@@ -125,7 +145,7 @@ export default function IncidentDetail({
             )}
             <div className="hidden sm:flex flex-col items-end mr-0">
               <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Last Updated</span>
-              <span className="text-sm font-mono font-medium text-gray-700 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-100">
+              <span className="text-sm font-mono font-medium text-gray-700">
                 {data.lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </span>
             </div>

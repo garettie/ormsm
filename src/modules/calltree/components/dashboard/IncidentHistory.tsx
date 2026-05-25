@@ -2,10 +2,10 @@ import { lazy, Suspense, useState, useEffect, type ReactNode } from "react";
 import {
   Calendar,
   Clock,
-  CheckCircle2,
   AlertTriangle,
   ChevronRight,
   BarChart3,
+  MessageCircle,
   Plus,
   Pencil,
   Trash2,
@@ -205,6 +205,7 @@ export default function IncidentHistory({
         <div className="grid gap-3">
           {incidents.map((incident) => {
             const isTest = incident.type === "test";
+            const category = incident.notification_category ?? "emergency";
             return (
               <div
                 key={incident.id}
@@ -214,15 +215,19 @@ export default function IncidentHistory({
                 <div className="flex items-center gap-4">
                   <div
                     className={`p-2.5 rounded-xl ${
-                      isTest
-                        ? "bg-blue-50 text-blue-600"
-                        : "bg-red-50 text-red-600"
+                      category === "emergency"
+                        ? "bg-red-50 text-red-600"
+                        : category === "broadcast"
+                          ? "bg-blue-50 text-blue-600"
+                          : "bg-purple-50 text-purple-600"
                     }`}
                   >
-                    {isTest ? (
-                      <CheckCircle2 className="w-5 h-5" />
-                    ) : (
+                    {category === "emergency" ? (
                       <AlertTriangle className="w-5 h-5" />
+                    ) : category === "broadcast" ? (
+                      <MessageCircle className="w-5 h-5" />
+                    ) : (
+                      <BarChart3 className="w-5 h-5" />
                     )}
                   </div>
                   <div>

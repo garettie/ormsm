@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
   AlertTriangle,
-  CheckCircle2,
+  MessageCircle,
+  BarChart3,
   Play,
   Square,
   History,
@@ -95,25 +96,34 @@ export default function IncidentControls({
 
   if (activeIncident) {
     const isTest = activeIncident.type === "test";
+    const category = activeIncident.notification_category ?? "emergency";
 
     return (
       <div
-        className={`mb-6 p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm border ${
-          isTest 
-            ? "bg-blue-50/50 border-blue-200 text-blue-900" 
-            : "bg-red-50/50 border-red-200 text-red-900"
-        } backdrop-blur-sm`}
+        className={`mb-6 p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm border backdrop-blur-sm ${
+          category === "emergency"
+            ? "bg-red-50/50 border-red-200 text-red-900"
+            : category === "broadcast"
+              ? "bg-blue-50/50 border-blue-200 text-blue-900"
+              : "bg-purple-50/50 border-purple-200 text-purple-900"
+        }`}
       >
         <div className="flex items-center gap-4">
           <div
             className={`p-2.5 rounded-xl shrink-0 ${
-              isTest ? "bg-blue-100 text-blue-600" : "bg-red-100 text-red-600"
+              category === "emergency"
+                ? "bg-red-100 text-red-600"
+                : category === "broadcast"
+                  ? "bg-blue-100 text-blue-600"
+                  : "bg-purple-100 text-purple-600"
             }`}
           >
-            {isTest ? (
-              <CheckCircle2 className="w-6 h-6" />
-            ) : (
+            {category === "emergency" ? (
               <AlertTriangle className="w-6 h-6" />
+            ) : category === "broadcast" ? (
+              <MessageCircle className="w-6 h-6" />
+            ) : (
+              <BarChart3 className="w-6 h-6" />
             )}
           </div>
           <div>
