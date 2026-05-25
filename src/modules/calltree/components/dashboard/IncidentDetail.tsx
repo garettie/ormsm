@@ -52,7 +52,7 @@ export default function IncidentDetail({
     <div className="animate-in fade-in duration-300">
       {/* Combined: Back + Event Info + Start New — single row */}
       <div
-        className="mb-6 p-4 rounded-lg flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-sm bg-white border border-gray-200"
+        className="mb-6 p-4 rounded-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-sm bg-white border border-gray-200"
       >
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <button
