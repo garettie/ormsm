@@ -52,13 +52,7 @@ export default function IncidentDetail({
     <div className="animate-in fade-in duration-300">
       {/* Combined: Back + Event Info + Start New — single row */}
       <div
-        className={`mb-6 p-4 rounded-lg flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-sm border-l-4 ${
-          category === "emergency"
-            ? "bg-red-50 border-red-500"
-            : category === "broadcast"
-              ? "bg-blue-50 border-blue-500"
-              : "bg-purple-50 border-purple-500"
-        }`}
+        className="mb-6 p-4 rounded-lg flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-sm bg-white border border-gray-200"
       >
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <button
@@ -90,15 +84,7 @@ export default function IncidentDetail({
               )}
             </div>
             <div>
-              <h2
-                className={`text-base font-bold leading-tight ${
-                  category === "emergency"
-                    ? "text-red-900"
-                    : category === "broadcast"
-                      ? "text-blue-900"
-                      : "text-purple-900"
-                }`}
-              >
+              <h2 className="text-base font-bold leading-tight text-gray-900">
                 {incident.name}
               </h2>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-600 mt-0.5">
