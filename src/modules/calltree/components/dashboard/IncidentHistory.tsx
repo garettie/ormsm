@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect, type ReactNode } from "react";
+import { Suspense, useState, useEffect, type ReactNode } from "react";
 import {
   Calendar,
   Clock,
@@ -16,13 +16,14 @@ import {
   formatDateShort,
   formatDuration,
   formatTimeShort,
+  lazyWithRetry,
 } from "../../../../lib/utils";
 import type { Incident, Contact, PollOption } from "../../types";
 import IncidentDetail from "./IncidentDetail";
 import RegisterIncidentForm from "./RegisterIncidentForm";
 import { DataUploadButton } from "./DataUploadButton";
 
-const DataUploadModal = lazy(() => import("./DataUpload").then(module => ({ default: module.DataUploadModal })));
+const DataUploadModal = lazyWithRetry(() => import("./DataUpload").then(module => ({ default: module.DataUploadModal })));
 
 export default function IncidentHistory({
   defaultIncident,

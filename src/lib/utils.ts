@@ -7,26 +7,18 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Enhanced lazy loader that catches ChunkLoadErrors (caused by new deployments)
- * and triggers a full page reload to fetch the latest assets.
+ * Enhanced lazy loader that catches chunk-load failures (e.g. from stale
+ * deployment assets) and triggers a full page reload to fetch the latest.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function lazyWithRetry<T extends ComponentType<any>>(
   factory: () => Promise<{ default: T }>,
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): ComponentType<any> {
   return lazy(() =>
-    factory().catch((error) => {
-      const isChunkLoadFailed =
-        error.name === "ChunkLoadError" ||
-        /loading.*chunk.*failed/i.test(error.message);
-
-      if (isChunkLoadFailed) {
-        window.location.reload();
-        // Return a promise that never resolves to prevent React from crashing
-        return new Promise<{ default: T }>(() => {});
-      }
-      throw error;
+    factory().catch(() => {
+      window.location.reload();
+      return new Promise<{ default: T }>(() => {});
     }),
   );
 }

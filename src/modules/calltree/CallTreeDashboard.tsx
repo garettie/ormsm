@@ -1,8 +1,8 @@
-import { lazy, useState, useEffect, useRef, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { DashboardContent } from "./components/dashboard/DashboardContent";
 import { useDashboardData } from "./hooks/useDashboardData";
 import { supabase } from "../../lib/supabase";
-import { localNowAsUTC } from "../../lib/utils";
+import { localNowAsUTC, lazyWithRetry } from "../../lib/utils";
 import { useIncident } from "./hooks/useIncident";
 import IncidentControls from "./components/dashboard/IncidentControls";
 import IncidentHistory from "./components/dashboard/IncidentHistory";
@@ -11,7 +11,7 @@ import { RefreshCw, Archive, Radio } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { DataUploadButton } from "./components/dashboard/DataUploadButton";
 
-const DataUploadModal = lazy(() => import("./components/dashboard/DataUpload").then(module => ({ default: module.DataUploadModal })));
+const DataUploadModal = lazyWithRetry(() => import("./components/dashboard/DataUpload").then(module => ({ default: module.DataUploadModal })));
 
 export default function CallTreeDashboard() {
   const [view, setView] = useState<"live" | "history">("live");
