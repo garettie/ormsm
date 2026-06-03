@@ -8,8 +8,6 @@ type Module = "calltree" | "rcsa";
 interface AppShellProps {
   activeModule: Module;
   onModuleChange: (module: Module) => void;
-  demoMode: boolean;
-  onDemoModeChange: (val: boolean) => void;
   children: ReactNode;
 }
 
@@ -25,8 +23,6 @@ const modules = isRcsaMode ? allModules.filter(m => m.key === "rcsa") : allModul
 const AppShell: FC<AppShellProps> = ({
   activeModule,
   onModuleChange,
-  demoMode,
-  onDemoModeChange,
   children,
 }) => {
   return (
@@ -75,22 +71,7 @@ const AppShell: FC<AppShellProps> = ({
                     {mod.subtitle}
                   </span>
                   
-                  {mod.key === 'rcsa' && (
-                    <div 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDemoModeChange(!demoMode);
-                      }}
-                      className={cn(
-                        "absolute -top-1.5 -right-1 px-1 py-0.5 rounded-full text-[7px] sm:text-[8px] font-bold uppercase tracking-wider shadow-sm transition-colors duration-300 ring-1 cursor-pointer",
-                        demoMode 
-                          ? "bg-amber-500 text-white ring-amber-600 shadow-amber-200/50" 
-                          : "bg-white text-gray-400 ring-gray-200 hover:bg-gray-50"
-                      )}
-                    >
-                      {demoMode ? 'Demo' : 'Live'}
-                    </div>
-                  )}
+
                 </button>
               ))}
             </div>

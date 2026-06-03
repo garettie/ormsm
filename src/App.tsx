@@ -20,7 +20,6 @@ const isRcsaMode = import.meta.env.VITE_APP_MODE === "rcsa";
 
 function App() {
   const [activeModule, setActiveModule] = useState<Module>(isRcsaMode ? "rcsa" : "calltree");
-  const [demoMode, setDemoMode] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -52,8 +51,6 @@ function App() {
       <AppShell
         activeModule={activeModule}
         onModuleChange={setActiveModule}
-        demoMode={demoMode}
-        onDemoModeChange={setDemoMode}
       >
         <Suspense fallback={null}>
           {!isRcsaMode && (
@@ -62,7 +59,7 @@ function App() {
             </div>
           )}
           <div style={{ display: activeModule === "rcsa" ? "block" : "none" }}>
-            <RCSADashboard demoMode={demoMode} />
+            <RCSADashboard />
           </div>
         </Suspense>
       </AppShell>

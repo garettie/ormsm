@@ -21,7 +21,7 @@ import SankeyEventType from "./components/charts/SankeyEventType";
 import RiskTreatmentChart from "./components/charts/RiskTreatmentChart";
 import DepartmentRiskChart from "./components/charts/DepartmentRiskChart";
 
-export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
+export default function RCSADashboard() {
   const [risks, setRisks] = useState<RiskRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,13 +54,6 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
     async function fetchData() {
       setLoading(true);
       setError(null);
-      if (demoMode) {
-        import("./utils/mockData").then(({ RISKS }) => {
-          setRisks(RISKS);
-          setLoading(false);
-        });
-        return;
-      }
       try {
         const { data: risksData, error: risksError } = await supabase.from("risks").select("*");
         if (risksError) throw risksError;
@@ -72,7 +65,7 @@ export default function RCSADashboard({ demoMode }: { demoMode?: boolean }) {
       }
     }
     fetchData();
-  }, [demoMode]);
+  }, []);
 
   const data = useDashboardData({
     risks,
