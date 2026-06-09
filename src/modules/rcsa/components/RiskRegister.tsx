@@ -220,9 +220,9 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
 
     // Sort
     const { key, direction } = sortConfig
-    result = [...result].sort((a: RiskRecord, b: RiskRecord) => {
+    const sortBy = (a: RiskRecord, b: RiskRecord, k: string, dir: 'asc' | 'desc') => {
       let aVal, bVal
-      switch (key) {
+      switch (k) {
         case 'department': aVal = a.department; bVal = b.department; break
         case 'process': aVal = a.process_name; bVal = b.process_name; break
         case 'description': aVal = a.risk_description; bVal = b.risk_description; break
@@ -241,8 +241,13 @@ export default function RiskRegister({ risks, title = "Risk Register", onOpenMod
       }
       if (aVal == null) return 1
       if (bVal == null) return -1
-      const cmp = String(aVal).localeCompare(String(bVal))
-      return direction === 'asc' ? cmp : -cmp
+      const c = String(aVal).localeCompare(String(bVal))
+      return dir === 'asc' ? c : -c
+    }
+    result = [...result].sort((a: RiskRecord, b: RiskRecord) => {
+      const cmp = sortBy(a, b, key, direction)
+      if (cmp !== 0 || key === 'process') return cmp
+      return sortBy(a, b, 'process', 'asc')
     })
 
     return result
