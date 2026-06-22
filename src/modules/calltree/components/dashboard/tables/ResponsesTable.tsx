@@ -22,6 +22,13 @@ type SortDirection = "asc" | "desc";
 type SortKey = keyof ProcessedContact;
 type SortConfig = { key: SortKey | null; direction: SortDirection };
 
+const STATUS_RANK: Record<string, number> = {
+  Safe: 0,
+  Slight: 1,
+  Moderate: 2,
+  Severe: 3,
+};
+
 interface ResponsesTableProps {
   data: ProcessedContact[];
   statusColors?: Record<string, { bg: string; text: string; border: string }>;
@@ -175,6 +182,11 @@ export const ResponsesTable: FC<ResponsesTableProps> = ({ data, statusColors }) 
           (new Date(a.responseTime || 0).getTime() -
             new Date(b.responseTime || 0).getTime())
         );
+      }
+      if (key === "status") {
+        const ra = STATUS_RANK[a.status] ?? Infinity;
+        const rb = STATUS_RANK[b.status] ?? Infinity;
+        if (ra !== rb) return dir * (ra - rb);
       }
       const va = (a[key] ?? "").toString().toLowerCase();
       const vb = (b[key] ?? "").toString().toLowerCase();
