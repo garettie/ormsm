@@ -211,6 +211,40 @@ export function useDashboardData({
     [filtered],
   );
 
+  const processBarData = useMemo(
+    () => {
+      const map = new Map<string, { dept: string; Minor: number; Moderate: number; Major: number; Critical: number; total: number }>();
+      for (const r of filtered) {
+        const level = getRiskLevel(r.residual_risk_score);
+        const existing = map.get(r.process_name);
+        if (existing) {
+          existing[level]++;
+          existing.total++;
+        } else {
+          map.set(r.process_name, {
+            dept: r.department,
+            Minor: level === "Minor" ? 1 : 0,
+            Moderate: level === "Moderate" ? 1 : 0,
+            Major: level === "Major" ? 1 : 0,
+            Critical: level === "Critical" ? 1 : 0,
+            total: 1,
+          });
+        }
+      }
+      return [...map.entries()]
+        .map(([name, d]) => ({
+          name: `${name}||${d.dept}`,
+          Minor: d.Minor,
+          Moderate: d.Moderate,
+          Major: d.Major,
+          Critical: d.Critical,
+          total: d.total,
+        }))
+        .sort((a, b) => b.total - a.total);
+    },
+    [filtered],
+  );
+
   const drillRisks = drillDept
     ? filtered.filter((r) => r.department === drillDept)
     : [];
@@ -233,6 +267,7 @@ export function useDashboardData({
     controlTypeData,
     eventTypeData,
     deptBarData,
+    processBarData,
     drillRisks,
   };
 }

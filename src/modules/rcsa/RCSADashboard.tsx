@@ -20,6 +20,7 @@ import EventTypeChart from "./components/charts/EventTypeChart";
 import SankeyEventType from "./components/charts/SankeyEventType";
 import RiskTreatmentChart from "./components/charts/RiskTreatmentChart";
 import DepartmentRiskChart from "./components/charts/DepartmentRiskChart";
+import ProcessRiskChart from "./components/charts/ProcessRiskChart";
 
 export default function RCSADashboard() {
   const [risks, setRisks] = useState<RiskRecord[]>([]);
@@ -193,9 +194,9 @@ export default function RCSADashboard() {
         setKpiModal={setKpiModal}
       />
 
-      {/* Charts: 2-column layout — left: 2×2 small charts, right: stacked tall charts */}
+      {/* Charts: 2-column parent layout to keep left/right heights independent */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 items-start">
-        {/* Left: 2×2 grid of small charts (stacks on mobile) */}
+        {/* Left Side: 2-column grid for donuts, heatmap, treatment, and process */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
           <SectionCard title="Control Types">
             <ControlTypeChart
@@ -226,9 +227,15 @@ export default function RCSADashboard() {
               onClick={(d) => handlePieClick(d, "treatmentFilter")}
             />
           </SectionCard>
+
+          <div className="sm:col-span-2">
+            <SectionCard title="Residual Risk by Process">
+              <ProcessRiskChart data={data.processBarData} />
+            </SectionCard>
+          </div>
         </div>
 
-        {/* Right: Stacked tall charts */}
+        {/* Right Side: Flex column for Event Type (Sankey) and Department */}
         <div className="flex flex-col gap-6">
           <SectionCard
             title="Event Type"
@@ -253,7 +260,7 @@ export default function RCSADashboard() {
               </div>
             }
             style={{
-              minHeight: sankeyView ? 420 : undefined,
+              minHeight: sankeyView ? 340 : undefined,
               transition: "min-height 0.2s ease",
             }}
           >
@@ -263,14 +270,14 @@ export default function RCSADashboard() {
                 onClick={handleEventTypeClick}
               />
             </div>
-{sankeyMounted.current && (
-                <div style={{ display: sankeyView ? "block" : "none" }}>
-                  <SankeyEventType
-                    risks={data.filtered}
-                    onNodeClick={handleSankeyNodeClick}
-                  />
-                </div>
-              )}
+            {sankeyMounted.current && (
+              <div style={{ display: sankeyView ? "block" : "none" }}>
+                <SankeyEventType
+                  risks={data.filtered}
+                  onNodeClick={handleSankeyNodeClick}
+                />
+              </div>
+            )}
           </SectionCard>
 
           <SectionCard title="Residual Risk by Department">

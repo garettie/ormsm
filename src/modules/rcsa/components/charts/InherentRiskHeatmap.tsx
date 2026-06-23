@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from 'react'
 import { RISK_LEVELS, RISK_COLORS } from '../../utils/riskLevels'
-import LegendRow from '../LegendRow'
 import type { RiskRecord, RiskLevel } from '../../types'
 
 interface InherentRiskHeatmapProps {
@@ -230,21 +229,15 @@ export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFi
                         );
                     })()}
             </div>
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginTop: 8,
-                }}
-            >
-                <LegendRow
-                    items={RISK_LEVELS.map((l) => ({
-                        label: l,
-                        color: RISK_COLORS[l],
-                    }))}
-                />
-                {heatmapFilter && (
+            {heatmapFilter && (
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-end",
+                        marginTop: 8,
+                    }}
+                >
                     <button
                         onClick={() => setHeatmapFilter(null)}
                         style={{
@@ -261,8 +254,8 @@ export default function InherentRiskHeatmap({ risks, heatmapFilter, setHeatmapFi
                     >
                         Clear filter
                     </button>
-                )}
-            </div>
+                </div>
+            )}
         </>
     )
 }
