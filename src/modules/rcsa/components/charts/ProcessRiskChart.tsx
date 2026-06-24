@@ -21,9 +21,9 @@ interface TickProps {
 
 function ProcessTick({ x = 0, y = 0, payload }: TickProps) {
   const raw = payload?.value ?? "";
-  const sepIdx = raw.lastIndexOf("||");
+  const sepIdx = raw.lastIndexOf("|");
   const pName = sepIdx >= 0 ? raw.slice(0, sepIdx) : raw;
-  const dept = sepIdx >= 0 ? raw.slice(sepIdx + 2) : "";
+  const dept = sepIdx >= 0 ? raw.slice(sepIdx + 1) : "";
 
   const xPos = x - 4;
   const shortDeptName = dept ? shortDept(dept) : "";
@@ -89,7 +89,7 @@ export default function ProcessRiskChart({ data }: ProcessRiskChartProps) {
   const chartData = useMemo(() => {
     return data.map(item => ({
       ...item,
-      displayName: isMobile ? (item.name as string).split("||")[0] : item.name,
+      displayName: isMobile ? (item.name as string).split("|")[0] : item.name,
     }));
   }, [data, isMobile]);
 

@@ -233,7 +233,7 @@ export function useDashboardData({
       }
       return [...map.entries()]
         .map(([name, d]) => ({
-          name: `${name}||${d.dept}`,
+          name: `${name}|${d.dept}`,
           Minor: d.Minor,
           Moderate: d.Moderate,
           Major: d.Major,
